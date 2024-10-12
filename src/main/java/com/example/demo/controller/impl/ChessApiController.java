@@ -70,7 +70,7 @@ public class ChessApiController extends ControllerTemplate {
 
 	@Override
 	@PostConstruct
-	public void init() throws Exception {
+	public void setup() throws Exception {
 		put("engineMatch", false);
 		put("regular", true);
 		put("stockfishEvaluation", 0.5d);

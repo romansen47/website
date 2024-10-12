@@ -18,8 +18,7 @@
 		        const message = event.data.substring(7); 
 		        showInfoPopup(message);
 		    } else if(event.data.startsWith('CLOCKS')) {
-		    	updateClocks(); 
-		        setInterval(updateClocks, 1000);
+		    	updateClocks();  
 		    } else if(event.data.startsWith('TRIGGERSTOCKFISHMOVE')) {
 		    	getStockfishMove(); 
 		    }
@@ -688,6 +687,8 @@
                 })
                 .catch(error => console.error('Error fetching times:', error));
         }
+     	
+        setInterval(updateClocks, 500);
 
         function setClockPositions() {
             const whiteClock = document.querySelector('.whiteClock');

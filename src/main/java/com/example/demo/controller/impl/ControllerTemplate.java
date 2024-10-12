@@ -55,7 +55,7 @@ public abstract class ControllerTemplate implements ChessController {
 	@Autowired
 	protected Attributes attributes;
 
-	public abstract void init() throws Exception;
+	public abstract void setup() throws Exception;
 
 	protected void loadGame(String path) throws Exception {
 		GameLoader loader = new GameLoader();

@@ -8,6 +8,6 @@ public interface ViewControllerHelper {
 
 	void createNewFields();
 
-	void setUnsetVariables();
+	void setUnsetViewVariables();
 
 }

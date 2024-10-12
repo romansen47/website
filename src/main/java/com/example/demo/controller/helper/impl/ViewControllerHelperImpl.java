@@ -141,7 +141,7 @@ public class ViewControllerHelperImpl implements ViewControllerHelper {
 	}
 
 	@Override
-	public void setUnsetVariables() {
+	public void setUnsetViewVariables() {
 
 		int leftOffset = viewConfig.getLeftOffset();
 		int squareSize = viewConfig.getSquareSize();

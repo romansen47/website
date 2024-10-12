@@ -44,6 +44,11 @@ public class MainViewController extends ControllerTemplate {
 	@Autowired
 	private ViewControllerHelper helper;
 
+	@PostConstruct
+	public void init() throws Exception {
+		setup();
+	}
+	
 	/**
 	 * Initializes the chess game and sets up the displayable elements for the
 	 * initial board configuration. This method is called after the bean has been
@@ -52,8 +57,7 @@ public class MainViewController extends ControllerTemplate {
 	 * @throws Exception
 	 */
 	@Override
-	@PostConstruct
-	public void init() throws Exception {
+	public void setup() throws Exception {
 
 		boolean startUp = false;
 		Game tmpChessGame = getChessGame();
@@ -92,14 +96,14 @@ public class MainViewController extends ControllerTemplate {
 						webSocketService.sendMessage("Black lost on time!");
 				});
 
-		helper.setUnsetVariables();
+		helper.setUnsetViewVariables();
 
 		((List<DisplayedPiece>) get("elements")).clear();
 		((List<DisplayedField>) get("fields")).clear();
 
 		helper.createNewFields();
 		if (startUp) {
-			loadMoveList();
+			createNewPiecesFromExistingPieces();
 		}
 
 	}
@@ -114,7 +118,8 @@ public class MainViewController extends ControllerTemplate {
 	 * @throws Exception If any error occurs during processing.
 	 */
 	@GetMapping("/")
-	protected String mainView(Model model, HttpServletResponse response, boolean updated) throws Exception {
+	protected String mainView(Model model, HttpServletResponse response, boolean update, boolean resigned) throws Exception {
+		
 		// Initialize the time allocated for each player
 		int timeForEachPlayer = viewConfig.getTimeForEachPlayer();
 		int timeForWhite = timeForEachPlayer;
@@ -143,16 +148,17 @@ public class MainViewController extends ControllerTemplate {
 		// Add attributes to the model (this must be done last)
 		helper.addAttributes(color, whiteTimeString, blackTimeString, model);
  
-		if (updated) { // !list.isEmpty()) {
+		if (update || resigned) { // !list.isEmpty()) {
 			((List<DisplayedField>) get("fields")).clear();
 			helper.createNewFields();
-			loadMoveList();
+			createNewPiecesFromExistingPieces();
+			webSocketService.updateClocks();
 		}
 
 		return "mainView";
 	}
 
-	protected void loadMoveList() {
+	protected void createNewPiecesFromExistingPieces() {
 		((List<DisplayedPiece>) get("elements")).clear();
 		List<DisplayedPiece> newElements = new ArrayList<>();
 		if ((boolean) get("regular")) {
@@ -191,7 +197,7 @@ public class MainViewController extends ControllerTemplate {
 
 	protected void reloadGame() throws Exception {
 		saveGame("local.txt");
-		init();
+		setup();
 		loadGame("local.txt");
 	}
 
@@ -210,9 +216,9 @@ public class MainViewController extends ControllerTemplate {
 	protected String reset() throws Exception {
 		put("engineMatch", false);
 		put("chessGame", admin.chessGame(viewConfig.getTimeForEachPlayer()));
-		init();
-		this.helper.setUnsetVariables();
-		loadMoveList();
+		setup();
+		this.helper.setUnsetViewVariables();
+		createNewPiecesFromExistingPieces();
 		return "redirect:/?reset=true";
 	}
 	
@@ -224,7 +230,7 @@ public class MainViewController extends ControllerTemplate {
 	 */ 
 	@PostMapping("/reset-board")
 	@ResponseBody
-	protected boolean startNewGame(@RequestBody Map<String, Object> params) throws Exception {
+	protected String startNewGame(@RequestBody Map<String, Object> params) throws Exception {
 
 		put("engineMatch", false);
 		int timeForEachPlayer = Integer.parseInt((String) params.get("timeForEachPlayer"));
@@ -244,17 +250,17 @@ public class MainViewController extends ControllerTemplate {
 		chessGame.getBlackPlayer().getChessClock().setIncrementMillis(incrementForBlack * 1000l);
 		viewConfig.setTimeForEachPlayer(timeForEachPlayer);
 		put("chessGame", chessGame);
-		init();
-		this.helper.setUnsetVariables();
+		setup();
+		this.helper.setUnsetViewVariables();
 
-		loadMoveList();
+		createNewPiecesFromExistingPieces();
 		
 		webSocketService.sendReloadSignal();
 	    if (isFlipped) {
 	    	Thread.sleep(200l);
 			webSocketService.triggerStockfishMove();
 	    }
-		return true;
+		return "redirect:/?reset=true";
 	}
 	
 	@PostMapping("/startEngineMatch")
@@ -265,9 +271,9 @@ public class MainViewController extends ControllerTemplate {
 		chessGame.getWhitePlayer().getChessClock().setIncrementMillis(viewConfig.getIncrementForWhite() * 1000l);
 		chessGame.getBlackPlayer().getChessClock().setIncrementMillis(viewConfig.getIncrementForBlack() * 1000l);
 		put("chessGame", chessGame);
-		init();
-		this.helper.setUnsetVariables();
-		loadMoveList();
+		setup();
+		this.helper.setUnsetViewVariables();
+		createNewPiecesFromExistingPieces();
 		webSocketService.sendReloadSignal();
 		Thread.sleep(200l);
 		webSocketService.triggerStockfishMove();
@@ -277,9 +283,15 @@ public class MainViewController extends ControllerTemplate {
 	protected String resign() {
 		put("engineMatch", false);
 		Game chessGame = this.getChessGame();
-		chessGame.setState(State.WHITE_RESIGNED);
+		chessGame.getWhitePlayer().getChessClock().stop();
+		chessGame.getBlackPlayer().getChessClock().stop();
+		if (chessGame.getPlayer().getColor().equals(Color.WHITE)) {
+			chessGame.setState(State.WHITE_RESIGNED); 
+		} else {
+			chessGame.setState(State.BLACK_RESIGNED);
+		}
 		this.webSocketService.sendMessage("White resigned!");
-		return "redirect:/?update=true";
+		return "redirect:/?resigned=true";
 	}
 
 	/**
@@ -349,7 +361,7 @@ public class MainViewController extends ControllerTemplate {
 
 		viewConfig.setStockfishActive(stockfishActive);
 
-		return "redirect:/?updated=true";
+		return "redirect:/?update=true";
 	}
 	 
 	
@@ -420,7 +432,7 @@ public class MainViewController extends ControllerTemplate {
 		
 		viewConfig.setStockfishDepthForBlack(stockfishDepthForBlack);
 		playerEngineForBlack.setDepth(stockfishDepthForBlack);
-		return "redirect:/?updated=true";
+		return "redirect:/?update=true";
 	}
 	
 	/**
@@ -449,9 +461,6 @@ public class MainViewController extends ControllerTemplate {
 		viewConfig.setSquareSize(squareSize);
 		viewConfig.setSilent(silent);
 		
-//		put("regular", !isFlipped); 
-//		viewConfig.setIsFlipped(isFlipped);
-		
 		viewConfig.setCapturedContainer(capturedContainer);
 		
 		
@@ -460,7 +469,7 @@ public class MainViewController extends ControllerTemplate {
 
 		viewConfig.setAnimationDuration(animationDuration);
 		
-		return "redirect:/?updated=true";
+		return "redirect:/?update=true";
 	}
 
 }
