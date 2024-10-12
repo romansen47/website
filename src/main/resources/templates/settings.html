@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="settings">
+    <title>Settings</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 100%; /* Macht das Formular breiter */
+            max-width: 1200px; /* Maximale Breite, um die Gesamtgröße zu kontrollieren */
+        }
+        .columns-container {
+            display: flex; /* Flexbox-Container für die Spalten */
+            justify-content: space-between; /* Verteile Spalten gleichmäßig */
+            gap: 10px; /* Abstand zwischen den Spalten */
+            margin-bottom: 20px; /* Abstand nach unten für den Button */
+        }
+        .column {
+            flex: 1; /* Jede Spalte nimmt den gleichen Platz ein */
+            display: flex;
+            flex-direction: column;
+            gap: 15px; /* Abstand zwischen den Elementen innerhalb der Spalte */
+            min-width: 350px; /* Mindestbreite, um Zeilenumbrüche zu vermeiden */
+        }
+        .form-group {
+            position: relative; /* Setze relative Positionierung, damit absolute Kinder (Tooltips) korrekt platziert werden */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .form-group label {
+            margin-right: 10px;
+            color: #555;
+            flex: 1;
+            text-align: left;
+        }
+        .form-group input[type="checkbox"],
+        .form-group select,
+        .form-group input[type="number"] {
+            flex: 1;
+        }
+        select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            text-align: center;
+        }
+        select option {
+            text-align: center;
+        }
+        button {
+            width: 200px; /* Feste Breite für den Button */
+            padding: 10px;
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            border-radius: 0px;
+            cursor: pointer;
+            display: block;
+            margin: 0 auto; /* Zentriert den Button */
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        /* Grundlegender Tooltip-Stil */
+        .tooltip {
+            visibility: hidden;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            padding: 5px;
+            position: absolute;
+            z-index: 10;
+            top: -30px; /* Positioniere oberhalb des Elements */
+            left: 50%;
+            transform: translateX(-50%); /* Zentriere horizontal */
+            opacity: 0;
+            transition: opacity 0.3s;
+            white-space: nowrap; /* Verhindert Zeilenumbruch */
+        }
+
+        /* Zeigt den Tooltip beim Hovern an */
+        .form-group:hover .tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+    </style>
+</head>
+<body>
+    <div>
+        <h1>Settings</h1>
+        <form action="/updateSettings" method="post">
+            <!-- Flex-Container für die Spalten -->
+            <div class="columns-container">
+                <div class="column">
+                    <div class="form-group">
+                        <label for="showEvaluation">Show Evaluation</label>
+                        <span class="tooltip">If checked, eval bars will be shown</span>
+                        <input type="checkbox" name="showEvaluation" th:checked="${viewConfig.showEvaluation}"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="showStockfishLines">Show Stockfish Lines</label>
+                        <span class="tooltip">If checked, stockfish's analyzed lines will be shown</span>
+                        <input type="checkbox" name="showStockfishLines" th:checked="${viewConfig.showStockfishLines}"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="showArrows">Show Arrows</label>
+                        <span class="tooltip">If checked, arrow will show the best move recommended by stockfish</span>
+                        <input type="checkbox" name="showArrows" th:checked="${viewConfig.showArrows}"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="stockfishDepthForEvaluationEngine">Minimal depth for evaluation:</label>
+                        <span class="tooltip">Minimal depth for lines of the stockfish analysis. Only takes effect in case stockfish lines are shown</span>
+                        <input type="number" name="stockfishDepthForEvaluationEngine" th:value="${viewConfig.stockfishDepthForEvaluationEngine}" min="1" max="30"/>
+                    </div> 
+					<div class="form-group">
+					    <label for="multiPVForEvaluationEngine">MultiPV</label>
+					    <input type="number" name="multiPVForEvaluationEngine" th:value="${viewConfig.multiPVForEvaluationEngine}" min="0" max="15"/>
+					    <span class="tooltip">Show multiple lines</span>
+					</div>
+                    <div class="form-group">
+                        <label for="updateIntervall">Update Intervall:</label>
+                        <span class="tooltip">Update frequency for eval bars, stockfish's movelist and the arrows for move suggestions.</span>
+                        <input type="number" name="updateIntervall" th:value="${viewConfig.updateIntervall}" min="1" max="5"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="stockfishActive">Play against Stockfish</label>
+                        <span class="tooltip">If checked, stockfish will play as black</span>
+                        <input type="checkbox" name="stockfishActive" th:checked="${viewConfig.stockfishActive}"/>
+                    </div>
+                </div>
+            </div>
+            <!-- Speichern Button außerhalb des Flex-Containers, zentriert -->
+            <button type="submit">Save Settings</button>
+        </form>
+    </div>
+</body>
+</html>

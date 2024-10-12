@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{header :: header}"></head>
+<body>
+	<script th:replace="~{scripts :: scripts}"></script>
+    <div th:replace="~{top-bar :: top-bar}"></div>
+    <div th:replace="~{chessboard :: chessboard}"></div>
+    <div th:replace="~{clocks :: clocks}"></div>
+    <div th:replace="~{popups :: popups}"></div>
+	<div class="move-list" id="moveList"></div>	
+	<div id="stockfishMoveList" class="stockfish-move-list" th:if="${showStockfishLines}">
+		<div class="stockfish-header">Stockfish lines:</div>
+	</div>
+</body>
+</html>

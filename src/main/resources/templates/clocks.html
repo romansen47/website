@@ -1,0 +1,13 @@
+<div th:fragment="clocks">
+    <div class='clocks-container'>
+        <!-- Container für die Schachuhren -->
+        <div class='chess-clocks'>
+            <div class='whiteClock white-clock' th:style="'height:' + ${clockHeight} + 'px'">
+                <span id='whiteClock' th:style="'font-size:' + ${clockFontSize} + 'px'" th:text="${whiteTime}">00:00</span>
+            </div>
+            <div class='blackClock black-clock' th:style="'height:' + ${clockHeight} + 'px'">
+                <span id='blackClock' th:style="'font-size:' + ${clockFontSize} + 'px'" th:text="${blackTime}">00:00</span>
+            </div>
+        </div>
+    </div>
+</div>

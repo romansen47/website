@@ -1,0 +1,34 @@
+<div th:fragment="top-bar">
+    <div class='top-bar'>
+        <div class='dropdown'>
+            <button class='dropbtn'>Game</button>
+            <div class='dropdown-content'>
+				<button id="newGame">Start new Game</button>
+				<button id="engineClash" th:if="${stockfishActive}">Let engines play position</button>
+				<a href='/resign'>Resign!</a> 
+            </div>
+        </div> 
+		<div class='dropdown'>
+		    <button class='dropbtn'>Settings</button>
+		    <div class='dropdown-content'>
+				<a href='/settings'>General settings</a>
+				<a href='/presentation-settings'>Presentation settings</a>
+				<a href='/stockfish-settings'>Stockfish settings</a>
+		    </div>
+		</div>
+		<div class='dropdown'>
+		    <button class='dropbtn'>File</button>
+		    <div class='dropdown-content'>
+		        <button id="saveGameButton">Download game</button>
+		        <button id="loadGameButton">Upload game</button>
+		    </div>
+		</div>
+		<div class='dropdown'>
+		    <button class='dropbtn'>Clipboard</button>
+		    <div class='dropdown-content'>
+		        <button id="saveGameButtonServer">Save game to clipboard</button>
+		        <button id="loadGameButtonServer">Load game from clipboard</button>
+		    </div>
+		</div>
+    </div>
+</div>

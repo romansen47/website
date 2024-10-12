@@ -1,0 +1,949 @@
+<script th:fragment="scripts">
+    document.addEventListener('DOMContentLoaded', function () {
+		
+		var socket = new WebSocket('ws://' + window.location.host + '/ws');
+		socket.onopen = function () {
+		    console.log('WebSocket connection established');
+		};
+		socket.onerror = function (error) {
+		    console.error('WebSocket error:', error);
+		};
+		
+		socket.onmessage = function (event) {
+		    console.log('Received WebSocket message:', event.data);
+		    if (event.data === 'RELOAD') {
+		        window.location.reload();
+		    } else if (event.data.startsWith('MESSAGE')) {
+		        // Extrahiere die Nachricht ohne trim
+		        const message = event.data.substring(7); 
+		        showInfoPopup(message);
+		    } else if(event.data.startsWith('CLOCKS')) {
+		    	updateClocks(); 
+		        setInterval(updateClocks, 1000);
+		    } else if(event.data.startsWith('TRIGGERSTOCKFISHMOVE')) {
+		    	getStockfishMove(); 
+		    }
+		};
+		
+		socket.onclose = function () {
+		    console.log('WebSocket connection closed');
+		};
+			
+		document.getElementById('saveGameButtonServer').addEventListener('click', function () {
+            fetch('/api/game/save-game', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => console.log(data))
+            .catch(error => console.error('Error:', error));
+        });
+    	
+    	document.getElementById('loadGameButtonServer').addEventListener('click', function () {
+            fetch('/api/game/load-game', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => console.log(data))
+            .catch(error => console.error('Error:', error));
+        });
+		
+		document.getElementById('saveGameButton').addEventListener('click', function () {
+	        // Fetch the game data from the server
+	        fetch('/api/game/download-game', {
+	            method: 'GET'
+	        })
+	        .then(response => response.blob())
+	        .then(blob => {
+	            // Create a temporary anchor element to trigger the download
+	            const url = window.URL.createObjectURL(blob);
+	            const a = document.createElement('a');
+	            a.style.display = 'none';
+	            a.href = url;
+	            a.download = 'chessgame.txt'; // Default name for the saved game file
+
+	            document.body.appendChild(a);
+	            a.click();
+	            window.URL.revokeObjectURL(url);
+	        })
+	        .catch(error => console.error('Error:', error));
+	    });
+
+	    document.getElementById('loadGameButton').addEventListener('click', function () {
+	        const input = document.createElement('input');
+	        input.type = 'file';
+	        input.accept = '.txt';
+	        input.onchange = function (event) {
+	            const file = event.target.files[0];
+	            if (file) {
+	                const formData = new FormData();
+	                formData.append('file', file);
+
+	                // Send the file to the server
+	                fetch('/api/game/upload-game', {
+	                    method: 'POST',
+	                    body: formData
+	                })
+	                .then(response => response.json())
+	                .then(data => {
+	                    console.log('Game loaded successfully:', data);
+	                    window.location.reload(); // Optionally reload the page after loading the game
+	                })
+	                .catch(error => console.error('Error loading game:', error));
+	            }
+	        };
+	        input.click(); // Trigger the file input
+	    });
+		
+	    if ([[${stockfishActive}]]){
+	    	document.getElementById('engineClash').addEventListener('click', function () {
+	            fetch('/startEngineMatch', {
+	                method: 'POST',
+	                headers: {
+	                    'Content-Type': 'application/json'
+	                }
+	            })
+	            .then(response => response.json())
+	            .then(data => console.log(data))
+	            .catch(error => console.error('Error:', error));
+	        });
+    	}
+	    
+	 	// Referenz zum Popup und OK-Button
+	    const newGamePopup = document.getElementById('newGamePopup');
+	    const okBtn = document.getElementById('newGameOkButton');
+
+	 	// Funktion zum Öffnen des New Game Popups
+	    function openNewGamePopup() {
+	        document.getElementById('newGamePopup').style.display = 'flex'; // Popup anzeigen
+	    }
+
+	    // Funktion zum Schließen des New Game Popups
+	    function closeNewGamePopup() {
+	        document.getElementById('newGamePopup').style.display = 'none'; // Popup ausblenden
+	    }
+
+	 // OK-Button-Klick: Senden der Werte an das Backend und Schließen des Popups
+	    document.getElementById('newGameOkButton').addEventListener('click', function() {
+	        const timeForEachPlayer = document.getElementById('timeForEachPlayer').value;
+	        const incrementForWhite = document.getElementById('incrementForWhite').value;
+	        const incrementForBlack = document.getElementById('incrementForBlack').value;
+	        const startingColor = document.getElementById('startingColor').value;
+
+	        // Senden der Werte per Fetch an das Backend
+	        fetch('/reset-board', {
+	            method: 'POST',
+	            headers: {
+	                'Content-Type': 'application/json'
+	            },
+	            body: JSON.stringify({
+	                timeForEachPlayer: timeForEachPlayer,
+	                incrementForWhite: incrementForWhite,
+	                incrementForBlack: incrementForBlack,
+	                startingColor: startingColor
+	            })
+	        })
+	        .then(response => response.json())
+	        .then(data => {
+	            console.log('Erfolgreich gestartet:', data);
+	            // Popup nach erfolgreicher Übertragung schließen
+	            closeNewGamePopup();
+	        })
+	        .catch(error => console.error('Fehler:', error));
+	    });
+
+	    // Funktion, um das Popup auch zu schließen, wenn außerhalb des Popups geklickt wird
+	    window.addEventListener('click', function(event) {
+	        const popup = document.getElementById('newGamePopup');
+	        if (event.target === popup) {
+	            closeNewGamePopup(); // Schließt das Popup, wenn der Nutzer außerhalb davon klickt
+	        }
+	    });
+
+	    // Event-Listener für den Button "Start new Game"
+	    document.getElementById('newGame').addEventListener('click', function () {
+	        openNewGamePopup(); // Popup wird geöffnet, wenn auf "Start new Game" geklickt wird
+	    });
+	    
+        function getFieldFromPiece(element) {
+            const fieldId = element.getAttribute('data-piece-field');
+            var field = document.getElementById(fieldId);
+            console.log("Piece element: " + element + ", found on field: " + field);
+            return field;
+        }
+        
+        function highlightField(field) {
+            if (field.classList.contains('white')) {
+                field.classList.add('highlight-white');
+            } else if (field.classList.contains('black')) {
+                field.classList.add('highlight-black');
+            }
+        }
+
+        function unhighlightField(field) {
+        	clearMoveCircles();
+            field.classList.remove('highlight-white');
+            field.classList.remove('highlight-black');
+        }
+
+        function markPossibleMoves(fields) {
+            clearMoveCircles();
+            fields.forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                const circle = document.createElement('div');
+                circle.classList.add('move-circle');
+                field.appendChild(circle);
+                const fieldRect = field.getBoundingClientRect();
+                circle.style.left = (fieldRect.width / 2) + 'px';
+                circle.style.top = (fieldRect.height / 2) + 'px';
+                circle.style.height = 15 + 'px';
+                circle.style.width = 15 + 'px';
+            });
+        }
+
+        function clearMoveCircles() {
+            document.querySelectorAll('.move-circle').forEach(circle => {
+                circle.remove();
+            });
+        }
+
+		function moveElement(data, field) {
+		    console.log("trying to move from field " + data + " to field " + field.getAttribute('data-field'));
+		    const element = document.querySelector(`img[data-piece-field="${data}"]`);
+
+		    if (element) {
+		        const targetFieldId = field.getAttribute('id');
+		        const targetField = document.getElementById(targetFieldId);
+		        if (targetField) {
+					
+					unhighlightField(document.querySelector(`div[data-field="${data}"]`));
+		            const topBarHeight = parseInt('[[${topBarHeight}]]');
+		            const leftOffset = parseInt('[[${piecesOffset}]]');
+		            const newTop = parseInt(targetField.style.top) + topBarHeight;
+		            const newLeft = parseInt(targetField.style.left) + leftOffset;
+		            element.style.top = `${newTop}px`;
+		            element.style.left = `${newLeft}px`;
+		            element.setAttribute('data-piece-field', targetFieldId);
+		            element.style.transition = 'top [[${animationDuration}]]ms, left [[${animationDuration}]]ms';
+
+		            // Bewegungssound abspielen
+		            if(![[${silent}]]){
+			            const moveSound = document.getElementById('moveSound');
+			            setTimeout(function() {
+			            	moveSound.play();
+			            }, [[${animationDuration}]]);
+		            }
+		        }
+		    }
+		}
+
+		function getStockfishMove(){
+					// Neuen Code hinzufügen: Stockfish-Zug nach dem menschlichen Zug
+			fetch('/api/game/checkStockfishPlayer', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				}
+			})
+			.then(response => response.json())
+			.then(data => {
+				if (data.data.stockfishActive) {
+					processStockfishMove(data.data);
+				}
+				if (data.data.engineClash){
+					getStockfishMove();
+				}
+			})
+			.catch(error => console.error('Error processing Stockfish move:', error));
+		}
+				
+		function processStockfishMove(data) {
+
+		    console.log("data:" + JSON.stringify(data));
+
+		    const stockfishMove = data.move;
+		    
+		    const fromField = stockfishMove.substring(0, 2); // Beispiel: "e2"
+		    const toField = stockfishMove.substring(2, 4);   // Beispiel: "e4"
+
+		    console.log(stockfishMove);
+		    console.log(fromField);
+		    console.log(toField);
+		        
+		    // Prüfe den Typ des Zugs
+		    if (data.type) {
+		        if (data.type === "castling") {
+					const rookSource = data.rooksource;
+					const rookTarget = data.rooktarget;
+					movePieceByFieldNames(fromField, toField);
+					movePieceByFieldNames(rookSource, rookTarget);
+		        } else if (data.type === "enpassant") {
+		            // EnPassant-Logik hier
+					movePieceByFieldNames(fromField, toField);
+		            moveCapturedPiece(data.slayed);
+		        } else if (data.type === "promotion") {
+		            // Promotion-Logik hier
+					movePieceByFieldNames(fromField, toField);
+					setNewImage(data.pieceType, data.color, toField);
+		            moveCapturedPiece(data.slayed)
+		        }
+		    } else {
+		        if (data.slayed) {
+		            moveCapturedPiece(data.slayed);
+		        }
+		        // Verwende die bestehende moveElement-Methode, um Stockfish-Zug auszuführen
+		        movePieceByFieldNames(fromField, toField);
+		    }
+		}
+		
+		function moveCapturedPiece(capturedPieceField) {
+			const capturedPiece = document.querySelector(`img[data-piece-field="${capturedPieceField}"]`);
+		    console.log("searching for data-piece-field=" + capturedPieceField + " and found: " + capturedPiece);
+		    if (capturedPiece) {
+				const delay = [[${animationDuration}]] / 2;
+				setTimeout(function() {
+					if(![[${silent}]]){
+						document.getElementById('captureSound').play();
+					}
+					const capturedContainer = document.getElementById('captured-pieces');
+			        if (capturedContainer) {  // Ensure the container exists
+			            
+			            // Calculate the next position inside the container
+			            const capturedIndex = capturedContainer.children.length;
+			            const containerWidth = capturedContainer.clientWidth;
+			            const pieceWidth = parseInt(getComputedStyle(capturedPiece).width);
+			            const pieceHeight = parseInt(getComputedStyle(capturedPiece).height); // Height of the piece
+
+			            // Calculate target position in the container (no leftOffset needed here)
+			            const newLeft = (capturedIndex % Math.floor(containerWidth / pieceWidth)) * pieceWidth;
+			            const newTop = Math.floor(capturedIndex / Math.floor(containerWidth / pieceWidth)) * pieceHeight;
+
+			            // Animation logic: Moving the piece from its current position to the container
+			            const chessboardRect = document.querySelector('.chessboard').getBoundingClientRect();
+			            const pieceRect = capturedPiece.getBoundingClientRect();
+			            const containerRect = capturedContainer.getBoundingClientRect();
+
+			            // Consider the leftOffset for proper positioning during animation
+			            const leftOffset = parseInt('[[${piecesOffset}]]');  // Assuming leftOffset is passed from the backend
+
+			            // Set initial position for animation (relative to chessboard and with added leftOffset)
+			            const startLeft = pieceRect.left - chessboardRect.left + leftOffset;
+			            const startTop = pieceRect.top - chessboardRect.top;
+
+			            // Set the piece to its current position before animation starts
+			            capturedPiece.style.position = 'absolute';
+			            capturedPiece.style.left = `${startLeft}px`;
+			            capturedPiece.style.top = `${startTop}px`;
+
+			            // Calculate the target position for the piece in the container
+			            const endLeft = newLeft + containerRect.left - chessboardRect.left + leftOffset;  // ADD leftOffset here for animation
+
+			            // The issue might be here, so let's add pieceHeight/2 to account for the piece height difference
+			            const endTop = newTop + containerRect.top - chessboardRect.top;  // Target inside container
+						console.log('pieceHeight',pieceHeight);
+			            const adjustedEndTop = endTop + pieceHeight;  // Adjusted to match final position
+
+			            // Apply animation for transition to the container
+			            setTimeout(() => {
+			                capturedPiece.style.transition = 'top 0.5s ease, left 0.5s ease';  // Smooth animation
+			                capturedPiece.style.left = `${endLeft}px`;
+			                capturedPiece.style.top = `${adjustedEndTop}px`;  // Adjusted top for animation
+
+			                // After animation completes, move the piece into the container
+			                setTimeout(() => {
+			                    capturedContainer.appendChild(capturedPiece);
+
+			                    // Now set final position WITHOUT leftOffset for proper placement in the container
+			                    capturedPiece.style.left = `${newLeft}px`;  // Ohne leftOffset
+			                    capturedPiece.style.top = `${newTop}px`;
+			                    capturedPiece.style.transition = '';  // Reset transition after move
+			                }, 500);  // Duration of the animation (0.5s)
+			            }, 10); // Minimal timeout to start animation
+
+			        } else {
+			        	capturedPiece.remove();
+			        }
+	            }, delay);  
+		    } else {
+		        console.error('Error: captured piece not found');
+		    }
+		}
+        
+        function updateEvaluationBars(stockFishEvaluation) {
+        	if ([[${showEvaluation}]]){
+	            const blackEval = document.querySelector('.blackEval');
+	            const whiteEval = document.querySelector('.whiteEval');
+	
+	            // Berechne die neue Höhe für den schwarzen Balken
+	            const chessboardHeight = 8 * [[${squareSize}]]; // Beispiel für die Höhe des Schachbretts; passe den Wert an die tatsächliche Höhe an
+	            const newBlackHeight = chessboardHeight * (1 - stockFishEvaluation);
+	
+	            // Setze die neue Höhe des schwarzen Balkens
+	            blackEval.style.height = `${newBlackHeight}px`;
+            }
+        } 
+
+        function fetchStockfishEvaluationBars() {
+            fetch('/api/game/stockfishEvaluation')
+                .then(response => response.json())
+                .then(data => {
+                    // Aktualisiere die Bewertungsbalken mit der erhaltenen Bewertung
+                    updateEvaluationBars(data.data);
+                })
+                .catch(error => console.error('Error fetching Stockfish evaluation:', error));
+        }
+        
+		if ([[${showEvaluation}]]){
+        	setInterval(fetchStockfishEvaluationBars, [[${updateIntervall}]]);
+    	}
+    
+		function updateArrowsAndStockfishMovelist(){
+			if ([[${showStockfishLines}]]){
+				loadStockfishMoveList();
+			}
+			if ([[${showArrows}]]) {
+				updateStockfishArrow();
+			}
+		}
+		
+     	// Aktualisiere den Pfeil regelmäßig
+        function updateStockfishArrow() {
+            fetch('/api/game/stockfishBestMove') // Backend-Endpunkt für den besten Zug
+                .then(response => response.json())
+                .then(data => {
+                    const fromField = data.data.from;
+                    const toField = data.data.to;
+                    drawArrow(fromField, toField);
+                    console.log('drawing arrow:', fromField+toField);
+                })
+                .catch(error => console.error('Fehler beim Aktualisieren des Pfeils:', error));
+        }
+
+        setInterval(updateArrowsAndStockfishMovelist, [[${updateIntervall}]]);
+		
+        function loadStockfishMoveList() {
+            fetch('/api/game/stockfishMoveList')
+                .then(response => response.json())
+                .then(data => {
+                    const stockfishMoveList = document.getElementById('stockfishMoveList');
+                    stockfishMoveList.innerHTML = ''; // Liste leeren
+
+                    // Füge Überschrift hinzu
+                    const header = document.createElement('div');
+                    header.classList.add('stockfish-header');
+                    header.textContent = 'Stockfish evaluation (depth [[${stockfishDepthForEvaluation}]] and higher):';
+                    stockfishMoveList.appendChild(header);
+
+                    // Iteriere durch die erhaltenen Daten und erzeuge HTML-Elemente für Bewertung und Züge
+                    data.data.forEach((move, index) => {
+                        const moveItem = document.createElement('div');
+                        moveItem.classList.add('move-item');
+
+                        // Verwende eine Grid-Struktur für Bewertung, Doppelpunkt und Zug
+                        moveItem.style.display = 'grid';
+                        moveItem.style.gridTemplateColumns = '50px 10px auto'; // Festlegen der Spalten für Bewertung, Doppelpunkt, Zug
+                        moveItem.style.alignItems = 'center'; // Zentrierung vertikal
+
+                        // Bewertung (z.B. +1.34)
+                        const evaluationSpan = document.createElement('div');
+                        evaluationSpan.classList.add('evaluation');
+                        evaluationSpan.textContent = move.split(':')[0].trim();
+
+                        // Doppelpunkt
+                        const colonSpan = document.createElement('div');
+                        colonSpan.classList.add('colon');
+                        colonSpan.textContent = ':';
+
+                        // Zug (z.B. e2e4)
+                        const moveSpan = document.createElement('div');
+                        moveSpan.classList.add('move');
+                        moveSpan.textContent = move.split(':')[1].trim();
+
+                        // Füge Bewertung, Doppelpunkt und Zug zu Grid hinzu
+                        moveItem.appendChild(evaluationSpan);
+                        moveItem.appendChild(colonSpan);
+                        moveItem.appendChild(moveSpan);
+
+                        // Klickbarer Event
+                        moveItem.style.cursor = 'pointer';
+                        moveItem.onclick = function () {
+                            handleMoveClick(index);
+                        };
+
+                        stockfishMoveList.appendChild(moveItem);
+                    });
+
+                    // Highlight den besten Zug
+                    highlightBestMove();
+                })
+                .catch(error => console.error('Error loading Stockfish Move List:', error));
+        }
+
+     	// Führe diese Funktion für jedes draggable-Element aus
+        document.querySelectorAll('.draggable').forEach((element, index) => {
+            element.addEventListener('click', () => {
+                if (element.classList.contains('captured')) return;  // Ignoriere Klicks auf geschlagene Figuren
+                fetch(`/api/game/onPieceClicked?id=${index}`, { method: 'POST' })
+                    .then(response => response.json())
+                    .then(data => {
+						console.log(data.data);
+                        if (data.data.length > 0) {
+                        	clearMoveCircles();
+							var checkForStockfishMove = true;
+                        	if (data.data[0] === 'unhighlight-old-highlight-new-field-and-mark-possible-moves') { 
+                            	const pieceField = document.getElementById(data.data[1]);
+                            	const clickedField = document.getElementById(data.data[2]);
+                            	unhighlightField(pieceField);
+                            	highlightField(clickedField);
+                            	getPossibleMoves(data.data[2]);
+                            	return;
+                            }
+                        	if (data.data[0] === 'unhighlight-field') { 
+                            	const pieceField = document.getElementById(data.data[1]);
+                            	unhighlightField(pieceField);
+                            	return;
+                            }
+                        	if (data.data[0] === 'wrong-color') { 
+                            	const pieceField = document.getElementById(data.data[1]); 
+                            	unhighlightField(pieceField); 
+                            	return;
+                            }
+                            if (data.data[0] === 'capture') {
+                                const capturedPieceField = data.data[1];
+                                const targetFieldName = data.data[2];
+                                const selectedFieldName = data.data[3];
+                                console.log('captured piece field:', capturedPieceField);
+                                moveCapturedPiece(capturedPieceField);
+                                moveElement(selectedFieldName, document.getElementById(targetFieldName));
+                            } else if (data.data[0] === 'promotion-capture') {
+                                const capturedPieceField = data.data[1];
+                                const targetFieldName = data.data[2];
+                                const selectedFieldName = data.data[3];
+                                console.log('captured piece field:', capturedPieceField);
+                                moveCapturedPiece(capturedPieceField);
+                                moveElement(selectedFieldName, document.getElementById(targetFieldName));
+                                showPopup();
+                            } else if (data.data[0] === 'castling') {
+                                const kingField = data.data[1];
+                                const newKingField = data.data[2];
+                                const rookField = data.data[3];
+                                const newRookField = data.data[4];
+								movePieceByFieldNames(rookField, newRookField);
+                                moveElement(kingField, document.getElementById(newKingField));
+                            } else {
+                            	const pieceField = element.getAttribute('data-piece-field');
+                                console.log('Processing piece element:', element);
+                                console.log('Piece field attribute:', pieceField);
+                                highlightField(getFieldFromPiece(element));
+                                markPossibleMoves(data.data); // Markiere mögliche Züge
+								checkForStockfishMove = false;
+                            }
+							if (checkForStockfishMove){
+								getStockfishMove();
+							}
+                        } else {
+                            unhighlightField(getFieldFromPiece(element));
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+            });
+        });
+     	
+     	function getPossibleMoves(index){
+     		fetch(`/api/game/getPossibleMoves?field=${index}`, { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+            	markPossibleMoves(data.data);           	
+            })
+            .catch(error => console.error('Error:', error));
+     	}
+        
+        // Event-Listener für chessboard Felder
+        document.querySelectorAll('.chessboard div').forEach((field, index) => {
+            field.addEventListener('click', () => {
+                fetch(`/api/game/onFieldClicked?id=${index}`, { method: 'POST' })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.data != null) {
+                            console.log("data returned: " + data.data);
+                            clearMoveCircles();
+                            if (data.data[0] === 'unhighlight-field') {
+                        		console.log("trying to unhighlight field " + data.data[1]);
+                            	const pieceField = document.getElementById(data.data[1]);
+                            	unhighlightField(pieceField);
+                            	return;
+                            }
+                            if (data.data[0] == 'en-passant') {
+                                const capturedPieceField = data.data[3];
+                                moveCapturedPiece(capturedPieceField);
+                                moveElement(data.data[1], field);
+                            } else {
+                            	if (data.data[0] == 'promotion'){
+                                    moveElement(data.data[1], field);
+                            		showPopup();
+                            	} else {
+                                	moveElement(data.data, field);
+                            	}
+                            }
+
+							getStockfishMove();
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+            });
+        });
+
+        function makeElementDraggable(element, updatePositionUrl) {
+            element.onmousedown = function (event) {
+                let shiftX = event.clientX - element.getBoundingClientRect().left;
+                let shiftY = event.clientY - element.getBoundingClientRect().top;
+
+                function moveAt(pageX, pageY) {
+                    element.style.left = pageX - shiftX + 'px';
+                    element.style.top = pageY - shiftY + 'px';
+                }
+
+                function onMouseMove(event) {
+                    moveAt(event.pageX, event.pageY);
+                }
+
+                document.addEventListener('mousemove', onMouseMove);
+
+                document.onmouseup = function () {
+                    document.removeEventListener('mousemove', onMouseMove);
+                    document.onmouseup = null;
+
+                    fetch(updatePositionUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded'
+                        },
+                        body: 'top=' + parseInt(element.style.top) + '&left=' + parseInt(element.style.left)
+                    })
+                        .then(response => response.text())
+                        .then(data => console.log('Position updated'))
+                        .catch(error => console.error('Error:', error));
+                };
+            };
+			
+			
+            element.ondragstart = function () {
+                return false;
+            };
+        }
+        
+        function loadMoveList() {
+            fetch('/api/game/moveList')
+                .then(response => response.json())
+                .then(data => {
+                    const moveList = document.getElementById('moveList');
+                    moveList.innerHTML = data.data;  // Setze den HTML-Content direkt in die Move-List
+                })
+                .catch(error => console.error('Error loading move list:', error));
+        }
+
+        setInterval(loadMoveList, 250);
+
+		function highlightBestMove() {
+		    // Wähle alle .move-item divs aus, überspringe die Überschrift
+		    const moves = document.querySelectorAll('.stockfish-move-list .move-item');
+		    if (moves.length > 0) {
+		        // Entferne vorherige Hervorhebungen
+		        moves.forEach(move => {
+		            move.style.backgroundColor = ''; // Setze Hintergrundfarbe zurück
+		            move.querySelector('.evaluation').style.fontWeight = ''; // Setze Schriftgewicht zurück
+		        });
+
+		        // Hebe den besten Zug hervor (erste Zeile nach der Überschrift)
+		        moves[0].style.backgroundColor = '#d4edda'; // Leichtes Grün für den besten Zug
+		        moves[0].querySelector('.evaluation').style.fontWeight = 'bold'; // Fettschrift für die Bewertung
+		    }
+		}
+
+     	// Funktion zum Abrufen und Aktualisieren der Uhrzeit
+        function updateClocks() {
+            fetch('/api/game/currentTime')
+                .then(response => response.json())
+                .then(data => {
+                    // Zeit aus der Antwort holen
+                    const whiteTime = data.data.whiteTime;
+                    const blackTime = data.data.blackTime;
+
+                    // Minuten und Sekunden für Weiß berechnen
+                    const whiteMinutes = Math.floor(whiteTime / 60);
+                    const whiteSeconds = whiteTime % 60;
+
+                    // Minuten und Sekunden für Schwarz berechnen
+                    const blackMinutes = Math.floor(blackTime / 60);
+                    const blackSeconds = blackTime % 60;
+
+                    // Uhrenanzeige aktualisieren
+                    document.getElementById('whiteClock').textContent = `${whiteMinutes}:${whiteSeconds < 10 ? '0' : ''}${whiteSeconds}`;
+                    document.getElementById('blackClock').textContent = `${blackMinutes}:${blackSeconds < 10 ? '0' : ''}${blackSeconds}`;
+                })
+                .catch(error => console.error('Error fetching times:', error));
+        }
+
+        function setClockPositions() {
+            const whiteClock = document.querySelector('.whiteClock');
+            const blackClock = document.querySelector('.blackClock');
+            whiteClock.style.position = 'relative';
+            whiteClock.style.top = '0px';
+            blackClock.style.position = 'relative';
+            blackClock.style.top = '0px';
+			whiteClock.style.display = 'flex';
+			blackClock.style.display = 'flex';
+			whiteClock.style.alignItems = 'center';
+			blackClock.style.alignItems = 'center';
+			whiteClock.style.justifyContent = 'center';
+			blackClock.style.justifyContent = 'center';
+        }
+
+        function switchPlayer() {
+            currentPlayer = currentPlayer === 'white' ? 'black' : 'white';
+        }
+
+        setClockPositions();
+
+        function handleMoveClick(index) {
+            console.log('Move clicked:', index);
+        }
+
+        // Promotion Popup handling
+        function showPopup() {
+            document.getElementById('overlay').style.display = 'block';
+            document.getElementById('popup').style.display = 'block';
+        }
+
+        function hidePopup() {
+            document.getElementById('overlay').style.display = 'none';
+            document.getElementById('popup').style.display = 'none';
+        }
+
+     	// Aktualisierung der Event-Listener für die Promotion-Buttons
+        document.querySelectorAll('.promotion-button').forEach(button => {
+        	
+            button.addEventListener('click', function() {
+                const piece = this.getAttribute('data-piece');
+
+                fetch('/api/game/selectPiece', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ piece: piece })
+                }) .then(response => response.json())
+                   .then(data => {
+                    if (data.data.length > 0) {
+                        hidePopup();
+                        const pieceName   = data.data[0];
+                        const sourceField = data.data[1];
+                        const targetField = data.data[2];
+                        const type 		  = data.data[3];
+                        const color 	  = data.data[4];
+
+                        // Entfernen Sie die alte Figur (Bauer)
+                        // Erstellen Sie die neue Figur
+                        console.log("versuch die neue Figur zu erstellen");
+                        setNewImage(type, color, targetField);
+						getStockfishMove();
+                    }
+                }).catch(error => console.error('Error:', error));
+            });
+        });
+
+        function setNewImage(pieceType, color, toField) {
+            // Erstellt eine neue Figur an der Position des beförderten Bauern
+			const element = document.querySelector(`img[data-piece-field="${toField}"]`);
+            element.setAttribute('data-piece-field', toField);
+
+            // Setzen des Bildes basierend auf dem beförderten Figurtyp
+            switch (pieceType) {
+                case 'queen':
+                	element.src = '/'+color+'_queen.png'; // Pfad zum Bild der Dame
+                    break;
+                case 'rook':
+                	element.src = '/'+color+'_rook.png'; // Pfad zum Bild des Turms
+                    break;
+                case 'bishop':
+                	element.src = '/'+color+'_bishop.png'; // Pfad zum Bild des Läufers
+                    break;
+                case 'knight':
+                	element.src = '/'+color+'_knight.png'; // Pfad zum Bild des Springers
+                    break;
+                default:
+                    console.error('Unknown piece type:', pieceType);
+                    return;
+            }
+        }
+
+        // Hier kommt die neue Funktion
+        function movePieceByFieldNames(startFieldName, endFieldName) {
+            // Find the element corresponding to the starting field
+            const startField = document.querySelector(`div[data-field="${startFieldName}"]`);
+            const endField = document.querySelector(`div[data-field="${endFieldName}"]`);
+            const pieceElement = document.querySelector(`img[data-piece-field="${startFieldName}"]`);
+            
+            if (startField && endField && pieceElement) {
+                // Unhighlight the start field if needed
+                unhighlightField(startField);
+                // Move the piece element to the new position
+                moveElement(startFieldName, endField);
+
+                // Update the piece element's data attribute to reflect its new position
+                pieceElement.setAttribute('data-piece-field', endFieldName);
+            } else {
+                console.error('Start field, end field, or piece element not found');
+            }
+        }
+        
+        function drawArrow(fromField, toField) {
+            const svg = document.querySelector('.arrow-layer');
+            const squareSize = [[${squareSize}]]; // Thymeleaf-Ausdruck für die Feldergröße
+
+            // Positionen der Felder berechnen
+            const fromRect = document.querySelector(`div[data-field="${fromField}"]`).getBoundingClientRect();
+            const toRect = document.querySelector(`div[data-field="${toField}"]`).getBoundingClientRect();
+
+            // Start- und Endpunkte der Linie berechnen
+            const startX = fromRect.left + squareSize / 2;
+            const startY = fromRect.top + squareSize / 2;
+            const endX = toRect.left + squareSize / 2;
+            const endY = toRect.top + squareSize / 2;
+
+            // Berechne die Länge, um die Linie zu kürzen
+            const arrowLength = squareSize / 3; // Länge des Pfeilkopfs (größerer Wert für größere Spitze)
+            const lineLengthAdjustment = arrowLength; // Kürze die Linie um die Länge der Pfeilspitze
+            const angle = Math.atan2(endY - startY, endX - startX); // Winkel der Linie
+
+            // Neue Endkoordinaten für die Linie (um die Länge der Pfeilspitze gekürzt)
+            const adjustedEndX = endX - 0.9 * lineLengthAdjustment * Math.cos(angle);
+            const adjustedEndY = endY - 0.9 * lineLengthAdjustment * Math.sin(angle);
+
+            // Erstelle ein neues Linien-Element
+            const arrowLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
+            arrowLine.setAttribute("x1", startX);
+            arrowLine.setAttribute("y1", startY);
+            arrowLine.setAttribute("x2", adjustedEndX);
+            arrowLine.setAttribute("y2", adjustedEndY);
+            arrowLine.setAttribute("stroke", "red");
+            arrowLine.setAttribute("stroke-width", 7); // Macht die Linie dicker
+            arrowLine.setAttribute("stroke-opacity", 0.5); // Macht die Linie halbtransparent
+
+            // Vorhandene Pfeile entfernen
+            clearArrows();
+
+            // Linie zum SVG hinzufügen
+            svg.appendChild(arrowLine);
+
+            // Koordinaten für das Dreieck der Pfeilspitze
+            const arrowX1 = endX - arrowLength * Math.cos(angle - Math.PI / 6);
+            const arrowY1 = endY - arrowLength * Math.sin(angle - Math.PI / 6);
+            const arrowX2 = endX - arrowLength * Math.cos(angle + Math.PI / 6);
+            const arrowY2 = endY - arrowLength * Math.sin(angle + Math.PI / 6);
+
+            // Erstelle das Dreieck als Pfeilspitze
+            const arrowHead = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+            arrowHead.setAttribute("points", `${endX},${endY} ${arrowX1},${arrowY1} ${arrowX2},${arrowY2}`);
+            arrowHead.setAttribute("fill", "red");
+            arrowHead.setAttribute("fill-opacity", 0.5); // Optional: Transparenz des Pfeilkopfs
+
+            // Pfeilspitze zum SVG hinzufügen
+            svg.appendChild(arrowHead);
+        }
+        
+        // Funktion zum Entfernen aller Pfeile
+        function clearArrows() {
+            const svg = document.querySelector('.arrow-layer');
+            while (svg.firstChild) {
+                svg.removeChild(svg.firstChild);
+            }
+        }
+        
+		document.querySelectorAll('.form-group').forEach(group => {
+		    group.addEventListener('mouseover', function() {
+		        const tooltip = this.querySelector('.tooltip');
+		        if (tooltip) {
+		            tooltip.style.visibility = 'visible';
+		            tooltip.style.opacity = '1';
+		        }
+		    });
+		    group.addEventListener('mouseout', function() {
+		        const tooltip = this.querySelector('.tooltip');
+		        if (tooltip) {
+		            tooltip.style.visibility = 'hidden';
+		            tooltip.style.opacity = '0';
+		        }
+		    });
+		});
+
+        const moveList = document.getElementById('moveList');
+        moveList.style.top = [[${moveListTop}]]+'px';
+        moveList.style.left = [[${moveListLeft}]]+'px';
+        makeElementDraggable(moveList, '/updateMoveListPosition');
+
+		if ([[${showStockfishLines}]]){
+	        const stockfishMoveList = document.getElementById('stockfishMoveList');
+	        stockfishMoveList.style.top = [[${stockfishMoveListTop}]]+'px';
+	        stockfishMoveList.style.left = [[${stockfishMoveListLeft}]]+'px';
+	        stockfishMoveList.style.width = [[${stockfishMoveListWidth}]]+'px';
+	        makeElementDraggable(stockfishMoveList, '/updateStockfishMoveListPosition');
+		}
+		
+		if ([[${capturedContainer}]]){	
+			const capturedPiecesContainer = document.getElementById('captured-pieces');		
+	        capturedPiecesContainer.style.top = [[${capturedTop}]]+'px';
+	        capturedPiecesContainer.style.left = [[${capturedLeft}]]+'px';
+	        makeElementDraggable(capturedPiecesContainer, '/updateCapturedPiecesPosition');
+		} else{
+			document.getElementById('captured-pieces').remove();
+		}
+		
+		// Initialisierung der Popups, inklusive Info-Popup
+	    function initializePopups() {
+	        // OK-Button des Info-Popups
+	        const okButton = document.getElementById('infoOkButton');
+	        const popup = document.getElementById('infoPopup');
+
+	        okButton.onclick = function () {
+	            // Schließt das Info-Popup
+	            popup.style.display = 'none';
+	        };
+	    }
+
+	    // Aufruf der Initialisierungsfunktion
+	    initializePopups();
+	    
+		// Funktion zum Öffnen des Info-Popups mit einer Nachricht
+		function showInfoPopup(message, callback) {
+		    // Setze die Nachricht in das Info-Popup
+		    document.getElementById('infoPopupMessage').textContent = message;
+
+		    // Zeige das Info-Popup an
+		    const popup = document.getElementById('infoPopup');
+		    popup.style.display = 'flex';
+
+		    // Event-Listener für den OK-Button im Info-Popup
+		    document.getElementById('infoOkButton').onclick = function () {
+		        // Verstecke das Info-Popup
+		        popup.style.display = 'none';
+
+		        // Führe die Callback-Funktion aus, wenn sie definiert ist
+		        if (callback) {
+		            callback();
+		        }
+		    };
+		}
+
+		// Beispiel für eine Aktion, die beim Klicken auf OK ausgeführt wird
+		function myInfoAction() {
+		    console.log('OK-Button im Info-Popup wurde geklickt, Aktion wird ausgeführt.');
+		}
+ 
+    });
+</script>
