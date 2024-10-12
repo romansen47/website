@@ -148,12 +148,10 @@ public class MainViewController extends ControllerTemplate {
 		// Add attributes to the model (this must be done last)
 		helper.addAttributes(color, whiteTimeString, blackTimeString, model);
  
-		if (update || resigned) { // !list.isEmpty()) {
-			((List<DisplayedField>) get("fields")).clear();
-			helper.createNewFields();
-			createNewPiecesFromExistingPieces();
-			webSocketService.updateClocks();
-		}
+		((List<DisplayedField>) get("fields")).clear();
+		helper.createNewFields();
+		createNewPiecesFromExistingPieces();
+		webSocketService.updateClocks();
 
 		return "mainView";
 	}
@@ -247,9 +245,13 @@ public class MainViewController extends ControllerTemplate {
 	    boolean isFlipped = ((String) params.get("startingColor")).equals("BLACK") ? true : false;
 	    viewConfig.setIsFlipped(isFlipped);
 	    Game chessGame = (Game) get("chessGame");
-	    if (chessGame != null) {
-	    	chessGame.getWhitePlayer().getChessClock().stop();
-	    	chessGame.getBlackPlayer().getChessClock().stop();
+	    if (chessGame != null) { 
+			if (!chessGame.getWhitePlayer().getChessClock().isStopped()) {
+		    	chessGame.getWhitePlayer().getChessClock().stop(); 
+			} 
+			if (!chessGame.getBlackPlayer().getChessClock().isStopped()) {
+		    	chessGame.getBlackPlayer().getChessClock().stop(); 
+			}
 	    }
 	    chessGame = admin.chessGame(viewConfig.getTimeForEachPlayer());
 		viewConfig.setIncrementForWhite(incrementForWhite);
@@ -291,14 +293,17 @@ public class MainViewController extends ControllerTemplate {
 	protected String resign() {
 		put("engineMatch", false);
 		Game chessGame = this.getChessGame();
-		chessGame.getWhitePlayer().getChessClock().stop();
-		chessGame.getBlackPlayer().getChessClock().stop();
-		if (chessGame.getPlayer().getColor().equals(Color.WHITE)) {
-			chessGame.setState(State.WHITE_RESIGNED); 
-		} else {
-			chessGame.setState(State.BLACK_RESIGNED);
+		if (!chessGame.getWhitePlayer().getChessClock().isStopped()) { 
+			chessGame.getWhitePlayer().getChessClock().stop();
 		}
-		this.webSocketService.sendMessage("White resigned!");
+		if (!chessGame.getBlackPlayer().getChessClock().isStopped()) {
+			chessGame.getBlackPlayer().getChessClock().stop(); 
+		}
+		if (viewConfig.getIsFlipped()) {
+			chessGame.setState(State.BLACK_RESIGNED); 
+		} else {
+			chessGame.setState(State.WHITE_RESIGNED);
+		}
 		return "redirect:/?resigned=true";
 	}
 
