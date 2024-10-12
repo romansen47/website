@@ -1,0 +1,24 @@
+<IfModule mod_ssl.c>
+<VirtualHost *:443>
+    ServerName localhost
+
+    # Leitet normale HTTP-Anfragen an Spring Boot (Port 8080) weiter
+    ProxyPass / http://localhost:8080/
+    ProxyPassReverse / http://localhost:8080/
+
+    # Leitet WebSocket-Anfragen weiter
+    ProxyPass /ws/ ws://localhost:8080/ws/
+    ProxyPassReverse /ws/ ws://localhost:8080/ws/
+
+    ProxyPreserveHost On
+
+    # SSL-Konfiguration
+    SSLEngine on
+    SSLCertificateFile /etc/ssl/certs/apache-selfsigned.crt
+    SSLCertificateKeyFile /etc/ssl/private/apache-selfsigned.key
+
+    # Error-Logs für die Fehlersuche
+    ErrorLog ${APACHE_LOG_DIR}/ssl-error.log
+    CustomLog ${APACHE_LOG_DIR}/ssl-access.log combined
+</VirtualHost>
+</IfModule>
