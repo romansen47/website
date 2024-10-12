@@ -153,6 +153,9 @@ public class MainViewController extends ControllerTemplate {
 		createNewPiecesFromExistingPieces();
 		webSocketService.updateClocks();
 
+		if (resigned) {
+			this.webSocketService.sendMessage(getChessGame().getState().label);
+		}
 		return "mainView";
 	}
 

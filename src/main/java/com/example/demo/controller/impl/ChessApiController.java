@@ -391,7 +391,8 @@ public class ChessApiController extends ControllerTemplate {
 	@PostMapping("/load-game")
 	@ResponseBody
 	protected void loadGame() throws Exception {
-		this.reset();
+//		this.reset();
+		setup();
 		loadGame("save-game.txt");
 		helper.sendReloadSignal();
 	}

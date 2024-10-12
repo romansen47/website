@@ -61,7 +61,6 @@ public abstract class ControllerTemplate implements ChessController {
 		GameLoader loader = new GameLoader();
 		MoveList copy = new MoveListImpl();
 		copy.addAll(((Game) get("chessGame")).getMoveList());
-		reset();
 		loader.loadGame(path, ((Game) get("chessGame")));
 		List<DisplayedPiece> listOfPiecesToRemove = new ArrayList<>();
 		if ((boolean) get("regular")) {
