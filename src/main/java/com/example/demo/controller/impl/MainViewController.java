@@ -215,6 +215,9 @@ public class MainViewController extends ControllerTemplate {
 	@Override 
 	protected String reset() throws Exception {
 		put("engineMatch", false);
+		Game chessGame = (Game) get("chessGame");
+		chessGame.getWhitePlayer().getChessClock().stop();
+		chessGame.getBlackPlayer().getChessClock().stop();
 		put("chessGame", admin.chessGame(viewConfig.getTimeForEachPlayer()));
 		setup();
 		this.helper.setUnsetViewVariables();
@@ -243,7 +246,12 @@ public class MainViewController extends ControllerTemplate {
 
 	    boolean isFlipped = ((String) params.get("startingColor")).equals("BLACK") ? true : false;
 	    viewConfig.setIsFlipped(isFlipped);
-	    Game chessGame = admin.chessGame(viewConfig.getTimeForEachPlayer());
+	    Game chessGame = (Game) get("chessGame");
+	    if (chessGame != null) {
+	    	chessGame.getWhitePlayer().getChessClock().stop();
+	    	chessGame.getBlackPlayer().getChessClock().stop();
+	    }
+	    chessGame = admin.chessGame(viewConfig.getTimeForEachPlayer());
 		viewConfig.setIncrementForWhite(incrementForWhite);
 		chessGame.getWhitePlayer().getChessClock().setIncrementMillis(incrementForWhite * 1000l);
 		viewConfig.setIncrementForBlack(incrementForBlack);
