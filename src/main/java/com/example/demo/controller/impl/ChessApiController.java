@@ -100,6 +100,7 @@ public class ChessApiController extends ControllerTemplate {
 	private boolean checkForGameState(Game chessGame) throws Exception {
 
 		if (chessGame.getState() != null) {
+			evaluationEngine.stopInfiniteEvaluation();
 			String message = "";
 			long white;
 			long black;
