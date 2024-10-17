@@ -9,7 +9,7 @@ RUN apt-get update && \
     apt-get install -y software-properties-common && \
     add-apt-repository ppa:openjdk-r/ppa && \
     apt-get update && \
-    apt-get install -y openjdk-17-jdk apache2 git maven uciEngine openssl && \
+    apt-get install -y openjdk-17-jdk apache2 git maven stockfish gnuchess openssl && \
     a2enmod proxy proxy_http proxy_wstunnel rewrite ssl && \
     apt-get clean
 
