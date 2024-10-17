@@ -6,7 +6,7 @@ import demo.chess.definitions.Color;
  * Interface representing the configuration settings for the application.
  * <p>
  * This interface provides methods to get and set various configuration settings
- * such as the time allocated for each player, whether the Stockfish engine is
+ * such as the time allocated for each player, whether the UciEngine engine is
  * active, and various layout settings for the chessboard and UI elements.
  * </p>
  */
@@ -20,19 +20,19 @@ public interface Config {
 	int getTimeForEachPlayer();
 
 	/**
-	 * Checks if the Stockfish engine is active.
+	 * Checks if the UciEngine engine is active.
 	 *
-	 * @return true if the Stockfish engine is active, false otherwise
+	 * @return true if the UciEngine engine is active, false otherwise
 	 */
-	boolean isStockfishActive();
+	boolean isUciEngineActive();
 
 	/**
-	 * Sets whether the Stockfish engine is active.
+	 * Sets whether the UciEngine engine is active.
 	 *
-	 * @param isStockfishActive true to activate the Stockfish engine, false to
+	 * @param isUciEngineActive true to activate the UciEngine engine, false to
 	 *                          deactivate it
 	 */
-	void setStockfishActive(boolean isStockfishActive);
+	void setUciEngineActive(boolean isUciEngineActive);
 
 	/**
 	 * Gets the left offset for the chessboard.
@@ -134,19 +134,19 @@ public interface Config {
 
 	void setTimeForEachPlayer(int timeForEachPlayer);
 
-	void setStockfishMoveListTop(int top);
+	void setUciEngineMoveListTop(int top);
 
-	void setStockfishMoveListLeft(int left);
+	void setUciEngineMoveListLeft(int left);
 
-	int getStockfishMoveListLeft();
+	int getUciEngineMoveListLeft();
 
-	int getStockfishMoveListTop();
+	int getUciEngineMoveListTop();
 
 	int getEvalWidth();
 
-	int getStockfishDepthForEvaluationEngine();
+	int getUciEngineDepthForEvaluationEngine();
 
-	void setStockfishDepthForEvaluationEngine(int stockfishDepthForEvaluationEngine);
+	void setUciEngineDepthForEvaluationEngine(int uciEngineDepthForEvaluationEngine);
 
 	int getMoveListWidth();
 
@@ -210,22 +210,22 @@ public interface Config {
 	void setShowEvaluation(boolean showEvaluation);
 
 	/**
-	 * @return the showStockfishLines
+	 * @return the showUciEngineLines
 	 */
-	boolean isShowStockfishLines();
+	boolean isShowUciEngineLines();
 
 	/**
-	 * @param showStockfishLines the showStockfishLines to set
+	 * @param showUciEngineLines the showUciEngineLines to set
 	 */
-	void setShowStockfishLines(boolean showStockfishLines);
+	void setShowUciEngineLines(boolean showUciEngineLines);
 
-	int getStockfishDepthForWhite();
+	int getUciEngineDepthForWhite();
 
-	void setStockfishDepthForWhite(int stockfishDepthForWhite);
+	void setUciEngineDepthForWhite(int uciEngineDepthForWhite);
 
-	int getStockfishDepthForBlack();
+	int getUciEngineDepthForBlack();
 
-	void setStockfishDepthForBlack(int stockfishDepthForBlack);
+	void setUciEngineDepthForBlack(int uciEngineDepthForBlack);
 
 	int getMultiPVForEvaluationEngine();
 

@@ -15,13 +15,17 @@ import com.example.demo.websockets.WebSocketService;
 
 import demo.chess.definitions.Color;
 import demo.chess.definitions.PieceType;
+import demo.chess.definitions.engines.Engine;
 import demo.chess.definitions.engines.EvaluationEngine;
 import demo.chess.definitions.engines.PlayerEngine;
+import demo.chess.definitions.engines.impl.EvaluationUciEngine;
+import demo.chess.definitions.engines.impl.PlayerUciEngine;
 import demo.chess.definitions.moves.MoveList;
 import demo.chess.definitions.moves.impl.MoveListImpl;
 import demo.chess.definitions.pieces.Piece;
 import demo.chess.game.Game;
 import demo.chess.load.GameLoader;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Abstract controller class providing common functionalities for the Chess
@@ -29,7 +33,7 @@ import demo.chess.load.GameLoader;
  * <p>
  * This class serves as a base template for chess-related controllers, offering
  * common methods and attributes needed to manage the chess game state, UI
- * elements, and interactions with the Stockfish engine.
+ * elements, and interactions with the UciEngine engine.
  * </p>
  */
 public abstract class ControllerTemplate implements ChessController {
@@ -37,6 +41,10 @@ public abstract class ControllerTemplate implements ChessController {
 	@Autowired
 	protected AppAdmin admin;
 
+	protected List<PlayerEngine> playerEngines = new ArrayList<>();;
+	
+	protected List<EvaluationEngine> evaluationEngines = new ArrayList<>();
+	
 	@Autowired
 	protected EvaluationEngine evaluationEngine;
 
@@ -55,7 +63,58 @@ public abstract class ControllerTemplate implements ChessController {
 	@Autowired
 	protected Attributes attributes;
 
-	public abstract void setup() throws Exception;
+	public void setup() throws Exception{
+		EvaluationEngine stockfishEvaluation;
+		try {
+			stockfishEvaluation = new EvaluationUciEngine("/usr/games/stockfish", Engine.STOCKFISH.label()) {
+				@Override
+				public String toString() {
+					return Engine.STOCKFISH.label();
+				};
+			};
+			evaluationEngines.add(stockfishEvaluation);
+		} catch(Exception e) {
+			getLogger().info("Creation of evaluation engine {} failed. Is it installed?", Engine.STOCKFISH.label());
+		}
+		EvaluationEngine gnuchessEvaluation;
+		try {
+			gnuchessEvaluation = new EvaluationUciEngine("/usr/games/gnuchessu", Engine.GNUCHESS.label()){
+				@Override
+				public String toString() {
+					return Engine.GNUCHESS.label();
+				};
+			};
+			evaluationEngines.add(gnuchessEvaluation);
+		} catch(Exception e) {
+			getLogger().info("Creation of evaluation engine {} failed. Is it installed?", Engine.GNUCHESS.label());
+		}
+		
+		PlayerEngine stockfish;
+		try {
+			stockfish = new PlayerUciEngine("/usr/games/stockfish", Engine.STOCKFISH.label()) {
+				@Override
+				public String toString() {
+					return Engine.STOCKFISH.label();
+				};
+			};
+			playerEngines.add(stockfish);
+		} catch(Exception e) {
+			getLogger().info("Creation of player engine {} failed. Is it installed?", Engine.STOCKFISH.label());
+		}
+		PlayerEngine gnuchess;
+		try {
+			gnuchess = new PlayerUciEngine("/usr/games/gnuchessu", Engine.GNUCHESS.label()){
+				@Override
+				public String toString() {
+					return Engine.GNUCHESS.label();
+				};
+			};;
+			playerEngines.add(gnuchess);
+		} catch(Exception e) {
+			getLogger().info("Creation of player engine {} failed. Is it installed?", Engine.GNUCHESS.label());
+		}
+		
+	}
 
 	protected void loadGame(String path) throws Exception {
 		GameLoader loader = new GameLoader();
@@ -184,6 +243,8 @@ public abstract class ControllerTemplate implements ChessController {
 	protected Game getChessGame() {
 		return ((Game) get("chessGame"));
 	}
+	
+	protected abstract Logger getLogger();
 	
 	protected abstract String reset() throws Exception;
 }

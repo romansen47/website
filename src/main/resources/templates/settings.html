@@ -118,19 +118,19 @@
                         <input type="checkbox" name="showEvaluation" th:checked="${viewConfig.showEvaluation}"/>
                     </div>
                     <div class="form-group">
-                        <label for="showStockfishLines">Show Stockfish Lines</label>
-                        <span class="tooltip">If checked, stockfish's analyzed lines will be shown</span>
-                        <input type="checkbox" name="showStockfishLines" th:checked="${viewConfig.showStockfishLines}"/>
+                        <label for="showUciEngineLines">Show UciEngine Lines</label>
+                        <span class="tooltip">If checked, uciEngine's analyzed lines will be shown</span>
+                        <input type="checkbox" name="showUciEngineLines" th:checked="${viewConfig.showUciEngineLines}"/>
                     </div>
                     <div class="form-group">
                         <label for="showArrows">Show Arrows</label>
-                        <span class="tooltip">If checked, arrow will show the best move recommended by stockfish</span>
+                        <span class="tooltip">If checked, arrow will show the best move recommended by uciEngine</span>
                         <input type="checkbox" name="showArrows" th:checked="${viewConfig.showArrows}"/>
                     </div>
                     <div class="form-group">
-                        <label for="stockfishDepthForEvaluationEngine">Minimal depth for evaluation:</label>
-                        <span class="tooltip">Minimal depth for lines of the stockfish analysis. Only takes effect in case stockfish lines are shown</span>
-                        <input type="number" name="stockfishDepthForEvaluationEngine" th:value="${viewConfig.stockfishDepthForEvaluationEngine}" min="1" max="30"/>
+                        <label for="uciEngineDepthForEvaluationEngine">Minimal depth for evaluation:</label>
+                        <span class="tooltip">Minimal depth for lines of the uciEngine analysis. Only takes effect in case uciEngine lines are shown</span>
+                        <input type="number" name="uciEngineDepthForEvaluationEngine" th:value="${viewConfig.uciEngineDepthForEvaluationEngine}" min="1" max="30"/>
                     </div> 
 					<div class="form-group">
 					    <label for="multiPVForEvaluationEngine">MultiPV</label>
@@ -139,13 +139,13 @@
 					</div>
                     <div class="form-group">
                         <label for="updateIntervall">Update Intervall:</label>
-                        <span class="tooltip">Update frequency for eval bars, stockfish's movelist and the arrows for move suggestions.</span>
+                        <span class="tooltip">Update frequency for eval bars, uciEngine's movelist and the arrows for move suggestions.</span>
                         <input type="number" name="updateIntervall" th:value="${viewConfig.updateIntervall}" min="1" max="5"/>
                     </div>
                     <div class="form-group">
-                        <label for="stockfishActive">Play against Stockfish</label>
-                        <span class="tooltip">If checked, stockfish will play as black</span>
-                        <input type="checkbox" name="stockfishActive" th:checked="${viewConfig.stockfishActive}"/>
+                        <label for="uciEngineActive">Play against UciEngine</label>
+                        <span class="tooltip">If checked, uciEngine will play as black</span>
+                        <input type="checkbox" name="uciEngineActive" th:checked="${viewConfig.uciEngineActive}"/>
                     </div>
                 </div>
             </div>

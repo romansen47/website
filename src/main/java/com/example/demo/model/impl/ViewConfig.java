@@ -14,22 +14,22 @@ public class ViewConfig implements Config {
 	private Color color = Color.GREEN;
 	private boolean showArrows = false;
 	private boolean showEvaluation = false;
-	private boolean showStockfishLines = false;
+	private boolean showUciEngineLines = false;
 	private boolean capturedContainer = false;
 	private boolean silent = false;
 
-	private boolean stockfishActive = true;
+	private boolean uciEngineActive = true;
 	private int timeForEachPlayer = 300;
 	private int incrementForWhite = 1;
 	private int incrementForBlack = 1;
 	private int updateIntervall = 1;
 	private int animationDuration = 100;
 
-	private int stockfishDepthForEvaluationEngine = 15;
+	private int uciEngineDepthForEvaluationEngine = 15;
 	private int multiPVForEvaluationEngine = 10;
 
-	private int depthForWhite = 18;
-	private int depthForBlack = 18;
+	private int uciEngineDepthForWhite = 18;
+	private int uciEngineDepthForBlack = 18;
 
 	private int threadsForWhite = 2;
 	private int hashSizeForWhite = 1024;
@@ -51,8 +51,8 @@ public class ViewConfig implements Config {
 	private int evalWidth;
 
 	private int chessBoardOffset;
-	private int stockfishMoveListTop;
-	private int stockfishMoveListLeft;
+	private int uciEngineMoveListTop;
+	private int uciEngineMoveListLeft;
 	private int clockSize;
 
 	private int moveListTop;
@@ -125,13 +125,13 @@ public class ViewConfig implements Config {
 	}
 
 	@Override
-	public boolean isStockfishActive() {
-		return stockfishActive;
+	public boolean isUciEngineActive() {
+		return uciEngineActive;
 	}
 
 	@Override
-	public void setStockfishActive(boolean isStockfishActive) {
-		this.stockfishActive = isStockfishActive;
+	public void setUciEngineActive(boolean isUciEngineActive) {
+		this.uciEngineActive = isUciEngineActive;
 	}
 
 	@Override
@@ -205,35 +205,35 @@ public class ViewConfig implements Config {
 	}
 
 	/**
-	 * @return the stockfishMoveListLeft
+	 * @return the uciEngineMoveListLeft
 	 */
 	@Override
-	public int getStockfishMoveListLeft() {
-		return stockfishMoveListLeft;
+	public int getUciEngineMoveListLeft() {
+		return uciEngineMoveListLeft;
 	}
 
 	/**
-	 * @param stockfishMoveListLeft the stockfishMoveListLeft to set
+	 * @param uciEngineMoveListLeft the uciEngineMoveListLeft to set
 	 */
 	@Override
-	public void setStockfishMoveListLeft(int stockfishMoveListLeft) {
-		this.stockfishMoveListLeft = stockfishMoveListLeft;
+	public void setUciEngineMoveListLeft(int uciEngineMoveListLeft) {
+		this.uciEngineMoveListLeft = uciEngineMoveListLeft;
 	}
 
 	/**
-	 * @return the stockfishMoveListTop
+	 * @return the uciEngineMoveListTop
 	 */
 	@Override
-	public int getStockfishMoveListTop() {
-		return stockfishMoveListTop;
+	public int getUciEngineMoveListTop() {
+		return uciEngineMoveListTop;
 	}
 
 	/**
-	 * @param stockfishMoveListTop the stockfishMoveListTop to set
+	 * @param uciEngineMoveListTop the uciEngineMoveListTop to set
 	 */
 	@Override
-	public void setStockfishMoveListTop(int stockfishMoveListTop) {
-		this.stockfishMoveListTop = stockfishMoveListTop;
+	public void setUciEngineMoveListTop(int uciEngineMoveListTop) {
+		this.uciEngineMoveListTop = uciEngineMoveListTop;
 	}
 
 	@Override
@@ -320,49 +320,49 @@ public class ViewConfig implements Config {
 	}
 
 	/**
-	 * @return the showStockfishLines
+	 * @return the showUciEngineLines
 	 */
 	@Override
-	public boolean isShowStockfishLines() {
-		return showStockfishLines;
+	public boolean isShowUciEngineLines() {
+		return showUciEngineLines;
 	}
 
 	/**
-	 * @param showStockfishLines the showStockfishLines to set
+	 * @param showUciEngineLines the showUciEngineLines to set
 	 */
 	@Override
-	public void setShowStockfishLines(boolean showStockfishLines) {
-		this.showStockfishLines = showStockfishLines;
+	public void setShowUciEngineLines(boolean showUciEngineLines) {
+		this.showUciEngineLines = showUciEngineLines;
 	}
 
 	@Override
-	public int getStockfishDepthForEvaluationEngine() {
-		return stockfishDepthForEvaluationEngine;
+	public int getUciEngineDepthForEvaluationEngine() {
+		return uciEngineDepthForEvaluationEngine;
 	}
 
 	@Override
-	public void setStockfishDepthForEvaluationEngine(int stockfishDepthForEvaluationEngine) {
-		this.stockfishDepthForEvaluationEngine = stockfishDepthForEvaluationEngine;
+	public void setUciEngineDepthForEvaluationEngine(int uciEngineDepthForEvaluationEngine) {
+		this.uciEngineDepthForEvaluationEngine = uciEngineDepthForEvaluationEngine;
 	}
 
 	@Override
-	public int getStockfishDepthForWhite() {
-		return depthForWhite;
+	public int getUciEngineDepthForWhite() {
+		return uciEngineDepthForWhite;
 	}
 
 	@Override
-	public void setStockfishDepthForWhite(int depthForWhite) {
-		this.depthForWhite = depthForWhite;
+	public void setUciEngineDepthForWhite(int depthForWhite) {
+		this.uciEngineDepthForWhite = depthForWhite;
 	}
 
 	@Override
-	public int getStockfishDepthForBlack() {
-		return depthForBlack;
+	public int getUciEngineDepthForBlack() {
+		return uciEngineDepthForBlack;
 	}
 
 	@Override
-	public void setStockfishDepthForBlack(int depthForBlack) {
-		this.depthForBlack = depthForBlack;
+	public void setUciEngineDepthForBlack(int depthForBlack) {
+		this.uciEngineDepthForBlack = depthForBlack;
 	}
 
 	@Override

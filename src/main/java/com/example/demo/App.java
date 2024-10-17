@@ -21,8 +21,9 @@ import com.example.demo.model.impl.ViewConfig;
 import demo.chess.admin.impl.ChessAdmin;
 import demo.chess.definitions.Color;
 import demo.chess.definitions.board.impl.ChessBoard;
+import demo.chess.definitions.engines.Engine;
 import demo.chess.definitions.engines.PlayerEngine;
-import demo.chess.definitions.engines.impl.PlayerStockfish;
+import demo.chess.definitions.engines.impl.PlayerUciEngine;
 import demo.chess.definitions.moves.MoveList;
 import demo.chess.definitions.moves.impl.MoveListImpl;
 import demo.chess.definitions.players.impl.BlackPlayerImpl;
@@ -104,44 +105,24 @@ public class App extends ChessAdmin implements AppAdmin {
 	@Override
 	@Bean(name = "playerEngineForWhite")
 	public PlayerEngine playerEngineForWhite() throws Exception {
-		PlayerEngine engine;
-		try {
-			engine = new PlayerStockfish("C:\\Temp\\stockfish-windows-x86-64-avx2.exe", Color.WHITE) {
-				@Override
-				public String toString() {
-					return "player engine (white) on windows";
-				}
-			};
-		} catch (Exception e) {
-			engine = new PlayerStockfish("/usr/games/stockfish", Color.WHITE) {
+		PlayerEngine engine = new PlayerUciEngine("/usr/games/stockfish", Engine.STOCKFISH.label()) {
 				@Override
 				public String toString() {
 					return "player engine (white) on linux";
 				}
 			};
-		}
 		return engine;
 	}
 
 	@Override
 	@Bean(name = "playerEngineForBlack")
 	public PlayerEngine playerEngineForBlack() throws Exception {
-		PlayerEngine engine;
-		try {
-			engine = new PlayerStockfish("C:\\Temp\\stockfish-windows-x86-64-avx2.exe", Color.BLACK) {
-				@Override
-				public String toString() {
-					return "player engine (black) on windows";
-				}
-			};
-		} catch (Exception e) {
-			engine = new PlayerStockfish("/usr/games/stockfish", Color.BLACK) {
+		PlayerEngine engine = new PlayerUciEngine("/usr/games/stockfish", Engine.STOCKFISH.label()) {
 				@Override
 				public String toString() {
 					return "player engine (black) on linux";
 				}
-			};
-		}
+			}; 
 		return engine;
 	}
 

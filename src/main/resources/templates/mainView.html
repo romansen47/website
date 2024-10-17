@@ -8,8 +8,8 @@
     <div th:replace="~{clocks :: clocks}"></div>
     <div th:replace="~{popups :: popups}"></div>
 	<div class="move-list" id="moveList"></div>	
-	<div id="stockfishMoveList" class="stockfish-move-list" th:if="${showStockfishLines}">
-		<div class="stockfish-header">Stockfish lines:</div>
+	<div id="uciEngineMoveList" class="uciEngine-move-list" th:if="${showUciEngineLines}">
+		<div class="uciEngine-header">UciEngine lines:</div>
 	</div>
 </body>
 </html>

@@ -29,9 +29,9 @@ public class WebSocketService {
 		}
 	}
 	
-	public void triggerStockfishMove() {
+	public void triggerUciEngineMove() {
 		try {
-			webSocketHandler.triggerStockfishMove();
+			webSocketHandler.triggerUciEngineMove();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

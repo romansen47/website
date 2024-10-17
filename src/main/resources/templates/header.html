@@ -235,7 +235,7 @@
             z-index: 5;
         }
 
-        .stockfish-move-list {
+        .uciEngine-move-list {
             position: absolute;
             padding: 10px;
             font-size: 14px;
@@ -246,34 +246,34 @@
             border-radius: 5px;
             border: 2px solid #000; /* Schwarzer Rahmen */
             cursor: move;
-            width: [[${stockfishMoveListWidth}]]px;
+            width: [[${uciEngineMoveListWidth}]]px;
             z-index: 5;
         }
 
-        .stockfish-move-list .move-item {
+        .uciEngine-move-list .move-item {
             display: flex;
             justify-content: flex-start;
             font-family: 'Courier New', Courier, monospace; /* Monospaced Schriftart */
             margin-bottom: 5px;
         }
 
-        .stockfish-move-list .evaluation {
+        .uciEngine-move-list .evaluation {
             font-weight: bold; /* Bewertung fett */
             width: 50px; /* Feste Breite, damit alle Bewertungen gleich breit sind */
             text-align: right; /* Rechtsbündige Ausrichtung für Bewertung */
         }
 
-        .stockfish-move-list .colon {
+        .uciEngine-move-list .colon {
             width: 10px; /* Feste Breite für den Doppelpunkt */
             text-align: center; /* Zentrierung des Doppelpunkts */
         }
 
-        .stockfish-move-list .move {
+        .uciEngine-move-list .move {
             margin-left: 5px; /* Abstand zwischen Doppelpunkt und Zug */
         }
 
         /* Strich nur nach der Überschrift */
-        .stockfish-move-list .stockfish-header {
+        .uciEngine-move-list .uciEngine-header {
             font-weight: bold; /* Bewertung fett */
             padding-bottom: 10px; /* Innenabstand nach unten */
             margin-bottom: 10px; /* Außenabstand nach unten */

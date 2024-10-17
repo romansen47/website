@@ -63,9 +63,9 @@ public class ViewControllerHelperImpl implements ViewControllerHelper {
 		model.addAttribute("moveListLeft", viewConfig.getMoveListLeft());
 		model.addAttribute("moveListWidth", viewConfig.getMoveListWidth());
 
-		model.addAttribute("stockfishMoveListTop", viewConfig.getStockfishMoveListTop());
-		model.addAttribute("stockfishMoveListLeft", viewConfig.getStockfishMoveListLeft());
-		model.addAttribute("stockfishMoveListWidth", (this.evaluationEngine.getDepth() + 1) * 6 * 10);
+		model.addAttribute("uciEngineMoveListTop", viewConfig.getUciEngineMoveListTop());
+		model.addAttribute("uciEngineMoveListLeft", viewConfig.getUciEngineMoveListLeft());
+		model.addAttribute("uciEngineMoveListWidth", (this.evaluationEngine.getDepth() + 1) * 6 * 10);
 		model.addAttribute("chessboardSize", 8 * viewConfig.getSquareSize());
 		model.addAttribute("capturedTop", viewConfig.getCapturedPiecesTop());
 		model.addAttribute("capturedLeft", viewConfig.getCapturedPiecesLeft());
@@ -83,14 +83,14 @@ public class ViewControllerHelperImpl implements ViewControllerHelper {
 		model.addAttribute("evalLeft", 8 * viewConfig.getSquareSize() + viewConfig.getLeftOffset());
 		model.addAttribute("evalWidth", viewConfig.getEvalWidth());
 
-		model.addAttribute("showStockfishLines", viewConfig.isShowStockfishLines());
+		model.addAttribute("showUciEngineLines", viewConfig.isShowUciEngineLines());
 
 		model.addAttribute("showArrows", viewConfig.isShowArrows());
 		model.addAttribute("capturedContainer", viewConfig.isCapturedContainer());
-		model.addAttribute("stockfishActive", viewConfig.isStockfishActive());
+		model.addAttribute("uciEngineActive", viewConfig.isUciEngineActive());
 
-		double stockFishEvaluation = (double) get("stockfishDepthForEvaluation");
-		model.addAttribute("stockfishDepthForEvaluation", viewConfig.getStockfishDepthForEvaluationEngine());
+		double stockFishEvaluation = (double) get("uciEngineDepthForEvaluation");
+		model.addAttribute("uciEngineDepthForEvaluation", viewConfig.getUciEngineDepthForEvaluationEngine());
 		model.addAttribute("stockFishEvaluation", stockFishEvaluation);
 
 		model.addAttribute("heightOfBlackEval", 8 * viewConfig.getSquareSize() * (1 - stockFishEvaluation));
@@ -99,7 +99,7 @@ public class ViewControllerHelperImpl implements ViewControllerHelper {
 		model.addAttribute("clockHeight", viewConfig.getClockSize());
 		model.addAttribute("clockFontSize", viewConfig.getClockSize() / 2);
 
-		evaluationEngine.setDepth(viewConfig.getStockfishDepthForEvaluationEngine());
+		evaluationEngine.setDepth(viewConfig.getUciEngineDepthForEvaluationEngine());
 		evaluationEngine.setMultiPV(viewConfig.getMultiPVForEvaluationEngine());
 
 		playerEngineForWhite.setContempt(viewConfig.getContemptForWhite());
@@ -163,11 +163,11 @@ public class ViewControllerHelperImpl implements ViewControllerHelper {
 		int moveListTop = topBarHeight;
 		viewConfig.setMoveListTop(moveListTop);
 
-		int stockfishMoveListLeft = 8 * squareSize + leftOffset + evalWidth + chessBoardOffset;
-		viewConfig.setStockfishMoveListLeft(stockfishMoveListLeft);
+		int uciEngineMoveListLeft = 8 * squareSize + leftOffset + evalWidth + chessBoardOffset;
+		viewConfig.setUciEngineMoveListLeft(uciEngineMoveListLeft);
 
-		int stockfishMoveListTop = topBarHeight;
-		viewConfig.setStockfishMoveListTop(stockfishMoveListTop);
+		int uciEngineMoveListTop = topBarHeight;
+		viewConfig.setUciEngineMoveListTop(uciEngineMoveListTop);
 
 		int captureContainerLeft = leftOffset - 2;
 		viewConfig.setCapturedPiecesLeft(captureContainerLeft);
@@ -181,7 +181,7 @@ public class ViewControllerHelperImpl implements ViewControllerHelper {
 		int captureContainerHeight = 4 * squareSize;
 		viewConfig.setCapturedContainerHeight(captureContainerHeight);
 
-		evaluationEngine.setDepth(viewConfig.getStockfishDepthForEvaluationEngine());
+		evaluationEngine.setDepth(viewConfig.getUciEngineDepthForEvaluationEngine());
 	}
 
 	private Object get(String s) {

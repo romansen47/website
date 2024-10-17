@@ -71,10 +71,11 @@ public class ChessApiController extends ControllerTemplate {
 	@Override
 	@PostConstruct
 	public void setup() throws Exception {
+		super.setup();
 		put("engineMatch", false);
 		put("regular", true);
-		put("stockfishEvaluation", 0.5d);
-		put("stockfishMoveList", new ArrayList<>());
+		put("uciEngineEvaluation", 0.5d);
+		put("uciEngineMoveList", new ArrayList<>());
 	}
 
 	@PostMapping("/getPossibleMoves")
@@ -459,10 +460,10 @@ public class ChessApiController extends ControllerTemplate {
 		StringBuilder moveListHtml = new StringBuilder();
 
 		if ((boolean) get("engineMatch")) {
-			moveListHtml.append("<div>Stockfish (depth " + viewConfig.getStockfishDepthForWhite() + ") - Stockfish (depth "
-					+ viewConfig.getStockfishDepthForBlack() + ")</div>");
+			moveListHtml.append("<div>UciEngine (depth " + viewConfig.getUciEngineDepthForWhite() + ") - UciEngine (depth "
+					+ viewConfig.getUciEngineDepthForBlack() + ")</div>");
 		} else {
-			moveListHtml.append("<div>Player vs Stockfish</div>");
+			moveListHtml.append("<div>Player vs UciEngine</div>");
 		}
 		moveListHtml.append("<hr/>");
 
@@ -491,56 +492,56 @@ public class ChessApiController extends ControllerTemplate {
 	}
 
 	/**
-	 * Handles GET requests to retrieve the list of moves suggested by the Stockfish
+	 * Handles GET requests to retrieve the list of moves suggested by the UciEngine
 	 * engine.
 	 *
-	 * @return A list of strings representing the Stockfish suggestions.
+	 * @return A list of strings representing the UciEngine suggestions.
 	 * @throws Exception If any error occurs during retrieval.
 	 */
-	@GetMapping("/stockfishMoveList")
+	@GetMapping("/uciEngineMoveList")
 	@ResponseBody
 	protected ChessApiResponse<List<String>> getStockFishMoveList() throws Exception {
 		return new ChessApiResponse<>(true,
-//				helper.getStockFishMoveList(((List<Pair<Double, String>>)get("stockfishMoveList"))));
+//				helper.getStockFishMoveList(((List<Pair<Double, String>>)get("uciEngineMoveList"))));
 				helper.getStockFishMoveList());
 	}
 
 	/**
-	 * Gets the Stockfish evaluation score.
+	 * Gets the UciEngine evaluation score.
 	 *
-	 * @return the Stockfish evaluation score
+	 * @return the UciEngine evaluation score
 	 * @throws ExecutionException
 	 * @throws InterruptedException
 	 * @throws IOException
 	 */
-	@GetMapping("/stockfishEvaluation")
+	@GetMapping("/uciEngineEvaluation")
 	@ResponseBody
-	protected ChessApiResponse<Double> getStockfishEvaluation()
+	protected ChessApiResponse<Double> getUciEngineEvaluation()
 			throws IOException, InterruptedException, ExecutionException {
 		Game chessGame = (Game) get("chessGame");
 		List<Pair<Double, String>> bestLines = evaluationEngine.getBestLines(chessGame);
 		double eval;
 		if (bestLines.isEmpty()) {
-			eval = (double) get("stockfishEvaluation");
+			eval = (double) get("uciEngineEvaluation");
 		} else {
 			eval = bestLines.get(0).getLeft();
-			put("stockfishEvaluation", eval);
+			put("uciEngineEvaluation", eval);
 		}
 		return new ChessApiResponse<>(true, helper.getRatioEvalBars(eval));
 	}
 
 	/**
-	 * Handles POST requests to update the position of the Stockfish move list on
+	 * Handles POST requests to update the position of the UciEngine move list on
 	 * the screen.
 	 *
 	 * @param top  The new top position (in pixels).
 	 * @param left The new left position (in pixels).
 	 */
-	@PostMapping("/updateStockfishMoveListPosition")
+	@PostMapping("/updateUciEngineMoveListPosition")
 	@ResponseBody
-	protected void updateStockfishMoveListPosition(@RequestParam int top, @RequestParam int left) {
-		viewConfig.setStockfishMoveListTop(top);
-		viewConfig.setStockfishMoveListLeft(left);
+	protected void updateUciEngineMoveListPosition(@RequestParam int top, @RequestParam int left) {
+		viewConfig.setUciEngineMoveListTop(top);
+		viewConfig.setUciEngineMoveListLeft(left);
 	}
 
 	/**
@@ -581,15 +582,15 @@ public class ChessApiController extends ControllerTemplate {
 		return new ChessApiResponse<>(true, "Position updated");
 	}
 
-	@PostMapping("/checkStockfishPlayer")
-	public ChessApiResponse<Map<String, Object>> checkStockfishPlayer() throws Exception {
+	@PostMapping("/checkUciEnginePlayer")
+	public ChessApiResponse<Map<String, Object>> checkUciEnginePlayer() throws Exception {
 		Map<String, Object> response = new HashMap<>();
-		boolean stockfishActive = viewConfig.isStockfishActive();
+		boolean uciEngineActive = viewConfig.isUciEngineActive();
 		if (!checkForGameState((Game) get("chessGame"))) {
 			return new ChessApiResponse<>(true, response);
 		}
-		if (stockfishActive && ((Game) get("chessGame")).getState() == null) {
-			// Berechne den besten Zug von Stockfish
+		if (uciEngineActive && ((Game) get("chessGame")).getState() == null) {
+			// Berechne den besten Zug von UciEngine
 			PlayerEngine playerEngine = ((Game) get("chessGame")).getPlayer().getColor().equals(Color.WHITE)
 					? playerEngineForWhite
 					: playerEngineForBlack;
@@ -599,23 +600,23 @@ public class ChessApiController extends ControllerTemplate {
 			if ((boolean) get("engineMatch")) {
 				response.put("engineClash", true);
 			}
-			// Bereite die Antwort mit dem Stockfish-Zug für das Frontend vor
-			response.put("stockfishActive", true);
+			// Bereite die Antwort mit dem UciEngine-Zug für das Frontend vor
+			response.put("uciEngineActive", true);
 			if (move instanceof Castling) {
-				logger.info("stockfish applying castling: {}", move);
+				logger.info("uciEngine applying castling: {}", move);
 				response.put("type", "castling");
 				response.put("rooksource", ((Castling) move).getRook().getField().toString());
 				applyMove(move);
 				response.put("rooktarget", ((Castling) move).getRook().getField().toString());
 				response.put("move", move.toString());
 			} else if (move instanceof EnPassant) {
-				logger.info("stockfish applying enpassent: {}", move);
+				logger.info("uciEngine applying enpassent: {}", move);
 				response.put("type", "enpassant");
 				response.put("slayed", ((EnPassant) move).getSlayedPiece().getField().toString());
 				response.put("move", move.toString());
 				applyMove(move);
 			} else if (move instanceof Promotion) {
-				logger.info("stockfish applying promotion: {}", move);
+				logger.info("uciEngine applying promotion: {}", move);
 				response.put("type", "promotion");
 				if (move.getTarget().getPiece() != null) {
 					response.put("slayed", move.getTarget().toString());
@@ -625,32 +626,32 @@ public class ChessApiController extends ControllerTemplate {
 				response.put("color", ((Promotion) move).getPromotedPiece().getColor().toString().toLowerCase());
 				applyMove(move);
 			} else if (move.getTarget().getPiece() != null) {
-				logger.info("stockfish applying regular slaying: {}", move);
+				logger.info("uciEngine applying regular slaying: {}", move);
 				response.put("slayed", move.getTarget().toString());
 				response.put("move", move.toString());
 				applyMove(move);
 			} else {
-				logger.info("stockfish applying regular move: {}", move);
+				logger.info("uciEngine applying regular move: {}", move);
 				response.put("move", move.toString());
 				applyMove(move);
 			}
 			return new ChessApiResponse<>(true, response);
 
 		} else {
-			// Wenn Stockfish nicht aktiv ist, wird nur der Spieler gewechselt
-			response.put("stockfishActive", false);
+			// Wenn UciEngine nicht aktiv ist, wird nur der Spieler gewechselt
+			response.put("uciEngineActive", false);
 			return new ChessApiResponse<>(true, response);
 		}
 	}
 
-	@GetMapping("/stockfishBestMove")
+	@GetMapping("/uciEngineBestMove")
 	protected ChessApiResponse<Map<String, String>> getBestMoveForArrow() throws Exception {
 		String mv = "";
 		while (mv.isBlank() || mv.equals("[]")) {
 			if (!helper.getStockFishMoveList().isEmpty()) {
 				String s = helper.getStockFishMoveList().get(0);
 				double eval = Double.parseDouble(s.split(":")[0]);
-				put("stockfishEvaluation", eval);
+				put("uciEngineEvaluation", eval);
 				mv = s.split(":")[1].split(" ")[1];
 			} else {
 				mv = evaluationEngine.getBestLines(((Game) get("chessGame"))).toString().split(" ")[0];
@@ -671,8 +672,8 @@ public class ChessApiController extends ControllerTemplate {
 			return;
 		}
 		chessGame.apply(move);
-		if (viewConfig.isShowArrows() || viewConfig.isShowEvaluation() || viewConfig.isShowStockfishLines()) {
-			((List<Pair<Double, String>>) get("stockfishMoveList")).clear();
+		if (viewConfig.isShowArrows() || viewConfig.isShowEvaluation() || viewConfig.isShowUciEngineLines()) {
+			((List<Pair<Double, String>>) get("uciEngineMoveList")).clear();
 			helper.getStockFishMoveList();
 		}
 		this.webSocketService.updateClocks();
@@ -693,6 +694,11 @@ public class ChessApiController extends ControllerTemplate {
 	@Override
 	protected String reset() throws Exception {
 		return helper.reset();
+	}
+
+	@Override
+	protected Logger getLogger() { 
+		return logger;
 	}
 
 }

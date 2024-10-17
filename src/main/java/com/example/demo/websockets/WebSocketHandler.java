@@ -46,7 +46,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
 		}
 	}
 	
-	public void triggerStockfishMove() throws Exception {
+	public void triggerUciEngineMove() throws Exception {
 		if (session != null && session.isOpen()) {
 			session.sendMessage(new TextMessage(WS_MESSAGE.TRIGGERSTOCKFISHMOVE.toString()));
 		} else {

@@ -4,7 +4,7 @@
             <button class='dropbtn'>Game</button>
             <div class='dropdown-content'>
 				<button id="newGame">Start new Game</button>
-				<button id="engineClash" th:if="${stockfishActive}">Let engines play position</button>
+				<button id="engineClash" th:if="${uciEngineActive}">Let engines play position</button>
 				<a href='/resign'>Resign!</a> 
             </div>
         </div> 
@@ -13,7 +13,7 @@
 		    <div class='dropdown-content'>
 				<a href='/settings'>General settings</a>
 				<a href='/presentation-settings'>Presentation settings</a>
-				<a href='/stockfish-settings'>Stockfish settings</a>
+				<a href='/uciEngine-settings'>UCI engines settings</a>
 		    </div>
 		</div>
 		<div class='dropdown'>

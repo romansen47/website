@@ -227,18 +227,18 @@ public class ApiControllerHelperImpl implements ApiControllerHelper {
 
 		List<Pair<Double, String>> uniqueList = new ArrayList<>();
 		uniqueList.addAll(evaluationEngine.getBestLines(((Game) get("chessGame"))));
-		List<Pair<Double, String>> copyOfStockfishMoveList = removeDuplicatesByString(uniqueList);
+		List<Pair<Double, String>> copyOfUciEngineMoveList = removeDuplicatesByString(uniqueList);
 
 		List<String> answer = new ArrayList<>();
 
-		// Holen Sie sich die besten Züge von Stockfish
-		List<Pair<Double, String>> bestLines = new ArrayList<>(copyOfStockfishMoveList);// engine.getBestLines(chessGame,
-		// viewConfig.getStockfishDepth());
+		// Holen Sie sich die besten Züge von UciEngine
+		List<Pair<Double, String>> bestLines = new ArrayList<>(copyOfUciEngineMoveList);// engine.getBestLines(chessGame,
+		// viewConfig.getUciEngineDepth());
 
 		for (Pair<Double, String> line : bestLines) {
 			answer.add(line.getLeft() + " : " + line.getRight()); // Bewertung : Zugsequenz
 		}
-		attributes.put("stockfishMoveList", answer);
+		attributes.put("uciEngineMoveList", answer);
 		return answer;
 	}
 

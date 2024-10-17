@@ -22,7 +22,7 @@
 		    } else if(event.data.startsWith('CLOCKS')) {
 		    	updateClocks();  
 		    } else if(event.data.startsWith('TRIGGERSTOCKFISHMOVE')) {
-		    	getStockfishMove(); 
+		    	getUciEngineMove(); 
 		    }
 		};
 		
@@ -101,7 +101,7 @@
 	        input.click(); // Trigger the file input
 	    });
 		
-	    if ([[${stockfishActive}]]){
+	    if ([[${uciEngineActive}]]){
 	    	document.getElementById('engineClash').addEventListener('click', function () {
 	            fetch('/startEngineMatch', {
 	                method: 'POST',
@@ -243,9 +243,9 @@
 		    }
 		}
 
-		function getStockfishMove(){
-					// Neuen Code hinzufügen: Stockfish-Zug nach dem menschlichen Zug
-			fetch('/api/game/checkStockfishPlayer', {
+		function getUciEngineMove(){
+					// Neuen Code hinzufügen: UciEngine-Zug nach dem menschlichen Zug
+			fetch('/api/game/checkUciEnginePlayer', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
@@ -253,26 +253,26 @@
 			})
 			.then(response => response.json())
 			.then(data => {
-				if (data.data.stockfishActive) {
-					processStockfishMove(data.data);
+				if (data.data.uciEngineActive) {
+					processUciEngineMove(data.data);
 				}
 				if (data.data.engineClash){
-					getStockfishMove();
+					getUciEngineMove();
 				}
 			})
-			.catch(error => console.error('Error processing Stockfish move:', error));
+			.catch(error => console.error('Error processing UciEngine move:', error));
 		}
 				
-		function processStockfishMove(data) {
+		function processUciEngineMove(data) {
 
 		    console.log("data:" + JSON.stringify(data));
 
-		    const stockfishMove = data.move;
+		    const uciEngineMove = data.move;
 		    
-		    const fromField = stockfishMove.substring(0, 2); // Beispiel: "e2"
-		    const toField = stockfishMove.substring(2, 4);   // Beispiel: "e4"
+		    const fromField = uciEngineMove.substring(0, 2); // Beispiel: "e2"
+		    const toField = uciEngineMove.substring(2, 4);   // Beispiel: "e4"
 
-		    console.log(stockfishMove);
+		    console.log(uciEngineMove);
 		    console.log(fromField);
 		    console.log(toField);
 		        
@@ -297,7 +297,7 @@
 		        if (data.slayed) {
 		            moveCapturedPiece(data.slayed);
 		        }
-		        // Verwende die bestehende moveElement-Methode, um Stockfish-Zug auszuführen
+		        // Verwende die bestehende moveElement-Methode, um UciEngine-Zug auszuführen
 		        movePieceByFieldNames(fromField, toField);
 		    }
 		}
@@ -389,32 +389,32 @@
             }
         } 
 
-        function fetchStockfishEvaluationBars() {
-            fetch('/api/game/stockfishEvaluation')
+        function fetchUciEngineEvaluationBars() {
+            fetch('/api/game/uciEngineEvaluation')
                 .then(response => response.json())
                 .then(data => {
                     // Aktualisiere die Bewertungsbalken mit der erhaltenen Bewertung
                     updateEvaluationBars(data.data);
                 })
-                .catch(error => console.error('Error fetching Stockfish evaluation:', error));
+                .catch(error => console.error('Error fetching UciEngine evaluation:', error));
         }
         
 		if ([[${showEvaluation}]]){
-        	setInterval(fetchStockfishEvaluationBars, [[${updateIntervall}]]);
+        	setInterval(fetchUciEngineEvaluationBars, [[${updateIntervall}]]);
     	}
     
-		function updateArrowsAndStockfishMovelist(){
-			if ([[${showStockfishLines}]]){
-				loadStockfishMoveList();
+		function updateArrowsAndUciEngineMovelist(){
+			if ([[${showUciEngineLines}]]){
+				loadUciEngineMoveList();
 			}
 			if ([[${showArrows}]]) {
-				updateStockfishArrow();
+				updateUciEngineArrow();
 			}
 		}
 		
      	// Aktualisiere den Pfeil regelmäßig
-        function updateStockfishArrow() {
-            fetch('/api/game/stockfishBestMove') // Backend-Endpunkt für den besten Zug
+        function updateUciEngineArrow() {
+            fetch('/api/game/uciEngineBestMove') // Backend-Endpunkt für den besten Zug
                 .then(response => response.json())
                 .then(data => {
                     const fromField = data.data.from;
@@ -425,20 +425,20 @@
                 .catch(error => console.error('Fehler beim Aktualisieren des Pfeils:', error));
         }
 
-        setInterval(updateArrowsAndStockfishMovelist, [[${updateIntervall}]]);
+        setInterval(updateArrowsAndUciEngineMovelist, [[${updateIntervall}]]);
 		
-        function loadStockfishMoveList() {
-            fetch('/api/game/stockfishMoveList')
+        function loadUciEngineMoveList() {
+            fetch('/api/game/uciEngineMoveList')
                 .then(response => response.json())
                 .then(data => {
-                    const stockfishMoveList = document.getElementById('stockfishMoveList');
-                    stockfishMoveList.innerHTML = ''; // Liste leeren
+                    const uciEngineMoveList = document.getElementById('uciEngineMoveList');
+                    uciEngineMoveList.innerHTML = ''; // Liste leeren
 
                     // Füge Überschrift hinzu
                     const header = document.createElement('div');
-                    header.classList.add('stockfish-header');
-                    header.textContent = 'Stockfish evaluation (depth [[${stockfishDepthForEvaluation}]] and higher):';
-                    stockfishMoveList.appendChild(header);
+                    header.classList.add('uciEngine-header');
+                    header.textContent = 'UciEngine evaluation (depth [[${uciEngineDepthForEvaluation}]] and higher):';
+                    uciEngineMoveList.appendChild(header);
 
                     // Iteriere durch die erhaltenen Daten und erzeuge HTML-Elemente für Bewertung und Züge
                     data.data.forEach((move, index) => {
@@ -476,13 +476,13 @@
                             handleMoveClick(index);
                         };
 
-                        stockfishMoveList.appendChild(moveItem);
+                        uciEngineMoveList.appendChild(moveItem);
                     });
 
                     // Highlight den besten Zug
                     highlightBestMove();
                 })
-                .catch(error => console.error('Error loading Stockfish Move List:', error));
+                .catch(error => console.error('Error loading UciEngine Move List:', error));
         }
 
      	// Führe diese Funktion für jedes draggable-Element aus
@@ -495,7 +495,7 @@
 						console.log(data.data);
                         if (data.data.length > 0) {
                         	clearMoveCircles();
-							var checkForStockfishMove = true;
+							var checkForUciEngineMove = true;
                         	if (data.data[0] === 'unhighlight-old-highlight-new-field-and-mark-possible-moves') { 
                             	const pieceField = document.getElementById(data.data[1]);
                             	const clickedField = document.getElementById(data.data[2]);
@@ -542,10 +542,10 @@
                                 console.log('Piece field attribute:', pieceField);
                                 highlightField(getFieldFromPiece(element));
                                 markPossibleMoves(data.data); // Markiere mögliche Züge
-								checkForStockfishMove = false;
+								checkForUciEngineMove = false;
                             }
-							if (checkForStockfishMove){
-								getStockfishMove();
+							if (checkForUciEngineMove){
+								getUciEngineMove();
 							}
                         } else {
                             unhighlightField(getFieldFromPiece(element));
@@ -592,7 +592,7 @@
                             	}
                             }
 
-							getStockfishMove();
+							getUciEngineMove();
                         }
                     })
                     .catch(error => console.error('Error:', error));
@@ -652,7 +652,7 @@
 
 		function highlightBestMove() {
 		    // Wähle alle .move-item divs aus, überspringe die Überschrift
-		    const moves = document.querySelectorAll('.stockfish-move-list .move-item');
+		    const moves = document.querySelectorAll('.uciEngine-move-list .move-item');
 		    if (moves.length > 0) {
 		        // Entferne vorherige Hervorhebungen
 		        moves.forEach(move => {
@@ -754,7 +754,7 @@
                         // Erstellen Sie die neue Figur
                         console.log("versuch die neue Figur zu erstellen");
                         setNewImage(type, color, targetField);
-						getStockfishMove();
+						getUciEngineMove();
                     }
                 }).catch(error => console.error('Error:', error));
             });
@@ -890,12 +890,12 @@
         moveList.style.left = [[${moveListLeft}]]+'px';
         makeElementDraggable(moveList, '/updateMoveListPosition');
 
-		if ([[${showStockfishLines}]]){
-	        const stockfishMoveList = document.getElementById('stockfishMoveList');
-	        stockfishMoveList.style.top = [[${stockfishMoveListTop}]]+'px';
-	        stockfishMoveList.style.left = [[${stockfishMoveListLeft}]]+'px';
-	        stockfishMoveList.style.width = [[${stockfishMoveListWidth}]]+'px';
-	        makeElementDraggable(stockfishMoveList, '/updateStockfishMoveListPosition');
+		if ([[${showUciEngineLines}]]){
+	        const uciEngineMoveList = document.getElementById('uciEngineMoveList');
+	        uciEngineMoveList.style.top = [[${uciEngineMoveListTop}]]+'px';
+	        uciEngineMoveList.style.left = [[${uciEngineMoveListLeft}]]+'px';
+	        uciEngineMoveList.style.width = [[${uciEngineMoveListWidth}]]+'px';
+	        makeElementDraggable(uciEngineMoveList, '/updateUciEngineMoveListPosition');
 		}
 		
 		if ([[${capturedContainer}]]){	

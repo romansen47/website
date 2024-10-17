@@ -59,6 +59,7 @@ public class MainViewController extends ControllerTemplate {
 	@Override
 	public void setup() throws Exception {
 
+		super.setup();
 		boolean startUp = false;
 		Game tmpChessGame = getChessGame();
 		if (tmpChessGame == null) {
@@ -68,7 +69,7 @@ public class MainViewController extends ControllerTemplate {
 		}
 		final Game chessGame = tmpChessGame;
 
-		put("stockfishDepthForEvaluation", 0.5);
+		put("uciEngineDepthForEvaluation", 0.5);
 		put("regular", !viewConfig.getIsFlipped());
 		put("silent", false);
 		put("remainingTimeForWhite", chessGame.getWhitePlayer().getChessClock().getTime(TimeUnit.MILLISECONDS));
@@ -154,7 +155,7 @@ public class MainViewController extends ControllerTemplate {
 		webSocketService.updateClocks();
 
 		if (resigned) {
-			this.webSocketService.sendMessage(getChessGame().getState().label);
+			this.webSocketService.sendMessage(getChessGame().getState().name());
 		}
 		return "mainView";
 	}
@@ -271,7 +272,7 @@ public class MainViewController extends ControllerTemplate {
 		webSocketService.sendReloadSignal();
 	    if (isFlipped) {
 	    	Thread.sleep(200l);
-			webSocketService.triggerStockfishMove();
+			webSocketService.triggerUciEngineMove();
 	    }
 		return "redirect:/?reset=true";
 	}
@@ -289,7 +290,7 @@ public class MainViewController extends ControllerTemplate {
 		createNewPiecesFromExistingPieces();
 		webSocketService.sendReloadSignal();
 		Thread.sleep(200l);
-		webSocketService.triggerStockfishMove();
+		webSocketService.triggerUciEngineMove();
 	}
 
 	@GetMapping("/resign")
@@ -323,10 +324,10 @@ public class MainViewController extends ControllerTemplate {
 		return "settings";
 	}
 	 
-	@GetMapping("/stockfish-settings")
-	protected String stockfishSettings(Model model) { 
+	@GetMapping("/uciEngine-settings")
+	protected String uciEngineSettings(Model model) { 
 		model.addAttribute("viewConfig", viewConfig);
-		return "stockfish-settings";
+		return "uciEngine-settings";
 	} 
 	 
 	@GetMapping("/presentation-settings")
@@ -342,12 +343,12 @@ public class MainViewController extends ControllerTemplate {
 	 * Handles the POST request to update the settings. Applies the new settings and
 	 * reloads the game if necessary.
 	 *
-	 * @param stockfishActive   The new value for the Stockfish activation setting.
+	 * @param uciEngineActive   The new value for the UciEngine activation setting.
 	 * @param color             The selected color theme.
 	 * @param timeForEachPlayer The new time allocated for each player.
 	 * @param leftOffset        The new left offset for the chessboard.
 	 * @param squareSize        The new size for each square on the chessboard.
-	 * @param stockfishDepth    The new depth for Stockfish analysis.
+	 * @param uciEngineDepth    The new depth for UciEngine analysis.
 	 * @return A redirect to the main view with updated settings.
 	 * @throws Exception If any error occurs during the update.
 	 */
@@ -355,27 +356,27 @@ public class MainViewController extends ControllerTemplate {
 	protected String updateSettings(@RequestParam(
 			defaultValue = "false") boolean showArrows,
 			@RequestParam(defaultValue = "false") boolean showEvaluation,
-			@RequestParam(defaultValue = "false") boolean showStockfishLines,
-			@RequestParam(defaultValue = "false") boolean stockfishActive,
+			@RequestParam(defaultValue = "false") boolean showUciEngineLines,
+			@RequestParam(defaultValue = "false") boolean uciEngineActive,
 			@RequestParam int updateIntervall,
 			@RequestParam int multiPVForEvaluationEngine,
-			@RequestParam int stockfishDepthForEvaluationEngine) throws Exception {
+			@RequestParam int uciEngineDepthForEvaluationEngine) throws Exception {
 		
 		Game chessGame = getChessGame();
 		viewConfig.setUpdateIntervall(updateIntervall); 
 		
 		viewConfig.setShowArrows(showArrows);
 		viewConfig.setShowEvaluation(showEvaluation);
-		viewConfig.setShowStockfishLines(showStockfishLines);
+		viewConfig.setShowUciEngineLines(showUciEngineLines);
 
 		/////////////////////////////////////////
-		viewConfig.setStockfishDepthForEvaluationEngine(stockfishDepthForEvaluationEngine);
-		evaluationEngine.setDepth(stockfishDepthForEvaluationEngine);
+		viewConfig.setUciEngineDepthForEvaluationEngine(uciEngineDepthForEvaluationEngine);
+		evaluationEngine.setDepth(uciEngineDepthForEvaluationEngine);
 
 		viewConfig.setMultiPVForEvaluationEngine(multiPVForEvaluationEngine);
 		evaluationEngine.setMultiPV(multiPVForEvaluationEngine);
 
-		viewConfig.setStockfishActive(stockfishActive);
+		viewConfig.setUciEngineActive(uciEngineActive);
 
 		return "redirect:/?update=true";
 	}
@@ -385,24 +386,24 @@ public class MainViewController extends ControllerTemplate {
 	 * Handles the POST request to update the settings. Applies the new settings and
 	 * reloads the game if necessary.
 	 *
-	 * @param stockfishActive   The new value for the Stockfish activation setting.
+	 * @param uciEngineActive   The new value for the UciEngine activation setting.
 	 * @param color             The selected color theme.
 	 * @param timeForEachPlayer The new time allocated for each player.
 	 * @param leftOffset        The new left offset for the chessboard.
 	 * @param squareSize        The new size for each square on the chessboard.
-	 * @param stockfishDepth    The new depth for Stockfish analysis.
+	 * @param uciEngineDepth    The new depth for UciEngine analysis.
 	 * @return A redirect to the main view with updated settings.
 	 * @throws Exception If any error occurs during the update.
 	 */
-	@PostMapping("/stockfishSettings")
-	protected String updateStockfishSettings(
-			@RequestParam int stockfishDepthForWhite,
+	@PostMapping("/uciEngine-settings")
+	protected String updateUciEngineSettings(
+			@RequestParam int uciEngineDepthForWhite,
 			@RequestParam int threadsForWhite,
 			@RequestParam int hashSizeForWhite, 
 			@RequestParam int contemptForWhite,
 			@RequestParam int moveOverheadForWhite, 
 			@RequestParam int uciEloForWhite, 
-			@RequestParam int stockfishDepthForBlack, 
+			@RequestParam int uciEngineDepthForBlack, 
 			@RequestParam int threadsForBlack,
 			@RequestParam int hashSizeForBlack, 
 			@RequestParam int contemptForBlack,
@@ -425,8 +426,8 @@ public class MainViewController extends ControllerTemplate {
 		viewConfig.setMoveOverheadForWhite(moveOverheadForWhite);
 		playerEngineForWhite.setMoveOverhead(moveOverheadForWhite);
 
-		viewConfig.setStockfishDepthForWhite(stockfishDepthForWhite);
-		playerEngineForWhite.setDepth(stockfishDepthForWhite);
+		viewConfig.setUciEngineDepthForWhite(uciEngineDepthForWhite);
+		playerEngineForWhite.setDepth(uciEngineDepthForWhite);
 
 		viewConfig.setThreadsForBlack(threadsForBlack);
 		playerEngineForBlack.setThreads(threadsForBlack);
@@ -446,8 +447,8 @@ public class MainViewController extends ControllerTemplate {
 		viewConfig.setUciEloForBlack(uciEloForBlack);
 		playerEngineForBlack.setUciElo(uciEloForBlack);
 		
-		viewConfig.setStockfishDepthForBlack(stockfishDepthForBlack);
-		playerEngineForBlack.setDepth(stockfishDepthForBlack);
+		viewConfig.setUciEngineDepthForBlack(uciEngineDepthForBlack);
+		playerEngineForBlack.setDepth(uciEngineDepthForBlack);
 		return "redirect:/?update=true";
 	}
 	
@@ -455,12 +456,12 @@ public class MainViewController extends ControllerTemplate {
 	 * Handles the POST request to update the settings. Applies the new settings and
 	 * reloads the game if necessary.
 	 *
-	 * @param stockfishActive   The new value for the Stockfish activation setting.
+	 * @param uciEngineActive   The new value for the UciEngine activation setting.
 	 * @param color             The selected color theme.
 	 * @param timeForEachPlayer The new time allocated for each player.
 	 * @param leftOffset        The new left offset for the chessboard.
 	 * @param squareSize        The new size for each square on the chessboard.
-	 * @param stockfishDepth    The new depth for Stockfish analysis.
+	 * @param uciEngineDepth    The new depth for UciEngine analysis.
 	 * @return A redirect to the main view with updated settings.
 	 * @throws Exception If any error occurs during the update.
 	 */
@@ -486,6 +487,11 @@ public class MainViewController extends ControllerTemplate {
 		viewConfig.setAnimationDuration(animationDuration);
 		
 		return "redirect:/?update=true";
+	}
+
+	@Override
+	protected Logger getLogger() { 
+		return logger;
 	}
 
 }

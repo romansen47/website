@@ -4,12 +4,12 @@ FROM ubuntu:24.04
 # Set environment variable to avoid interactive prompts during apt operations
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Update the image and install necessary packages (Maven, Java 17, Git, Apache, and Stockfish)
+# Update the image and install necessary packages (Maven, Java 17, Git, Apache, and UciEngine)
 RUN apt-get update && \
     apt-get install -y software-properties-common && \
     add-apt-repository ppa:openjdk-r/ppa && \
     apt-get update && \
-    apt-get install -y openjdk-17-jdk apache2 git maven stockfish openssl && \
+    apt-get install -y openjdk-17-jdk apache2 git maven uciEngine openssl && \
     a2enmod proxy proxy_http proxy_wstunnel rewrite ssl && \
     apt-get clean
 
