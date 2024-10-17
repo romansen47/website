@@ -101,7 +101,7 @@ public class ChessApiController extends ControllerTemplate {
 	private boolean checkForGameState(Game chessGame) throws Exception {
 
 		if (chessGame.getState() != null) {
-			evaluationEngine.stopInfiniteEvaluation();
+			getEvaluationEngine().stopInfiniteEvaluation();
 			String message = "";
 			long white;
 			long black;
@@ -519,7 +519,7 @@ public class ChessApiController extends ControllerTemplate {
 	protected ChessApiResponse<Double> getUciEngineEvaluation()
 			throws IOException, InterruptedException, ExecutionException {
 		Game chessGame = (Game) get("chessGame");
-		List<Pair<Double, String>> bestLines = evaluationEngine.getBestLines(chessGame);
+		List<Pair<Double, String>> bestLines = getEvaluationEngine().getBestLines(chessGame);
 		double eval;
 		if (bestLines.isEmpty()) {
 			eval = (double) get("uciEngineEvaluation");
@@ -654,12 +654,11 @@ public class ChessApiController extends ControllerTemplate {
 				put("uciEngineEvaluation", eval);
 				mv = s.split(":")[1].split(" ")[1];
 			} else {
-				mv = evaluationEngine.getBestLines(((Game) get("chessGame"))).toString().split(" ")[0];
+				mv = getEvaluationEngine().getBestLines(((Game) get("chessGame"))).toString().split(" ")[0];
 			}
 		}
 		Map<String, String> map = new LinkedHashMap<>();
 
-//		logger.info("move: {}", mv);
 		map.put("from", mv.substring(0, 2));
 		map.put("to", mv.substring(2, 4));
 		return new ChessApiResponse<>(true, map);

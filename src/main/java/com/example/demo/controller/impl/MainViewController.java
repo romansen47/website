@@ -371,10 +371,10 @@ public class MainViewController extends ControllerTemplate {
 
 		/////////////////////////////////////////
 		viewConfig.setUciEngineDepthForEvaluationEngine(uciEngineDepthForEvaluationEngine);
-		evaluationEngine.setDepth(uciEngineDepthForEvaluationEngine);
+		getEvaluationEngine().setDepth(uciEngineDepthForEvaluationEngine);
 
 		viewConfig.setMultiPVForEvaluationEngine(multiPVForEvaluationEngine);
-		evaluationEngine.setMultiPV(multiPVForEvaluationEngine);
+		getEvaluationEngine().setMultiPV(multiPVForEvaluationEngine);
 
 		viewConfig.setUciEngineActive(uciEngineActive);
 

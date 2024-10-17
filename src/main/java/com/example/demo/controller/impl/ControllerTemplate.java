@@ -45,8 +45,8 @@ public abstract class ControllerTemplate implements ChessController {
 	
 	protected List<EvaluationEngine> evaluationEngines = new ArrayList<>();
 	
-	@Autowired
-	protected EvaluationEngine evaluationEngine;
+//	@Autowired
+	private EvaluationEngine evaluationEngine;
 
 	@Autowired
 	protected PlayerEngine playerEngineForWhite;
@@ -247,4 +247,16 @@ public abstract class ControllerTemplate implements ChessController {
 	protected abstract Logger getLogger();
 	
 	protected abstract String reset() throws Exception;
+
+	protected EvaluationEngine getEvaluationEngine() {
+		if (evaluationEngine != null) {
+			return evaluationEngine;
+		} else {
+			return this.evaluationEngines.get(0);
+		}
+	}
+
+	protected void setEvaluationEngine(EvaluationEngine evaluationEngine) {
+		this.evaluationEngine = evaluationEngine;
+	}
 }
