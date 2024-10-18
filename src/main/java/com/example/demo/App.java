@@ -138,6 +138,26 @@ public class App extends ChessAdmin implements AppAdmin {
 		} catch (Exception e) {
 			logger.info("Failed to create player engine gnuchess"); 
 		}
+		try {
+			engines.put(Engine.FRUIT, new PlayerUciEngine("/usr/games/fruit") {
+				@Override
+				public String toString() {
+					return Engine.FRUIT.toString();
+				}
+			});
+		} catch (Exception e) {
+			logger.info("Failed to create player engine gnuchess"); 
+		}
+		try {
+			engines.put(Engine.FAIRY, new PlayerUciEngine("/usr/games/fairy-stockfish") {
+				@Override
+				public String toString() {
+					return Engine.FAIRY.toString();
+				}
+			});
+		} catch (Exception e) {
+			logger.info("Failed to create player engine gnuchess"); 
+		}
 		return engines;
 	}
 

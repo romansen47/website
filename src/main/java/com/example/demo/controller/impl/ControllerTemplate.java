@@ -58,7 +58,7 @@ public abstract class ControllerTemplate implements ChessController {
 	protected Attributes attributes;
 
 	public void setup() throws Exception{
-		put("playerEngineForWhite", playerEngines.get(Engine.GNUCHESS));
+		put("playerEngineForWhite", playerEngines.get(Engine.STOCKFISH));
 		put("playerEngineForBlack", playerEngines.get(Engine.STOCKFISH));
 	}
 
