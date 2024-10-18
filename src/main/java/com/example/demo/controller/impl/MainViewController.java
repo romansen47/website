@@ -24,6 +24,11 @@ import com.example.demo.model.DisplayedPiece;
 import com.example.demo.model.impl.DisplayedChessPiece;
 
 import demo.chess.definitions.Color;
+import demo.chess.definitions.engines.Engine;
+import demo.chess.definitions.engines.EngineConfig;
+import demo.chess.definitions.engines.EvaluationEngine;
+import demo.chess.definitions.engines.PlayerEngine;
+import demo.chess.definitions.engines.UciEngineConfig;
 import demo.chess.definitions.pieces.Piece;
 import demo.chess.definitions.states.State;
 import demo.chess.game.Game;
@@ -43,7 +48,7 @@ public class MainViewController extends ControllerTemplate {
 
 	@Autowired
 	private ViewControllerHelper helper;
-
+	
 	@PostConstruct
 	public void init() throws Exception {
 		setup();
@@ -63,18 +68,22 @@ public class MainViewController extends ControllerTemplate {
 		boolean startUp = false;
 		Game tmpChessGame = getChessGame();
 		if (tmpChessGame == null) {
-			tmpChessGame = admin.chessGame(viewConfig.getTimeForEachPlayer());
-			put("chessGame", tmpChessGame);
+			tmpChessGame = this.createNewGame();
 			startUp = true;
 		}
 		final Game chessGame = tmpChessGame;
 
+		put("evaluationEngine", evaluationEngines.get(Engine.STOCKFISH));
 		put("uciEngineDepthForEvaluation", 0.5);
 		put("regular", !viewConfig.getIsFlipped());
 		put("silent", false);
 		put("remainingTimeForWhite", chessGame.getWhitePlayer().getChessClock().getTime(TimeUnit.MILLISECONDS));
 		put("remainingTimeForBlack", chessGame.getBlackPlayer().getChessClock().getTime(TimeUnit.MILLISECONDS));
 
+        put("engineConfigEval", new UciEngineConfig());
+        put("engineConfigForWhite", new UciEngineConfig());
+        put("engineConfigForBlack", new UciEngineConfig());
+        
 		chessGame.getWhitePlayer().setupClock(viewConfig.getTimeForEachPlayer(), viewConfig.getIncrementForWhite(),
 				() -> {	chessGame.setState(State.LOST_ON_TIME);
 						if (!chessGame.getWhitePlayer().getChessClock().isStopped()) {
@@ -97,13 +106,14 @@ public class MainViewController extends ControllerTemplate {
 						webSocketService.sendMessage("Black lost on time!");
 				});
 
-		helper.setUnsetViewVariables();
+		helper.setUnsetViewVariables(this.getEvaluationEngine());
 
 		((List<DisplayedPiece>) get("elements")).clear();
 		((List<DisplayedField>) get("fields")).clear();
 
 		helper.createNewFields();
 		if (startUp) {
+			helper.setupEngineConfigurations();
 			createNewPiecesFromExistingPieces();
 		}
 
@@ -147,7 +157,7 @@ public class MainViewController extends ControllerTemplate {
 		String blackTimeString = minutesBlack + ":" + secondsBlackAsString;
 
 		// Add attributes to the model (this must be done last)
-		helper.addAttributes(color, whiteTimeString, blackTimeString, model);
+		helper.addAttributes(color, whiteTimeString, blackTimeString, model, this.getEvaluationEngine());
  
 		((List<DisplayedField>) get("fields")).clear();
 		helper.createNewFields();
@@ -217,16 +227,29 @@ public class MainViewController extends ControllerTemplate {
 	@Override 
 	protected String reset() throws Exception {
 		put("engineMatch", false);
-		Game chessGame = (Game) get("chessGame");
-		chessGame.getWhitePlayer().getChessClock().stop();
-		chessGame.getBlackPlayer().getChessClock().stop();
-		put("chessGame", admin.chessGame(viewConfig.getTimeForEachPlayer()));
+		createNewGame();
 		setup();
-		this.helper.setUnsetViewVariables();
+		this.helper.setUnsetViewVariables(this.getEvaluationEngine());
 		createNewPiecesFromExistingPieces();
 		return "redirect:/?reset=true";
 	}
 	
+	private Game createNewGame() throws Exception { 
+		Game chessGame = (Game) get("chessGame");
+		if (chessGame == null) {
+			chessGame = admin.chessGame(viewConfig.getTimeForEachPlayer());
+		} else {
+			if (chessGame.getWhitePlayer().getChessClock().isStarted()) {
+				chessGame.getWhitePlayer().getChessClock().stop();
+			}
+			if (chessGame.getBlackPlayer().getChessClock().isStarted()) {
+				chessGame.getBlackPlayer().getChessClock().stop();
+			}
+		}
+		put("chessGame", chessGame);
+		return chessGame;
+	}
+
 	/**
 	 * Handles POST requests to reset the chessboard to its initial state.
 	 *
@@ -257,15 +280,14 @@ public class MainViewController extends ControllerTemplate {
 		    	chessGame.getBlackPlayer().getChessClock().stop(); 
 			}
 	    }
-	    chessGame = admin.chessGame(viewConfig.getTimeForEachPlayer());
+	    createNewGame();
+	    chessGame = (Game) get("chessGame");
 		viewConfig.setIncrementForWhite(incrementForWhite);
 		chessGame.getWhitePlayer().getChessClock().setIncrementMillis(incrementForWhite * 1000l);
 		viewConfig.setIncrementForBlack(incrementForBlack);
-		chessGame.getBlackPlayer().getChessClock().setIncrementMillis(incrementForBlack * 1000l);
-		viewConfig.setTimeForEachPlayer(timeForEachPlayer);
-		put("chessGame", chessGame);
+		chessGame.getBlackPlayer().getChessClock().setIncrementMillis(incrementForBlack * 1000l); 
 		setup();
-		this.helper.setUnsetViewVariables();
+		this.helper.setUnsetViewVariables(this.getEvaluationEngine());
 
 		createNewPiecesFromExistingPieces();
 		
@@ -281,12 +303,12 @@ public class MainViewController extends ControllerTemplate {
 	@ResponseBody
 	protected void startEngineGame() throws Exception {
 		put("engineMatch", true);
-		Game chessGame = getChessGame();//admin.chessGame(viewConfig.getTimeForEachPlayer());
+		Game chessGame = getChessGame();
 		chessGame.getWhitePlayer().getChessClock().setIncrementMillis(viewConfig.getIncrementForWhite() * 1000l);
 		chessGame.getBlackPlayer().getChessClock().setIncrementMillis(viewConfig.getIncrementForBlack() * 1000l);
 		put("chessGame", chessGame);
 		setup();
-		this.helper.setUnsetViewVariables();
+		this.helper.setUnsetViewVariables(this.getEvaluationEngine());
 		createNewPiecesFromExistingPieces();
 		webSocketService.sendReloadSignal();
 		Thread.sleep(200l);
@@ -371,10 +393,10 @@ public class MainViewController extends ControllerTemplate {
 
 		/////////////////////////////////////////
 		viewConfig.setUciEngineDepthForEvaluationEngine(uciEngineDepthForEvaluationEngine);
-		getEvaluationEngine().setDepth(uciEngineDepthForEvaluationEngine);
+		((EngineConfig) get("engineConfigEval")).setDepth(uciEngineDepthForEvaluationEngine);
 
 		viewConfig.setMultiPVForEvaluationEngine(multiPVForEvaluationEngine);
-		getEvaluationEngine().setMultiPV(multiPVForEvaluationEngine);
+		((EngineConfig) get("engineConfigEval")).setMultiPV(multiPVForEvaluationEngine);
 
 		viewConfig.setUciEngineActive(uciEngineActive);
 
@@ -412,43 +434,42 @@ public class MainViewController extends ControllerTemplate {
 
 
 		viewConfig.setThreadsForWhite(threadsForWhite);
-		playerEngineForWhite.setThreads(threadsForBlack);
+		((EngineConfig) get("engineConfigForWhite")).setThreads(threadsForBlack);
 		
 		viewConfig.setHashSizeForWhite(hashSizeForWhite);
-		playerEngineForWhite.setHashSize(hashSizeForWhite);
+		((EngineConfig) get("engineConfigForWhite")).setHashSize(hashSizeForWhite);
 
 		viewConfig.setContemptForWhite(contemptForWhite);
-		playerEngineForWhite.setContempt(contemptForWhite); 
+		((EngineConfig) get("engineConfigForWhite")).setContempt(contemptForWhite); 
 
 		viewConfig.setUciEloForWhite(uciEloForWhite);
-		playerEngineForWhite.setUciElo(uciEloForWhite);
+		((EngineConfig) get("engineConfigForWhite")).setUciElo(uciEloForWhite);
 
 		viewConfig.setMoveOverheadForWhite(moveOverheadForWhite);
-		playerEngineForWhite.setMoveOverhead(moveOverheadForWhite);
+		((EngineConfig) get("engineConfigForWhite")).setMoveOverhead(moveOverheadForWhite);
 
 		viewConfig.setUciEngineDepthForWhite(uciEngineDepthForWhite);
-		playerEngineForWhite.setDepth(uciEngineDepthForWhite);
+		((EngineConfig) get("engineConfigForWhite")).setDepth(uciEngineDepthForWhite);
 
 		viewConfig.setThreadsForBlack(threadsForBlack);
-		playerEngineForBlack.setThreads(threadsForBlack);
-
+		((EngineConfig) get("engineConfigForBlack")).setThreads(threadsForBlack);
 		
 		viewConfig.setHashSizeForBlack(hashSizeForBlack);
-		playerEngineForBlack.setHashSize(hashSizeForBlack);
-
+		((EngineConfig) get("engineConfigForBlack")).setHashSize(hashSizeForBlack);
 
 		viewConfig.setContemptForBlack(contemptForBlack);
-		playerEngineForBlack.setContempt(contemptForBlack);
+		((EngineConfig) get("engineConfigForBlack")).setContempt(contemptForBlack);
 
 
 		viewConfig.setMoveOverheadForBlack(moveOverheadForBlack);
-		playerEngineForBlack.setMoveOverhead(moveOverheadForBlack);
+		((EngineConfig) get("engineConfigForBlack")).setMoveOverhead(moveOverheadForBlack);
 
 		viewConfig.setUciEloForBlack(uciEloForBlack);
-		playerEngineForBlack.setUciElo(uciEloForBlack);
+		((EngineConfig) get("engineConfigForBlack")).setUciElo(uciEloForBlack);
 		
 		viewConfig.setUciEngineDepthForBlack(uciEngineDepthForBlack);
-		playerEngineForBlack.setDepth(uciEngineDepthForBlack);
+		((EngineConfig) get("engineConfigForBlack")).setDepth(uciEngineDepthForBlack);
+		
 		return "redirect:/?update=true";
 	}
 	

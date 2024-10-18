@@ -111,7 +111,15 @@
         <form action="/uciEngine-settings" method="post">
 			<div class="columns-container">
                 <div class="column">
-                    <h3>White player engine</h3>                
+                    <h3>White player engine</h3>
+                    <!-- <div class="form-group">
+					    <label for="selectedEngine">Select Engine</label>
+					    <select name="selectedEngine" th:id="selectedEngine" th:field="*{selectedEngine}">
+					        <option th:each="engine : ${availableEngines}" th:value="${engine}" th:text="${engine}"
+					                th:selected="${engine == 'stockfish'}">Stockfish</option>
+					    </select>
+					    <span class="tooltip">Choose your engine</span>
+					</div>     -->     
                     <div class="form-group">
                         <label for="uciEngineDepthForWhite">Depth</label>
                         <input type="number" name="uciEngineDepthForWhite" th:value="${viewConfig.uciEngineDepthForWhite}" min="0" max="30"/>

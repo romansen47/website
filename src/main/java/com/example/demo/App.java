@@ -1,6 +1,9 @@
 package com.example.demo;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -102,30 +105,6 @@ public class App extends ChessAdmin implements AppAdmin {
 				new BlackPlayerImpl(moveList, "ChessGame"), moveList, this, time);
 	}
 
-	@Override
-	@Bean(name = "playerEngineForWhite")
-	public PlayerEngine playerEngineForWhite() throws Exception {
-		PlayerEngine engine = new PlayerUciEngine("/usr/games/stockfish", Engine.STOCKFISH.label()) {
-				@Override
-				public String toString() {
-					return "player engine (white) on linux";
-				}
-			};
-		return engine;
-	}
-
-	@Override
-	@Bean(name = "playerEngineForBlack")
-	public PlayerEngine playerEngineForBlack() throws Exception {
-		PlayerEngine engine = new PlayerUciEngine("/usr/games/stockfish", Engine.STOCKFISH.label()) {
-				@Override
-				public String toString() {
-					return "player engine (black) on linux";
-				}
-			}; 
-		return engine;
-	}
-
 	@Bean(name = "attributes")
 	@Override
 	public Attributes attributes() {
@@ -133,6 +112,33 @@ public class App extends ChessAdmin implements AppAdmin {
 		attributes.put("elements", new ArrayList<>());
 		attributes.put("fields", new ArrayList<>());
 		return attributes;
+	}
+	
+	@Bean
+	@Override
+	public Map<Engine, PlayerEngine> playerEngines(){
+		Map<Engine, PlayerEngine> engines = new HashMap<>();
+		try {
+			engines.put(Engine.STOCKFISH, new PlayerUciEngine("/usr/games/stockfish", Engine.STOCKFISH.label()) {
+				@Override
+				public String toString() {
+					return Engine.STOCKFISH.toString();
+				}
+			});
+		} catch (Exception e) {
+			logger.info("Failed to create player engine stockfish 16"); 
+		}
+		try {
+			engines.put(Engine.GNUCHESS, new PlayerUciEngine("/usr/games/gnuchessu", Engine.GNUCHESS.label()) {
+				@Override
+				public String toString() {
+					return Engine.GNUCHESS.toString();
+				}
+			});
+		} catch (Exception e) {
+			logger.info("Failed to create player engine gnuchess"); 
+		}
+		return engines;
 	}
 
 }

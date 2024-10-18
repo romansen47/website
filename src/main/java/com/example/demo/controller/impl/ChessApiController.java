@@ -38,6 +38,8 @@ import com.example.demo.model.DisplayedPiece;
 
 import demo.chess.definitions.Color;
 import demo.chess.definitions.PieceType;
+import demo.chess.definitions.engines.EngineConfig;
+import demo.chess.definitions.engines.EvaluationEngine;
 import demo.chess.definitions.engines.PlayerEngine;
 import demo.chess.definitions.engines.impl.NoMoveFoundException;
 import demo.chess.definitions.fields.Field;
@@ -392,8 +394,7 @@ public class ChessApiController extends ControllerTemplate {
 	 */
 	@PostMapping("/load-game")
 	@ResponseBody
-	protected void loadGame() throws Exception {
-//		this.reset();
+	protected void loadGame() throws Exception { 
 		setup();
 		loadGame("save-game.txt");
 		helper.sendReloadSignal();
@@ -431,9 +432,7 @@ public class ChessApiController extends ControllerTemplate {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No file selected.");
 		}
 
-		try {
-			// Read the file content (replace this with your actual logic for loading the
-			// game)
+		try { 
 			FileWriter fw = new FileWriter("save-game.txt");
 			BufferedWriter bw = new BufferedWriter(fw);
 			bw.write(new String(file.getBytes()));
@@ -460,35 +459,36 @@ public class ChessApiController extends ControllerTemplate {
 		StringBuilder moveListHtml = new StringBuilder();
 
 		if ((boolean) get("engineMatch")) {
-			moveListHtml.append("<div>UciEngine (depth " + viewConfig.getUciEngineDepthForWhite() + ") - UciEngine (depth "
+			moveListHtml.append("<div><b>" + get("playerEngineForWhite") + "</b> (depth " + viewConfig.getUciEngineDepthForWhite() + ") "
+					+ " - <b>" + get("playerEngineForBlack") + "</b> (depth "
 					+ viewConfig.getUciEngineDepthForBlack() + ")</div>");
-		} else {
-			moveListHtml.append("<div>Player vs UciEngine</div>");
+		} else if (!viewConfig.getIsFlipped()){
+			moveListHtml.append("<div><b>Player</b> vs <b>"+ get("playerEngineForBlack") +"</b></div>");
+		} else{
+			moveListHtml.append("<div><b>" + get("playerEngineForWhite") + "</b> vs <b>Player</b> + </div>");
 		}
 		moveListHtml.append("<hr/>");
 
 		for (int i = 0; i < moves.size(); i += 2) {
 			moveListHtml.append("<div style='display: flex;'>");
-
-			// Füge den ersten Zug (Weiß) hinzu mit fester Breite
+ 
 			moveListHtml.append("<span style='width: 1px; display: inline-block; margin-left: 20px;'>")
 					.append(i / 2 + 1).append("</span>")
 					.append("<span style='width: 40px; display: inline-block; margin-left: 20px;'>").append(" : 	")
 					.append("</span>").append("<span style='width: 60px; display: inline-block;'>")
-					.append(helper.getUnicodeSymbol(moves.get(i).getPiece())) // Schachsymbol für die Figur
+					.append(helper.getUnicodeSymbol(moves.get(i).getPiece())) 
 					.append(" ").append(moves.get(i).toString()).append("</span>");
-
-			// Falls ein zweiter Zug (Schwarz) vorhanden ist, füge ihn hinzu
+ 
 			if (i + 1 < moves.size()) {
 				moveListHtml.append("<span style='width: 60px; display: inline-block; margin-left: 20px;'>")
-						.append(helper.getUnicodeSymbol(moves.get(i + 1).getPiece())) // Schachsymbol für die Figur
+						.append(helper.getUnicodeSymbol(moves.get(i + 1).getPiece()))  
 						.append(" 		").append(moves.get(i + 1).toString()).append("</span>");
 			}
 
 			moveListHtml.append("</div>");
 		}
 
-		return new ChessApiResponse<>(true, moveListHtml.toString()); // Rückgabe des HTML-Strings
+		return new ChessApiResponse<>(true, moveListHtml.toString());  
 	}
 
 	/**
@@ -501,9 +501,8 @@ public class ChessApiController extends ControllerTemplate {
 	@GetMapping("/uciEngineMoveList")
 	@ResponseBody
 	protected ChessApiResponse<List<String>> getStockFishMoveList() throws Exception {
-		return new ChessApiResponse<>(true,
-//				helper.getStockFishMoveList(((List<Pair<Double, String>>)get("uciEngineMoveList"))));
-				helper.getStockFishMoveList());
+		return new ChessApiResponse<>(true, 
+				helper.getEvaluationEngineMoveList(this.getEvaluationEngine()));
 	}
 
 	/**
@@ -519,7 +518,10 @@ public class ChessApiController extends ControllerTemplate {
 	protected ChessApiResponse<Double> getUciEngineEvaluation()
 			throws IOException, InterruptedException, ExecutionException {
 		Game chessGame = (Game) get("chessGame");
-		List<Pair<Double, String>> bestLines = getEvaluationEngine().getBestLines(chessGame);
+		if (chessGame.getState() != null) {
+			new ChessApiResponse<>(false, 0.5d);
+		}
+		List<Pair<Double, String>> bestLines = getEvaluationEngine().getBestLines(chessGame, (EngineConfig) get("engineConfigEval"));
 		double eval;
 		if (bestLines.isEmpty()) {
 			eval = (double) get("uciEngineEvaluation");
@@ -559,26 +561,24 @@ public class ChessApiController extends ControllerTemplate {
 
 	@GetMapping("/currentTime")
 	@ResponseBody
-	public ChessApiResponse<Map<String, Integer>> getCurrentTime() {
-		// Zeit für beide Spieler berechnen
+	public ChessApiResponse<Map<String, Integer>> getCurrentTime() { 
 		int timeForEachPlayer = ((Game) get("chessGame")).getTimeForEachPlayer();
 		int whiteTime = timeForEachPlayer
 				- (int) ((Game) get("chessGame")).getWhitePlayer().getChessClock().getTime(TimeUnit.SECONDS);
 		int blackTime = timeForEachPlayer
 				- (int) ((Game) get("chessGame")).getBlackPlayer().getChessClock().getTime(TimeUnit.SECONDS);
-
-		// Zeit in eine Map packen
+ 
 		Map<String, Integer> timeMap = new HashMap<>();
-		timeMap.put("whiteTime", Math.max(0, whiteTime)); // Stellt sicher, dass die Zeit nicht negativ ist
-		timeMap.put("blackTime", Math.max(0, blackTime)); // Stellt sicher, dass die Zeit nicht negativ ist
+		timeMap.put("whiteTime", Math.max(0, whiteTime));  
+		timeMap.put("blackTime", Math.max(0, blackTime));  
 
 		return new ChessApiResponse<>(true, timeMap);
 	}
 
 	@PostMapping("/updateCapturedPiecesPosition")
 	public ChessApiResponse<String> updateCapturedPiecesPosition(@RequestParam int top, @RequestParam int left) {
-		viewConfig.setCapturedPiecesTop(top); // Setze die Top-Position
-		viewConfig.setCapturedPiecesLeft(left); // Setze die Left-Position
+		viewConfig.setCapturedPiecesTop(top);  
+		viewConfig.setCapturedPiecesLeft(left);  
 		return new ChessApiResponse<>(true, "Position updated");
 	}
 
@@ -589,34 +589,35 @@ public class ChessApiController extends ControllerTemplate {
 		if (!checkForGameState((Game) get("chessGame"))) {
 			return new ChessApiResponse<>(true, response);
 		}
-		if (uciEngineActive && ((Game) get("chessGame")).getState() == null) {
-			// Berechne den besten Zug von UciEngine
-			PlayerEngine playerEngine = ((Game) get("chessGame")).getPlayer().getColor().equals(Color.WHITE)
-					? playerEngineForWhite
-					: playerEngineForBlack;
-
-			Move move = playerEngine.getBestMove(((Game) get("chessGame")));
+		if (uciEngineActive && ((Game) get("chessGame")).getState() == null) { 
+			Color color = getChessGame().getPlayer().getColor();
+			PlayerEngine playerEngine = color.equals(Color.WHITE)
+					? ((PlayerEngine) get("playerEngineForWhite"))
+					: ((PlayerEngine) get("playerEngineForBlack"));
+			EngineConfig config = color.equals(Color.WHITE) 
+					? (EngineConfig) get("engineConfigForWhite") 
+					: (EngineConfig) get("engineConfigForBlack");
+			Move move = playerEngine.getBestMove(((Game) get("chessGame")), config);
 
 			if ((boolean) get("engineMatch")) {
 				response.put("engineClash", true);
 			}
-			// Bereite die Antwort mit dem UciEngine-Zug für das Frontend vor
 			response.put("uciEngineActive", true);
 			if (move instanceof Castling) {
-				logger.info("uciEngine applying castling: {}", move);
+				logger.info("{} applying castling: {}", playerEngine, move);
 				response.put("type", "castling");
 				response.put("rooksource", ((Castling) move).getRook().getField().toString());
 				applyMove(move);
 				response.put("rooktarget", ((Castling) move).getRook().getField().toString());
 				response.put("move", move.toString());
 			} else if (move instanceof EnPassant) {
-				logger.info("uciEngine applying enpassent: {}", move);
+				logger.info("{} applying enpassent: {}", playerEngine, move);
 				response.put("type", "enpassant");
 				response.put("slayed", ((EnPassant) move).getSlayedPiece().getField().toString());
 				response.put("move", move.toString());
 				applyMove(move);
 			} else if (move instanceof Promotion) {
-				logger.info("uciEngine applying promotion: {}", move);
+				logger.info("{} applying promotion: {}", playerEngine, move);
 				response.put("type", "promotion");
 				if (move.getTarget().getPiece() != null) {
 					response.put("slayed", move.getTarget().toString());
@@ -626,19 +627,18 @@ public class ChessApiController extends ControllerTemplate {
 				response.put("color", ((Promotion) move).getPromotedPiece().getColor().toString().toLowerCase());
 				applyMove(move);
 			} else if (move.getTarget().getPiece() != null) {
-				logger.info("uciEngine applying regular slaying: {}", move);
+				logger.info("{} applying regular slaying: {}", playerEngine, move);
 				response.put("slayed", move.getTarget().toString());
 				response.put("move", move.toString());
 				applyMove(move);
 			} else {
-				logger.info("uciEngine applying regular move: {}", move);
+				logger.info("{} applying regular move: {}", playerEngine, move);
 				response.put("move", move.toString());
 				applyMove(move);
 			}
 			return new ChessApiResponse<>(true, response);
 
-		} else {
-			// Wenn UciEngine nicht aktiv ist, wird nur der Spieler gewechselt
+		} else { 
 			response.put("uciEngineActive", false);
 			return new ChessApiResponse<>(true, response);
 		}
@@ -646,25 +646,27 @@ public class ChessApiController extends ControllerTemplate {
 
 	@GetMapping("/uciEngineBestMove")
 	protected ChessApiResponse<Map<String, String>> getBestMoveForArrow() throws Exception {
+		Map<String, String> map = new LinkedHashMap<>();
+		if (((Game) get("chessGame")).getState() != null) {
+			return new ChessApiResponse<>(false, map);
+		}
 		String mv = "";
 		while (mv.isBlank() || mv.equals("[]")) {
-			if (!helper.getStockFishMoveList().isEmpty()) {
-				String s = helper.getStockFishMoveList().get(0);
+			if (!helper.getEvaluationEngineMoveList(this.getEvaluationEngine()).isEmpty()) {
+				String s = helper.getEvaluationEngineMoveList(this.getEvaluationEngine()).get(0);
 				double eval = Double.parseDouble(s.split(":")[0]);
 				put("uciEngineEvaluation", eval);
 				mv = s.split(":")[1].split(" ")[1];
 			} else {
-				mv = getEvaluationEngine().getBestLines(((Game) get("chessGame"))).toString().split(" ")[0];
+				mv = getEvaluationEngine().getBestLines((Game) get("chessGame"), (EngineConfig) get("engineConfigEval")).toString().split(" ")[0];
 			}
 		}
-		Map<String, String> map = new LinkedHashMap<>();
 
 		map.put("from", mv.substring(0, 2));
 		map.put("to", mv.substring(2, 4));
 		return new ChessApiResponse<>(true, map);
 	}
-
-	// following things may remain here and will not be extracted
+ 
 	public void applyMove(Move move) throws Exception {
 		Game chessGame = ((Game) get("chessGame"));
 		if (!checkForGameState(chessGame)) {
@@ -673,7 +675,7 @@ public class ChessApiController extends ControllerTemplate {
 		chessGame.apply(move);
 		if (viewConfig.isShowArrows() || viewConfig.isShowEvaluation() || viewConfig.isShowUciEngineLines()) {
 			((List<Pair<Double, String>>) get("uciEngineMoveList")).clear();
-			helper.getStockFishMoveList();
+			helper.getEvaluationEngineMoveList(this.getEvaluationEngine());
 		}
 		this.webSocketService.updateClocks();
 	}

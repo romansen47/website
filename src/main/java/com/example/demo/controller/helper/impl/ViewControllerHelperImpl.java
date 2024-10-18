@@ -13,21 +13,13 @@ import com.example.demo.model.DisplayedField;
 import com.example.demo.model.impl.DisplayedChessField;
 
 import demo.chess.definitions.Color;
+import demo.chess.definitions.engines.EngineConfig;
 import demo.chess.definitions.engines.EvaluationEngine;
 import demo.chess.definitions.engines.PlayerEngine;
 import demo.chess.game.Game;
 
 @Component
 public class ViewControllerHelperImpl implements ViewControllerHelper {
-
-	@Autowired
-	protected EvaluationEngine evaluationEngine;
-
-	@Autowired
-	protected PlayerEngine playerEngineForWhite;
-
-	@Autowired
-	protected PlayerEngine playerEngineForBlack;
 
 	@Autowired
 	protected Config viewConfig;
@@ -44,7 +36,7 @@ public class ViewControllerHelperImpl implements ViewControllerHelper {
 	 * @param model           the model to add attributes to
 	 */
 	@Override
-	public void addAttributes(String color, String whiteTimeString, String blackTimeString, Model model) {
+	public void addAttributes(String color, String whiteTimeString, String blackTimeString, Model model, EvaluationEngine evaluationEngine) {
 
 		model.addAttribute("whiteTime", whiteTimeString);
 		model.addAttribute("blackTime", blackTimeString);
@@ -65,7 +57,7 @@ public class ViewControllerHelperImpl implements ViewControllerHelper {
 
 		model.addAttribute("uciEngineMoveListTop", viewConfig.getUciEngineMoveListTop());
 		model.addAttribute("uciEngineMoveListLeft", viewConfig.getUciEngineMoveListLeft());
-		model.addAttribute("uciEngineMoveListWidth", (this.evaluationEngine.getDepth() + 1) * 6 * 10);
+		model.addAttribute("uciEngineMoveListWidth", (((EngineConfig) get("engineConfigEval")).getDepth() + 1) * 6 * 10);
 		model.addAttribute("chessboardSize", 8 * viewConfig.getSquareSize());
 		model.addAttribute("capturedTop", viewConfig.getCapturedPiecesTop());
 		model.addAttribute("capturedLeft", viewConfig.getCapturedPiecesLeft());
@@ -99,20 +91,8 @@ public class ViewControllerHelperImpl implements ViewControllerHelper {
 		model.addAttribute("clockHeight", viewConfig.getClockSize());
 		model.addAttribute("clockFontSize", viewConfig.getClockSize() / 2);
 
-		evaluationEngine.setDepth(viewConfig.getUciEngineDepthForEvaluationEngine());
-		evaluationEngine.setMultiPV(viewConfig.getMultiPVForEvaluationEngine());
+		setupEngineConfigurations();
 
-		playerEngineForWhite.setContempt(viewConfig.getContemptForWhite());
-		playerEngineForWhite.setHashSize(viewConfig.getHashSizeForWhite());
-		playerEngineForWhite.setMoveOverhead(viewConfig.getMoveOverheadForWhite());
-		playerEngineForWhite.setThreads(viewConfig.getThreadsForWhite());
-		playerEngineForWhite.setUciElo(viewConfig.getUciEloForWhite());
-
-		playerEngineForBlack.setContempt(viewConfig.getContemptForBlack());
-		playerEngineForBlack.setHashSize(viewConfig.getHashSizeForBlack());
-		playerEngineForBlack.setMoveOverhead(viewConfig.getMoveOverheadForBlack());
-		playerEngineForBlack.setThreads(viewConfig.getThreadsForBlack());
-		playerEngineForBlack.setUciElo(viewConfig.getUciEloForBlack());
 	}
 
 	@Override
@@ -141,7 +121,7 @@ public class ViewControllerHelperImpl implements ViewControllerHelper {
 	}
 
 	@Override
-	public void setUnsetViewVariables() {
+	public void setUnsetViewVariables(EvaluationEngine evaluationEngine) {
 
 		int leftOffset = viewConfig.getLeftOffset();
 		int squareSize = viewConfig.getSquareSize();
@@ -181,11 +161,31 @@ public class ViewControllerHelperImpl implements ViewControllerHelper {
 		int captureContainerHeight = 4 * squareSize;
 		viewConfig.setCapturedContainerHeight(captureContainerHeight);
 
-		evaluationEngine.setDepth(viewConfig.getUciEngineDepthForEvaluationEngine());
+		((EngineConfig) get("engineConfigEval")).setDepth(viewConfig.getUciEngineDepthForEvaluationEngine());
 	}
 
 	private Object get(String s) {
 		return attributes.get(s);
+	}
+
+	@Override
+	public void setupEngineConfigurations() {
+		((EngineConfig) get("engineConfigForWhite")).setThreads(viewConfig.getThreadsForWhite());
+		((EngineConfig) get("engineConfigForWhite")).setContempt(viewConfig.getContemptForWhite());
+		((EngineConfig) get("engineConfigForWhite")).setDepth(viewConfig.getUciEngineDepthForWhite());
+		((EngineConfig) get("engineConfigForWhite")).setHashSize(viewConfig.getHashSizeForWhite());
+		((EngineConfig) get("engineConfigForWhite")).setMoveOverhead(viewConfig.getMoveOverheadForWhite());
+		((EngineConfig) get("engineConfigForWhite")).setUciElo(viewConfig.getUciEloForWhite());
+		
+		((EngineConfig) get("engineConfigForBlack")).setThreads(viewConfig.getThreadsForBlack());
+		((EngineConfig) get("engineConfigForBlack")).setContempt(viewConfig.getContemptForBlack());
+		((EngineConfig) get("engineConfigForBlack")).setDepth(viewConfig.getUciEngineDepthForBlack());
+		((EngineConfig) get("engineConfigForBlack")).setHashSize(viewConfig.getHashSizeForBlack());
+		((EngineConfig) get("engineConfigForBlack")).setMoveOverhead(viewConfig.getMoveOverheadForBlack());
+		((EngineConfig) get("engineConfigForBlack")).setUciElo(viewConfig.getUciEloForBlack());
+		
+		((EngineConfig) get("engineConfigEval")).setMultiPV(viewConfig.getMultiPVForEvaluationEngine());
+		((EngineConfig) get("engineConfigEval")).setDepth(viewConfig.getUciEngineDepthForEvaluationEngine());
 	}
 
 }

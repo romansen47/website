@@ -6,6 +6,7 @@ import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Component;
 
+import demo.chess.definitions.engines.EvaluationEngine;
 import demo.chess.definitions.engines.impl.NoMoveFoundException;
 import demo.chess.definitions.fields.Field;
 import demo.chess.definitions.moves.Move;
@@ -37,5 +38,5 @@ public interface ApiControllerHelper {
 
 	String reset() throws Exception;
 
-	List<String> getStockFishMoveList() throws Exception;
+	List<String> getEvaluationEngineMoveList(EvaluationEngine evaluationEngine) throws Exception;
 }

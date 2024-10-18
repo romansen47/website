@@ -28,7 +28,7 @@ public class ViewConfig implements Config {
 	private int uciEngineDepthForEvaluationEngine = 15;
 	private int multiPVForEvaluationEngine = 10;
 
-	private int uciEngineDepthForWhite = 18;
+	private int uciEngineDepthForWhite = 8;
 	private int uciEngineDepthForBlack = 18;
 
 	private int threadsForWhite = 2;

@@ -19,6 +19,7 @@ import com.example.demo.elements.Attributes;
 import com.example.demo.model.Config;
 import com.example.demo.websockets.WebSocketService;
 
+import demo.chess.definitions.engines.EngineConfig;
 import demo.chess.definitions.engines.EvaluationEngine;
 import demo.chess.definitions.engines.PlayerEngine;
 import demo.chess.definitions.engines.impl.NoMoveFoundException;
@@ -36,15 +37,6 @@ public class ApiControllerHelperImpl implements ApiControllerHelper {
 
 	@Autowired
 	protected WebSocketService webSocketService;
-
-	@Autowired
-	protected EvaluationEngine evaluationEngine;
-
-	@Autowired
-	protected PlayerEngine playerEngineForWhite;
-
-	@Autowired
-	protected PlayerEngine playerEngineForBlack;
 
 	@Autowired
 	protected Config viewConfig;
@@ -223,10 +215,10 @@ public class ApiControllerHelperImpl implements ApiControllerHelper {
 	}
 
 	@Override
-	public List<String> getStockFishMoveList() throws Exception {
+	public List<String> getEvaluationEngineMoveList(EvaluationEngine evaluationEngine) throws Exception {
 
 		List<Pair<Double, String>> uniqueList = new ArrayList<>();
-		uniqueList.addAll(evaluationEngine.getBestLines(((Game) get("chessGame"))));
+		uniqueList.addAll(evaluationEngine.getBestLines((Game) get("chessGame"), (EngineConfig) get("engineConfigEval")));
 		List<Pair<Double, String>> copyOfUciEngineMoveList = removeDuplicatesByString(uniqueList);
 
 		List<String> answer = new ArrayList<>();

@@ -2,6 +2,7 @@ package com.example.demo.controller.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -39,21 +40,14 @@ import org.apache.logging.log4j.Logger;
 public abstract class ControllerTemplate implements ChessController {
 
 	@Autowired
-	protected AppAdmin admin;
-
-	protected List<PlayerEngine> playerEngines = new ArrayList<>();;
-	
-	protected List<EvaluationEngine> evaluationEngines = new ArrayList<>();
-	
-//	@Autowired
-	private EvaluationEngine evaluationEngine;
+	protected AppAdmin admin;  
 
 	@Autowired
-	protected PlayerEngine playerEngineForWhite;
-
+	protected Map<Engine, EvaluationEngine> evaluationEngines;
+	
 	@Autowired
-	protected PlayerEngine playerEngineForBlack;
-
+	protected Map<Engine, PlayerEngine> playerEngines;
+	 
 	@Autowired
 	protected WebSocketService webSocketService;
 
@@ -64,56 +58,8 @@ public abstract class ControllerTemplate implements ChessController {
 	protected Attributes attributes;
 
 	public void setup() throws Exception{
-		EvaluationEngine stockfishEvaluation;
-		try {
-			stockfishEvaluation = new EvaluationUciEngine("/usr/games/stockfish", Engine.STOCKFISH.label()) {
-				@Override
-				public String toString() {
-					return Engine.STOCKFISH.label();
-				};
-			};
-			evaluationEngines.add(stockfishEvaluation);
-		} catch(Exception e) {
-			getLogger().info("Creation of evaluation engine {} failed. Is it installed?", Engine.STOCKFISH.label());
-		}
-		EvaluationEngine gnuchessEvaluation;
-		try {
-			gnuchessEvaluation = new EvaluationUciEngine("/usr/games/gnuchessu", Engine.GNUCHESS.label()){
-				@Override
-				public String toString() {
-					return Engine.GNUCHESS.label();
-				};
-			};
-			evaluationEngines.add(gnuchessEvaluation);
-		} catch(Exception e) {
-			getLogger().info("Creation of evaluation engine {} failed. Is it installed?", Engine.GNUCHESS.label());
-		}
-		
-		PlayerEngine stockfish;
-		try {
-			stockfish = new PlayerUciEngine("/usr/games/stockfish", Engine.STOCKFISH.label()) {
-				@Override
-				public String toString() {
-					return Engine.STOCKFISH.label();
-				};
-			};
-			playerEngines.add(stockfish);
-		} catch(Exception e) {
-			getLogger().info("Creation of player engine {} failed. Is it installed?", Engine.STOCKFISH.label());
-		}
-		PlayerEngine gnuchess;
-		try {
-			gnuchess = new PlayerUciEngine("/usr/games/gnuchessu", Engine.GNUCHESS.label()){
-				@Override
-				public String toString() {
-					return Engine.GNUCHESS.label();
-				};
-			};;
-			playerEngines.add(gnuchess);
-		} catch(Exception e) {
-			getLogger().info("Creation of player engine {} failed. Is it installed?", Engine.GNUCHESS.label());
-		}
-		
+		put("playerEngineForWhite", playerEngines.get(Engine.GNUCHESS));
+		put("playerEngineForBlack", playerEngines.get(Engine.STOCKFISH));
 	}
 
 	protected void loadGame(String path) throws Exception {
@@ -249,14 +195,6 @@ public abstract class ControllerTemplate implements ChessController {
 	protected abstract String reset() throws Exception;
 
 	protected EvaluationEngine getEvaluationEngine() {
-		if (evaluationEngine != null) {
-			return evaluationEngine;
-		} else {
-			return this.evaluationEngines.get(0);
-		}
-	}
-
-	protected void setEvaluationEngine(EvaluationEngine evaluationEngine) {
-		this.evaluationEngine = evaluationEngine;
+		return this.evaluationEngines.get(Engine.STOCKFISH);
 	}
 }
