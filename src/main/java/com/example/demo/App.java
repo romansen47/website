@@ -119,7 +119,7 @@ public class App extends ChessAdmin implements AppAdmin {
 	public Map<Engine, PlayerEngine> playerEngines(){
 		Map<Engine, PlayerEngine> engines = new HashMap<>();
 		try {
-			engines.put(Engine.STOCKFISH, new PlayerUciEngine("/usr/games/stockfish", Engine.STOCKFISH.label()) {
+			engines.put(Engine.STOCKFISH, new PlayerUciEngine("/usr/games/stockfish") {
 				@Override
 				public String toString() {
 					return Engine.STOCKFISH.toString();
@@ -129,7 +129,7 @@ public class App extends ChessAdmin implements AppAdmin {
 			logger.info("Failed to create player engine stockfish 16"); 
 		}
 		try {
-			engines.put(Engine.GNUCHESS, new PlayerUciEngine("/usr/games/gnuchessu", Engine.GNUCHESS.label()) {
+			engines.put(Engine.GNUCHESS, new PlayerUciEngine("/usr/games/gnuchessu") {
 				@Override
 				public String toString() {
 					return Engine.GNUCHESS.toString();

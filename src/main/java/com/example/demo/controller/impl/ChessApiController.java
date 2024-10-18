@@ -465,7 +465,7 @@ public class ChessApiController extends ControllerTemplate {
 		} else if (!viewConfig.getIsFlipped()){
 			moveListHtml.append("<div><b>Player</b> vs <b>"+ get("playerEngineForBlack") +"</b></div>");
 		} else{
-			moveListHtml.append("<div><b>" + get("playerEngineForWhite") + "</b> vs <b>Player</b> + </div>");
+			moveListHtml.append("<div><b>" + get("playerEngineForWhite") + "</b> vs <b>Player</b></div>");
 		}
 		moveListHtml.append("<hr/>");
 

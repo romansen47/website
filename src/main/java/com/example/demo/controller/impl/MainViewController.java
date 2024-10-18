@@ -236,9 +236,7 @@ public class MainViewController extends ControllerTemplate {
 	
 	private Game createNewGame() throws Exception { 
 		Game chessGame = (Game) get("chessGame");
-		if (chessGame == null) {
-			chessGame = admin.chessGame(viewConfig.getTimeForEachPlayer());
-		} else {
+		if (chessGame != null) {
 			if (chessGame.getWhitePlayer().getChessClock().isStarted()) {
 				chessGame.getWhitePlayer().getChessClock().stop();
 			}
@@ -246,6 +244,7 @@ public class MainViewController extends ControllerTemplate {
 				chessGame.getBlackPlayer().getChessClock().stop();
 			}
 		}
+		chessGame = admin.chessGame(viewConfig.getTimeForEachPlayer());
 		put("chessGame", chessGame);
 		return chessGame;
 	}
@@ -282,8 +281,10 @@ public class MainViewController extends ControllerTemplate {
 	    }
 	    createNewGame();
 	    chessGame = (Game) get("chessGame");
+		chessGame.setIncrementForWhite(incrementForWhite * 1000);
 		viewConfig.setIncrementForWhite(incrementForWhite);
 		chessGame.getWhitePlayer().getChessClock().setIncrementMillis(incrementForWhite * 1000l);
+		chessGame.setIncrementForBlack(incrementForBlack * 1000);
 		viewConfig.setIncrementForBlack(incrementForBlack);
 		chessGame.getBlackPlayer().getChessClock().setIncrementMillis(incrementForBlack * 1000l); 
 		setup();

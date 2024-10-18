@@ -29,24 +29,24 @@ public class ViewConfig implements Config {
 	private int multiPVForEvaluationEngine = 10;
 
 	private int uciEngineDepthForWhite = 8;
-	private int uciEngineDepthForBlack = 18;
+	private int uciEngineDepthForBlack = 12;
 
-	private int threadsForWhite = 2;
+	private int threadsForWhite = 1;
 	private int hashSizeForWhite = 1024;
-	private int contemptForWhite = 0;
-	private int moveOverheadForWhite = 5;
-	private int uciEloForWhite = 2200;
+	private int contemptForWhite = 99;
+	private int moveOverheadForWhite = 2;
+	private int uciEloForWhite = 0;
 
-	private int threadsForBlack = 2;
+	private int threadsForBlack = 1;
 	private int hashSizeForBlack = 1024;
-	private int contemptForBlack = 0;
-	private int moveOverheadForBlack = 5;
-	private int uciEloForBlack = 2200;
+	private int contemptForBlack = 99;
+	private int moveOverheadForBlack = 2;
+	private int uciEloForBlack = 0;
 
-	private int leftOffset = 350;
-	private int squareSize = 60;
+	private int leftOffset = 400;
+	private int squareSize = 65;
 	private int topBarHeight = 40;
-	private int moveListWidth = 300;
+	private int moveListWidth = 320;
 
 	private int evalWidth;
 
