@@ -3,6 +3,7 @@ package com.example.demo.model.impl;
 import com.example.demo.model.Config;
 
 import demo.chess.definitions.Color;
+import demo.chess.definitions.engines.Engine;
 
 /**
  * Implementation of the {@link com.example.demo.model.Config} interface
@@ -25,6 +26,10 @@ public class ViewConfig implements Config {
 	private int updateIntervall = 1;
 	private int animationDuration = 100;
 
+	private Engine evaluationEngine = Engine.STOCKFISH;
+	private Engine playerEngineForWhite = Engine.STOCKFISH;
+	private Engine playerEngineForBlack = Engine.STOCKFISH;
+	
 	private int uciEngineDepthForEvaluationEngine = 15;
 	private int multiPVForEvaluationEngine = 5;
 
@@ -202,6 +207,36 @@ public class ViewConfig implements Config {
 	@Override
 	public void setMoveListLeft(int moveListLeft) {
 		this.moveListLeft = moveListLeft;
+	}
+
+	@Override
+	public Engine getEvaluationEngine() {
+		return evaluationEngine;
+	}
+
+	@Override
+	public void setEvaluationEngine(Engine evaluationEngine) {
+		this.evaluationEngine = evaluationEngine;
+	}
+
+	@Override
+	public Engine getPlayerEngineForWhite() {
+		return playerEngineForWhite;
+	}
+
+	@Override
+	public void setPlayerEngineForWhite(Engine playerEngineForWhite) {
+		this.playerEngineForWhite = playerEngineForWhite;
+	}
+
+	@Override
+	public Engine getPlayerEngineForBlack() {
+		return playerEngineForBlack;
+	}
+
+	@Override
+	public void setPlayerEngineForBlack(Engine playerEngineForBlack) {
+		this.playerEngineForBlack = playerEngineForBlack;
 	}
 
 	/**

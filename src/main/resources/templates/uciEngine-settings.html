@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head th:fragment="uciEngine-settings">
- <title>Uci engines settings</title>
+    <title>UCI Engines Settings</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -13,6 +13,16 @@
             align-items: center;
             height: 100vh;
         }
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 20px;
+            border: 2px solid #ccc;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 60%; /* Feste Breite für den Container */
+            max-width: 1000px; /* Maximale Breite für größere Bildschirme */
+            margin: 0 auto; /* Zentriert den Container */
+        }
         h1 {
             color: #333;
             text-align: center;
@@ -22,7 +32,6 @@
             background-color: #fff;
             padding: 20px;
             border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             width: 100%; /* Macht das Formular breiter */
             max-width: 1200px; /* Maximale Breite, um die Gesamtgröße zu kontrollieren */
         }
@@ -106,20 +115,22 @@
     </style>
 </head>
 <body>
-    <div>
-        <h1>UCI engine settings</h1>
+    <div class="container"> <!-- Hier ist der Rahmen -->
+        <h1>UCI Engine Settings</h1>
         <form action="/uciEngine-settings" method="post">
-			<div class="columns-container">
+            <div class="columns-container">
                 <div class="column">
                     <h3>White player engine</h3>
-                    <!-- <div class="form-group">
-					    <label for="selectedEngine">Select Engine</label>
-					    <select name="selectedEngine" th:id="selectedEngine" th:field="*{selectedEngine}">
-					        <option th:each="engine : ${availableEngines}" th:value="${engine}" th:text="${engine}"
-					                th:selected="${engine == 'stockfish'}">Stockfish</option>
-					    </select>
-					    <span class="tooltip">Choose your engine</span>
-					</div>     -->     
+                    <div class="form-group">
+                        <label for="selectedEngineForWhite">Select Engine</label>
+                        <select name="selectedEngineForWhite" th:id="selectedEngineForWhite">
+                            <option th:each="engine : ${playerEngines.keySet()}"
+                                    th:value="${engine}"
+                                    th:text="${engine}"
+                                    th:selected="${engine == viewConfig.playerEngineForWhite}"></option>
+                        </select>
+                        <span class="tooltip">Choose your engine</span>
+                    </div>     
                     <div class="form-group">
                         <label for="uciEngineDepthForWhite">Depth</label>
                         <input type="number" name="uciEngineDepthForWhite" th:value="${viewConfig.uciEngineDepthForWhite}" min="0" max="30"/>
@@ -152,7 +163,17 @@
                     </div>    
                 </div> 
                 <div class="column">
-                    <h3>Black player engine</h3>  
+                    <h3>Black player engine</h3>
+                    <div class="form-group">
+                        <label for="selectedEngineForBlack">Select Engine</label>
+                        <select name="selectedEngineForBlack" th:id="selectedEngineForBlack">
+                            <option th:each="engine : ${playerEngines.keySet()}"
+                                    th:value="${engine}"
+                                    th:text="${engine}"
+                                    th:selected="${engine == viewConfig.playerEngineForBlack}"></option>
+                        </select>
+                        <span class="tooltip">Choose your engine</span>
+                    </div> 
                     <div class="form-group">
                         <label for="uciEngineDepthForBlack">Depth</label>
                         <input type="number" name="uciEngineDepthForBlack" th:value="${viewConfig.uciEngineDepthForBlack}" min="0" max="30"/>

@@ -1,6 +1,7 @@
 package com.example.demo.model;
 
 import demo.chess.definitions.Color;
+import demo.chess.definitions.engines.Engine;
 
 /**
  * Interface representing the configuration settings for the application.
@@ -298,5 +299,17 @@ public interface Config {
 	boolean isSilent();
 
 	void setSilent(boolean silent);
+
+	Engine getEvaluationEngine();
+
+	void setEvaluationEngine(Engine evaluationEngine);
+
+	Engine getPlayerEngineForWhite();
+
+	void setPlayerEngineForWhite(Engine playerEngineForWhite);
+
+	Engine getPlayerEngineForBlack();
+
+	void setPlayerEngineForBlack(Engine playerEngineForBlack);
 
 }

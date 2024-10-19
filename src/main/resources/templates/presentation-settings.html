@@ -1,170 +1,156 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head th:fragment="presentation-settings">
-<title>Presentation settings</title>
-	<style>
-	body {
-		font-family: Arial, sans-serif;
-		background-color: #f4f4f9;
-		margin: 0;
-		padding: 0;
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		height: 100vh;
-	}
-	
-	h1 {
-		color: #333;
-		text-align: center;
-		margin-bottom: 20px;
-	}
-	
-	form {
-		background-color: #fff;
-		padding: 20px;
-		border-radius: 8px;
-		box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-		width: 100%; /* Macht das Formular breiter */
-		max-width: 1200px;
-		/* Maximale Breite, um die Gesamtgröße zu kontrollieren */
-	}
-	
-	.columns-container {
-		display: flex; /* Flexbox-Container für die Spalten */
-		justify-content: space-between; /* Verteile Spalten gleichmäßig */
-		gap: 10px; /* Abstand zwischen den Spalten */
-		margin-bottom: 20px; /* Abstand nach unten für den Button */
-	}
-	
-	.column {
-		flex: 1; /* Jede Spalte nimmt den gleichen Platz ein */
-		display: flex;
-		flex-direction: column;
-		gap: 15px; /* Abstand zwischen den Elementen innerhalb der Spalte */
-		min-width: 350px; /* Mindestbreite, um Zeilenumbrüche zu vermeiden */
-	}
-	
-	.form-group {
-		position: relative;
-		/* Setze relative Positionierung, damit absolute Kinder (Tooltips) korrekt platziert werden */
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-	}
-	
-	.form-group label {
-		margin-right: 10px;
-		color: #555;
-		flex: 1;
-		text-align: left;
-	}
-	
-	.form-group input[type="checkbox"], .form-group select, .form-group input[type="number"]
-		{
-		flex: 1;
-	}
-	
-	select {
-		width: 100%;
-		padding: 8px;
-		border: 1px solid #ccc;
-		border-radius: 4px;
-		text-align: center;
-	}
-	
-	select option {
-		text-align: center;
-	}
-	
-	button {
-		width: 200px; /* Feste Breite für den Button */
-		padding: 10px;
-		background-color: #007BFF;
-		color: #fff;
-		border: none;
-		border-radius: 0px;
-		cursor: pointer;
-		display: block;
-		margin: 0 auto; /* Zentriert den Button */
-	}
-	
-	button:hover {
-		background-color: #0056b3;
-	}
-	/* Grundlegender Tooltip-Stil */
-	.tooltip {
-		visibility: hidden;
-		background-color: #333;
-		color: #fff;
-		text-align: center;
-		padding: 5px;
-		position: absolute;
-		z-index: 10;
-		top: -30px; /* Positioniere oberhalb des Elements */
-		left: 50%;
-		transform: translateX(-50%); /* Zentriere horizontal */
-		opacity: 0;
-		transition: opacity 0.3s;
-		white-space: nowrap; /* Verhindert Zeilenumbruch */
-	}
-	
-	/* Zeigt den Tooltip beim Hovern an */
-	.form-group:hover .tooltip {
-		visibility: visible;
-		opacity: 1;
-	}
-</style>
+    <title>Presentation settings</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 20px; /* Abgerundete Ecken */
+            border: 2px solid #ccc; /* Rahmen */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 600px; /* Feste Breite für den Container */
+            max-width: 800px; /* Maximale Breite für größere Bildschirme */
+            margin: 0 auto; /* Zentriert den Container */
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .columns-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .column {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            min-width: 350px;
+        }
+        .form-group {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .form-group label {
+            flex: 1;
+            color: #555;
+            text-align: left;
+        }
+        .form-group input[type="checkbox"],
+        .form-group input[type="number"],
+        .form-group select {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        select {
+            width: 100%;
+            text-align: center;
+        }
+        button {
+            width: 200px;
+            padding: 10px;
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            border-radius: 0px;
+            cursor: pointer;
+            margin: 0 auto;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        /* Tooltip */
+        .tooltip {
+            visibility: hidden;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            padding: 5px;
+            position: absolute;
+            z-index: 10;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            white-space: nowrap;
+        }
+        .form-group:hover .tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
 </head>
 <body>
-	<div>
-		<h1>Presentation settings</h1>
-		<form action="/presentationSettings" method="post">
-		<div class="columns-container">
+    <div class="container">
+        <h1>Presentation Settings</h1>
+        <form action="/presentationSettings" method="post">
+            <div class="columns-container">
                 <div class="column">
-					<h3>Style:</h3>
-					<div class="form-group">
-						<label for="color">Choose a color:</label> <span class="tooltip">Color
-							for the black squares</span> <select name="color" id="color">
-							<option th:each="color : ${colorList}" th:value="${color}"
-								th:text="${color}" th:selected="${viewConfig.color == color}">
-							</option>
-						</select>
-					</div>
-					<div class="form-group">
-						<label for="leftOffset">Left offset</label> <span class="tooltip">Distance
-							of the board from the left edge</span> <input type="number"
-							name="leftOffset" th:value="${viewConfig.leftOffset}" />
-					</div>
-					<div class="form-group">
-						<label for="squareSize">Square Size:</label> <span class="tooltip">Size
-							of the squares and pieces</span> <input type="number" name="squareSize"
-							th:value="${viewConfig.squareSize}" />
-					</div>   
-					<div class="form-group">
-						<label for="animationDuration">Animation Duration</label> <span
-							class="tooltip">Amount of millis for the animation</span> 
-						<input
-							type="number" name="animationDuration"
-							th:value="${viewConfig.animationDuration}" />
-					</div>
-					<div class="form-group">
-						<label for="silent">Silent mode</label> <span class="tooltip">If
-							checked, no sounds are played</span> 
-						<input type="checkbox" name="silent"
-							th:checked="${viewConfig.silent}" />
-					</div>
-					<div class="form-group">
-						<label for="capturedContainer">Show captured pieces</label> 
-						<span class="tooltip">If checked, shows a container for the
-							captured pieces</span> 
-						<input type="checkbox" name="capturedContainer"
-							th:checked="${viewConfig.capturedContainer}" />
-					</div>
-				</div>
-			</div>
+                    <h3>Style:</h3>
+                    <div class="form-group">
+                        <label for="color">Choose a color:</label>
+                        <span class="tooltip">Color for the black squares</span>
+                        <select name="color" id="color">
+                            <option th:each="color : ${colorList}" th:value="${color}"
+                                th:text="${color}" th:selected="${viewConfig.color == color}">
+                            </option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="leftOffset">Left offset</label>
+                        <span class="tooltip">Distance of the board from the left edge</span>
+                        <input type="number" name="leftOffset" th:value="${viewConfig.leftOffset}" />
+                    </div>
+                    <div class="form-group">
+                        <label for="squareSize">Square Size:</label>
+                        <span class="tooltip">Size of the squares and pieces</span>
+                        <input type="number" name="squareSize" th:value="${viewConfig.squareSize}" />
+                    </div>
+                    <div class="form-group">
+                        <label for="animationDuration">Animation Duration</label>
+                        <span class="tooltip">Amount of millis for the animation</span>
+                        <input type="number" name="animationDuration" th:value="${viewConfig.animationDuration}" />
+                    </div>
+                    <div class="form-group">
+                        <label for="silent">Silent mode</label>
+                        <span class="tooltip">If checked, no sounds are played</span>
+                        <input type="checkbox" name="silent" th:checked="${viewConfig.silent}" />
+                    </div>
+                    <div class="form-group">
+                        <label for="capturedContainer">Show captured pieces</label>
+                        <span class="tooltip">If checked, shows a container for the captured pieces</span>
+                        <input type="checkbox" name="capturedContainer" th:checked="${viewConfig.capturedContainer}" />
+                    </div>
+                </div>
+            </div>
             <button type="submit">Save Settings</button>
-		</form>
-	</div>
+        </form>
+    </div>
 </body>
 </html>

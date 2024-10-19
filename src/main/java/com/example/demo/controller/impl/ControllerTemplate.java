@@ -58,8 +58,8 @@ public abstract class ControllerTemplate implements ChessController {
 	protected Attributes attributes;
 
 	public void setup() throws Exception{
-		put("playerEngineForWhite", playerEngines.get(Engine.FAIRY));
-		put("playerEngineForBlack", playerEngines.get(Engine.STOCKFISH));
+		if (get("playerEngineForWhite") == null) put("playerEngineForWhite", playerEngines.get(Engine.FAIRY));
+		if (get("playerEngineForBlack") == null) put("playerEngineForBlack", playerEngines.get(Engine.STOCKFISH));
 	}
 
 	protected void loadGame(String path) throws Exception {
@@ -195,6 +195,9 @@ public abstract class ControllerTemplate implements ChessController {
 	protected abstract String reset() throws Exception;
 
 	protected EvaluationEngine getEvaluationEngine() {
-		return this.evaluationEngines.get(Engine.FRUIT);
+		EvaluationEngine evaluationEngine = (EvaluationEngine) get("evaluationEngine");
+		if (evaluationEngine == null) {
+			return this.evaluationEngines.get(Engine.FRUIT);
+		} return evaluationEngine;
 	}
 }

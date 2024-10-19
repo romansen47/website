@@ -13,6 +13,15 @@
             align-items: center;
             height: 100vh;
         }
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 20px;
+            border: 2px solid #ccc;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 600px; /* Feste Breite für den Container */
+            margin: 0 auto; /* Zentriert den Container */
+        }
         h1 {
             color: #333;
             text-align: center;
@@ -22,134 +31,108 @@
             background-color: #fff;
             padding: 20px;
             border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            width: 100%; /* Macht das Formular breiter */
-            max-width: 1200px; /* Maximale Breite, um die Gesamtgröße zu kontrollieren */
-        }
-        .columns-container {
-            display: flex; /* Flexbox-Container für die Spalten */
-            justify-content: space-between; /* Verteile Spalten gleichmäßig */
-            gap: 10px; /* Abstand zwischen den Spalten */
-            margin-bottom: 20px; /* Abstand nach unten für den Button */
-        }
-        .column {
-            flex: 1; /* Jede Spalte nimmt den gleichen Platz ein */
             display: flex;
             flex-direction: column;
-            gap: 15px; /* Abstand zwischen den Elementen innerhalb der Spalte */
-            min-width: 350px; /* Mindestbreite, um Zeilenumbrüche zu vermeiden */
+            gap: 20px; /* Abstand zwischen den Gruppen */
         }
-        .form-group {
-            position: relative; /* Setze relative Positionierung, damit absolute Kinder (Tooltips) korrekt platziert werden */
+        .form-row {
             display: flex;
             justify-content: space-between;
-            align-items: center;
+        }
+        .form-group {
+            flex: 1; /* Jede Gruppe (Label und Eingabe) nimmt den gleichen Platz ein */
+            display: flex;
+            align-items: center; /* Vertikale Ausrichtung */
         }
         .form-group label {
-            margin-right: 10px;
+            flex: 1; /* Labels links */
             color: #555;
-            flex: 1;
             text-align: left;
         }
         .form-group input[type="checkbox"],
-        .form-group select,
-        .form-group input[type="number"] {
-            flex: 1;
-        }
-        select {
-            width: 100%;
+        .form-group input[type="number"],
+        .form-group select {
+            flex: 1; /* Eingabeelemente rechts */
+            max-width: 250px; /* Maximalbreite der Eingabeelemente */
             padding: 8px;
             border: 1px solid #ccc;
             border-radius: 4px;
-            text-align: center;
         }
-        select option {
-            text-align: center;
+        .form-group select {
+            width: 100%;
         }
         button {
-            width: 200px; /* Feste Breite für den Button */
+            width: 200px;
             padding: 10px;
             background-color: #007BFF;
             color: #fff;
             border: none;
             border-radius: 0px;
             cursor: pointer;
-            display: block;
-            margin: 0 auto; /* Zentriert den Button */
+            margin: 0 auto; /* Button zentriert */
         }
         button:hover {
             background-color: #0056b3;
         }
-        /* Grundlegender Tooltip-Stil */
-        .tooltip {
-            visibility: hidden;
-            background-color: #333;
-            color: #fff;
-            text-align: center;
-            padding: 5px;
-            position: absolute;
-            z-index: 10;
-            top: -30px; /* Positioniere oberhalb des Elements */
-            left: 50%;
-            transform: translateX(-50%); /* Zentriere horizontal */
-            opacity: 0;
-            transition: opacity 0.3s;
-            white-space: nowrap; /* Verhindert Zeilenumbruch */
-        }
-
-        /* Zeigt den Tooltip beim Hovern an */
-        .form-group:hover .tooltip {
-            visibility: visible;
-            opacity: 1;
-        }
-        
     </style>
 </head>
 <body>
-    <div>
+    <div class="container">
         <h1>Settings</h1>
         <form action="/updateSettings" method="post">
-            <!-- Flex-Container für die Spalten -->
-            <div class="columns-container">
-                <div class="column">
-                    <div class="form-group">
-                        <label for="showEvaluation">Show Evaluation</label>
-                        <span class="tooltip">If checked, eval bars will be shown</span>
-                        <input type="checkbox" name="showEvaluation" th:checked="${viewConfig.showEvaluation}"/>
-                    </div>
-                    <div class="form-group">
-                        <label for="showUciEngineLines">Show UciEngine Lines</label>
-                        <span class="tooltip">If checked, uciEngine's analyzed lines will be shown</span>
-                        <input type="checkbox" name="showUciEngineLines" th:checked="${viewConfig.showUciEngineLines}"/>
-                    </div>
-                    <div class="form-group">
-                        <label for="showArrows">Show Arrows</label>
-                        <span class="tooltip">If checked, arrow will show the best move recommended by uciEngine</span>
-                        <input type="checkbox" name="showArrows" th:checked="${viewConfig.showArrows}"/>
-                    </div>
-                    <div class="form-group">
-                        <label for="uciEngineDepthForEvaluationEngine">Minimal depth for evaluation:</label>
-                        <span class="tooltip">Minimal depth for lines of the uciEngine analysis. Only takes effect in case uciEngine lines are shown</span>
-                        <input type="number" name="uciEngineDepthForEvaluationEngine" th:value="${viewConfig.uciEngineDepthForEvaluationEngine}" min="1" max="30"/>
-                    </div> 
-					<div class="form-group">
-					    <label for="multiPVForEvaluationEngine">MultiPV</label>
-					    <input type="number" name="multiPVForEvaluationEngine" th:value="${viewConfig.multiPVForEvaluationEngine}" min="0" max="15"/>
-					    <span class="tooltip">Show multiple lines</span>
-					</div>
-                    <div class="form-group">
-                        <label for="updateIntervall">Update Intervall:</label>
-                        <span class="tooltip">Update frequency for eval bars, uciEngine's movelist and the arrows for move suggestions.</span>
-                        <input type="number" name="updateIntervall" th:value="${viewConfig.updateIntervall}" min="1" max="5"/>
-                    </div>
-                    <div class="form-group">
-                        <label for="uciEngineActive">Play against UciEngine</label>
-                        <span class="tooltip">If checked, uciEngine will play as black</span>
-                        <input type="checkbox" name="uciEngineActive" th:checked="${viewConfig.uciEngineActive}"/>
-                    </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="selectedEngine">Select Engine</label>
+                    <select name="selectedEngine" th:id="selectedEngine">
+                        <option th:each="engine : ${evaluationEngines.keySet()}" 
+                                th:value="${engine}" 
+                                th:text="${engine}" 
+                                th:selected="${engine == viewConfig.evaluationEngine}"></option>
+                    </select>
                 </div>
             </div>
-            <!-- Speichern Button außerhalb des Flex-Containers, zentriert -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="showEvaluation">Show Evaluation</label>
+                    <input type="checkbox" name="showEvaluation" th:checked="${viewConfig.showEvaluation}"/>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="showUciEngineLines">Show UciEngine Lines</label>
+                    <input type="checkbox" name="showUciEngineLines" th:checked="${viewConfig.showUciEngineLines}"/>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="showArrows">Show Arrows</label>
+					<input type="checkbox" name="showArrows" th:checked="${viewConfig.showArrows}"/>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="uciEngineDepthForEvaluationEngine">Minimal depth for evaluation:</label>
+                    <input type="number" name="uciEngineDepthForEvaluationEngine" th:value="${viewConfig.uciEngineDepthForEvaluationEngine}" min="1" max="30"/>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="multiPVForEvaluationEngine">MultiPV</label>
+                    <input type="number" name="multiPVForEvaluationEngine" th:value="${viewConfig.multiPVForEvaluationEngine}" min="0" max="15"/>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="updateIntervall">Update Intervall:</label>
+                    <input type="number" name="updateIntervall" th:value="${viewConfig.updateIntervall}" min="1" max="5"/>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="uciEngineActive">Play against UciEngine</label>
+                    <input type="checkbox" name="uciEngineActive" th:checked="${viewConfig.uciEngineActive}"/>
+                </div>
+            </div>
             <button type="submit">Save Settings</button>
         </form>
     </div>

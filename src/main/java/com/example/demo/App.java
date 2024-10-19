@@ -88,12 +88,7 @@ public class App extends ChessAdmin implements AppAdmin {
 	 * @param args command line arguments
 	 */
 	public static void main(String[] args) {
-		try {
-			SpringApplication.run(App.class, args);
-		} catch (org.springframework.context.ApplicationContextException e) {
-			logger.info("Another instance seems to be running. Exiting");
-			System.exit(0);
-		}
+		SpringApplication.run(App.class, args);
 	}
 
 	@Override
@@ -117,46 +112,18 @@ public class App extends ChessAdmin implements AppAdmin {
 	@Bean
 	@Override
 	public Map<Engine, PlayerEngine> playerEngines(){
-		Map<Engine, PlayerEngine> engines = new HashMap<>();
-		try {
-			engines.put(Engine.STOCKFISH, new PlayerUciEngine("/usr/games/stockfish") {
-				@Override
-				public String toString() {
-					return Engine.STOCKFISH.toString();
-				}
-			});
-		} catch (Exception e) {
-			logger.info("Failed to create player engine stockfish 16"); 
-		}
-		try {
-			engines.put(Engine.GNUCHESS, new PlayerUciEngine("/usr/games/gnuchessu") {
-				@Override
-				public String toString() {
-					return Engine.GNUCHESS.toString();
-				}
-			});
-		} catch (Exception e) {
-			logger.info("Failed to create player engine gnuchess"); 
-		}
-		try {
-			engines.put(Engine.FRUIT, new PlayerUciEngine("/usr/games/fruit") {
-				@Override
-				public String toString() {
-					return Engine.FRUIT.toString();
-				}
-			});
-		} catch (Exception e) {
-			logger.info("Failed to create player engine gnuchess"); 
-		}
-		try {
-			engines.put(Engine.FAIRY, new PlayerUciEngine("/usr/games/fairy-stockfish") {
-				@Override
-				public String toString() {
-					return Engine.FAIRY.toString();
-				}
-			});
-		} catch (Exception e) {
-			logger.info("Failed to create player engine gnuchess"); 
+		Map<Engine, PlayerEngine> engines = new HashMap<>(); 
+		for (Engine engine:Engine.values()) {
+			try {
+				engines.put(engine, new PlayerUciEngine("/usr/games/" + engine.label()) {
+					@Override
+					public String toString() {
+						return engine.toString();
+					}
+				});
+			} catch (Exception e) {
+				logger.info("Failed to create player engine {}", engine); 
+			}
 		}
 		return engines;
 	}

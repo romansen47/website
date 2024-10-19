@@ -1,6 +1,7 @@
 package com.example.demo.controller.helper.impl;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -13,6 +14,7 @@ import com.example.demo.model.DisplayedField;
 import com.example.demo.model.impl.DisplayedChessField;
 
 import demo.chess.definitions.Color;
+import demo.chess.definitions.engines.Engine;
 import demo.chess.definitions.engines.EngineConfig;
 import demo.chess.definitions.engines.EvaluationEngine;
 import demo.chess.definitions.engines.PlayerEngine;
@@ -36,7 +38,7 @@ public class ViewControllerHelperImpl implements ViewControllerHelper {
 	 * @param model           the model to add attributes to
 	 */
 	@Override
-	public void addAttributes(String color, String whiteTimeString, String blackTimeString, Model model, EvaluationEngine evaluationEngine) {
+	public void addAttributes(String color, String whiteTimeString, String blackTimeString, Model model) {
 
 		model.addAttribute("whiteTime", whiteTimeString);
 		model.addAttribute("blackTime", blackTimeString);
@@ -67,7 +69,7 @@ public class ViewControllerHelperImpl implements ViewControllerHelper {
 		model.addAttribute("clocksLeft", viewConfig.getLeftOffset());
 		model.addAttribute("clocksTop", 8 * viewConfig.getSquareSize() + viewConfig.getChessBoardOffset());
 		model.addAttribute("clockWidth", 8 * viewConfig.getSquareSize());
-
+		model.addAttribute("evaluationEngine", get("evaluationEngine"));
 		model.addAttribute("updateIntervall", viewConfig.getUpdateIntervall() * 1000);
 		model.addAttribute("silent", viewConfig.isSilent());
 
@@ -81,7 +83,7 @@ public class ViewControllerHelperImpl implements ViewControllerHelper {
 		model.addAttribute("capturedContainer", viewConfig.isCapturedContainer());
 		model.addAttribute("uciEngineActive", viewConfig.isUciEngineActive());
 
-		double stockFishEvaluation = (double) get("uciEngineDepthForEvaluation");
+		double stockFishEvaluation = (double) get("uciEngineEvaluation");
 		model.addAttribute("uciEngineDepthForEvaluation", viewConfig.getUciEngineDepthForEvaluationEngine());
 		model.addAttribute("stockFishEvaluation", stockFishEvaluation);
 

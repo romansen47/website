@@ -3,6 +3,7 @@ package com.example.demo.controller.impl;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -51,6 +52,14 @@ public class MainViewController extends ControllerTemplate {
 	
 	@PostConstruct
 	public void init() throws Exception {
+		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+			evaluationEngines.entrySet().forEach(entry -> {		logger.info("Closing {}", entry.getValue()); 
+																entry.getValue().close();
+															});
+			playerEngines.entrySet().forEach(entry -> {		logger.info("Closing {}", entry.getValue()); 
+																entry.getValue().close();
+														});
+        }));
 		setup();
 	}
 	
@@ -73,8 +82,9 @@ public class MainViewController extends ControllerTemplate {
 		}
 		final Game chessGame = tmpChessGame;
 
-		put("evaluationEngine", evaluationEngines.get(Engine.FRUIT));
-		put("uciEngineDepthForEvaluation", 0.5);
+		if (get("evaluationEngine") == null) put("evaluationEngine", evaluationEngines.get(Engine.FRUIT));
+
+		put("uciEngineEvaluation", 0.5d); 
 		put("regular", !viewConfig.getIsFlipped());
 		put("silent", false);
 		put("remainingTimeForWhite", chessGame.getWhitePlayer().getChessClock().getTime(TimeUnit.MILLISECONDS));
@@ -157,7 +167,7 @@ public class MainViewController extends ControllerTemplate {
 		String blackTimeString = minutesBlack + ":" + secondsBlackAsString;
 
 		// Add attributes to the model (this must be done last)
-		helper.addAttributes(color, whiteTimeString, blackTimeString, model, this.getEvaluationEngine());
+		helper.addAttributes(color, whiteTimeString, blackTimeString, model);
  
 		((List<DisplayedField>) get("fields")).clear();
 		helper.createNewFields();
@@ -237,6 +247,8 @@ public class MainViewController extends ControllerTemplate {
 	private Game createNewGame() throws Exception { 
 		Game chessGame = (Game) get("chessGame");
 		if (chessGame != null) {
+			evaluationEngines.entrySet().stream().forEach( entry -> entry.getValue().stopEvaluation());
+			playerEngines.entrySet().stream().forEach(entry -> entry.getValue().stopEvaluation());
 			if (chessGame.getWhitePlayer().getChessClock().isStarted()) {
 				chessGame.getWhitePlayer().getChessClock().stop();
 			}
@@ -262,7 +274,7 @@ public class MainViewController extends ControllerTemplate {
 		put("engineMatch", false);
 		int timeForEachPlayer = Integer.parseInt((String) params.get("timeForEachPlayer"));
 	    int incrementForWhite = Integer.parseInt((String) params.get("incrementForWhite"));
-	    int incrementForBlack = Integer.parseInt((String) params.get("incrementForBlack"));
+	    int incrementForBlack = Integer.parseInt((String) params.get("incrementForBlack")); 
 	    
 	    viewConfig.setTimeForEachPlayer(timeForEachPlayer);
 	    viewConfig.setIncrementForWhite(incrementForWhite);
@@ -331,7 +343,7 @@ public class MainViewController extends ControllerTemplate {
 		} else {
 			chessGame.setState(State.WHITE_RESIGNED);
 		}
-		return "redirect:/?resigned=true";
+		return "redirect:/";
 	}
 
 	/**
@@ -344,11 +356,13 @@ public class MainViewController extends ControllerTemplate {
 	@GetMapping("/settings")
 	protected String settings(Model model) {
 		model.addAttribute("viewConfig", viewConfig);
+		model.addAttribute("evaluationEngines", evaluationEngines);
 		return "settings";
 	}
 	 
 	@GetMapping("/uciEngine-settings")
 	protected String uciEngineSettings(Model model) { 
+		model.addAttribute("playerEngines", playerEngines);
 		model.addAttribute("viewConfig", viewConfig);
 		return "uciEngine-settings";
 	} 
@@ -376,16 +390,20 @@ public class MainViewController extends ControllerTemplate {
 	 * @throws Exception If any error occurs during the update.
 	 */
 	@PostMapping("/updateSettings")
-	protected String updateSettings(@RequestParam(
-			defaultValue = "false") boolean showArrows,
+	protected String updateSettings(
+			@RequestParam(defaultValue = "false") boolean showArrows,
 			@RequestParam(defaultValue = "false") boolean showEvaluation,
 			@RequestParam(defaultValue = "false") boolean showUciEngineLines,
 			@RequestParam(defaultValue = "false") boolean uciEngineActive,
 			@RequestParam int updateIntervall,
 			@RequestParam int multiPVForEvaluationEngine,
-			@RequestParam int uciEngineDepthForEvaluationEngine) throws Exception {
+			@RequestParam int uciEngineDepthForEvaluationEngine,
+			@RequestParam Engine selectedEngine) throws Exception {
 		
 		Game chessGame = getChessGame();
+		EvaluationEngine selected = evaluationEngines.get(selectedEngine);
+		put("evaluationEngine", selected);
+		viewConfig.setEvaluationEngine(selectedEngine);
 		viewConfig.setUpdateIntervall(updateIntervall); 
 		
 		viewConfig.setShowArrows(showArrows);
@@ -401,7 +419,7 @@ public class MainViewController extends ControllerTemplate {
 
 		viewConfig.setUciEngineActive(uciEngineActive);
 
-		return "redirect:/?update=true";
+		return "redirect:/";
 	}
 	 
 	
@@ -419,7 +437,7 @@ public class MainViewController extends ControllerTemplate {
 	 * @throws Exception If any error occurs during the update.
 	 */
 	@PostMapping("/uciEngine-settings")
-	protected String updateUciEngineSettings(
+	protected String updateUciEngineSettings( 
 			@RequestParam int uciEngineDepthForWhite,
 			@RequestParam int threadsForWhite,
 			@RequestParam int hashSizeForWhite, 
@@ -431,9 +449,16 @@ public class MainViewController extends ControllerTemplate {
 			@RequestParam int hashSizeForBlack, 
 			@RequestParam int contemptForBlack,
 			@RequestParam int moveOverheadForBlack, 
-			@RequestParam int uciEloForBlack) throws Exception {
+			@RequestParam int uciEloForBlack,
+			@RequestParam Engine selectedEngineForWhite,
+			@RequestParam Engine selectedEngineForBlack) throws Exception {
 
-
+		put("playerEngineForWhite", playerEngines.get(selectedEngineForWhite));
+		viewConfig.setPlayerEngineForWhite(selectedEngineForWhite);
+		
+		put("playerEngineForBlack", playerEngines.get(selectedEngineForBlack));
+		viewConfig.setPlayerEngineForBlack(selectedEngineForBlack);
+		
 		viewConfig.setThreadsForWhite(threadsForWhite);
 		((EngineConfig) get("engineConfigForWhite")).setThreads(threadsForBlack);
 		
@@ -471,7 +496,7 @@ public class MainViewController extends ControllerTemplate {
 		viewConfig.setUciEngineDepthForBlack(uciEngineDepthForBlack);
 		((EngineConfig) get("engineConfigForBlack")).setDepth(uciEngineDepthForBlack);
 		
-		return "redirect:/?update=true";
+		return "redirect:/";
 	}
 	
 	/**
@@ -508,7 +533,7 @@ public class MainViewController extends ControllerTemplate {
 
 		viewConfig.setAnimationDuration(animationDuration);
 		
-		return "redirect:/?update=true";
+		return "redirect:/";
 	}
 
 	@Override

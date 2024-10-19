@@ -103,7 +103,7 @@ public class ChessApiController extends ControllerTemplate {
 	private boolean checkForGameState(Game chessGame) throws Exception {
 
 		if (chessGame.getState() != null) {
-			getEvaluationEngine().stopInfiniteEvaluation();
+			getEvaluationEngine().stopEvaluation();
 			String message = "";
 			long white;
 			long black;
@@ -670,6 +670,7 @@ public class ChessApiController extends ControllerTemplate {
 	public void applyMove(Move move) throws Exception {
 		Game chessGame = ((Game) get("chessGame"));
 		if (!checkForGameState(chessGame)) {
+			if (evaluationEngines.get(get("evaluationEngine")) != null) evaluationEngines.get(get("evaluationEngine")).stopEvaluation();
 			return;
 		}
 		chessGame.apply(move);
