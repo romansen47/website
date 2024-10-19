@@ -19,28 +19,28 @@ public class ViewConfig implements Config {
 	private boolean silent = false;
 
 	private boolean uciEngineActive = true;
-	private int timeForEachPlayer = 300;
-	private int incrementForWhite = 1;
-	private int incrementForBlack = 1;
+	private int timeForEachPlayer = 60;
+	private int incrementForWhite = 2;
+	private int incrementForBlack = 2;
 	private int updateIntervall = 1;
 	private int animationDuration = 100;
 
 	private int uciEngineDepthForEvaluationEngine = 15;
-	private int multiPVForEvaluationEngine = 10;
+	private int multiPVForEvaluationEngine = 5;
 
-	private int uciEngineDepthForWhite = 8;
-	private int uciEngineDepthForBlack = 12;
+	private int uciEngineDepthForWhite = 0;
+	private int uciEngineDepthForBlack = 0;
 
 	private int threadsForWhite = 1;
 	private int hashSizeForWhite = 1024;
 	private int contemptForWhite = 99;
-	private int moveOverheadForWhite = 2;
+	private int moveOverheadForWhite = 5;
 	private int uciEloForWhite = 0;
 
 	private int threadsForBlack = 1;
 	private int hashSizeForBlack = 1024;
 	private int contemptForBlack = 99;
-	private int moveOverheadForBlack = 2;
+	private int moveOverheadForBlack = 5;
 	private int uciEloForBlack = 0;
 
 	private int leftOffset = 400;

@@ -73,7 +73,7 @@ public class MainViewController extends ControllerTemplate {
 		}
 		final Game chessGame = tmpChessGame;
 
-		put("evaluationEngine", evaluationEngines.get(Engine.STOCKFISH));
+		put("evaluationEngine", evaluationEngines.get(Engine.FRUIT));
 		put("uciEngineDepthForEvaluation", 0.5);
 		put("regular", !viewConfig.getIsFlipped());
 		put("silent", false);
