@@ -13,14 +13,9 @@
             align-items: center;
             height: 100vh;
         }
-        .container {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 20px;
-            border: 2px solid #ccc;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        .container { 
             width: 60%; /* Feste Breite für den Container */
-            max-width: 1000px; /* Maximale Breite für größere Bildschirme */
+            max-width: 800px; /* Maximale Breite für größere Bildschirme */
             margin: 0 auto; /* Zentriert den Container */
         }
         h1 {
@@ -32,21 +27,25 @@
             background-color: #fff;
             padding: 20px;
             border-radius: 8px;
-            width: 100%; /* Macht das Formular breiter */
+            width: 85%; /* Macht das Formular breiter */
             max-width: 1200px; /* Maximale Breite, um die Gesamtgröße zu kontrollieren */
         }
         .columns-container {
             display: flex; /* Flexbox-Container für die Spalten */
-            justify-content: space-between; /* Verteile Spalten gleichmäßig */
-            gap: 10px; /* Abstand zwischen den Spalten */
+            gap: 50px; /* Abstand zwischen den Spalten */
             margin-bottom: 20px; /* Abstand nach unten für den Button */
         }
         .column {
             flex: 1; /* Jede Spalte nimmt den gleichen Platz ein */
             display: flex;
             flex-direction: column;
-            gap: 15px; /* Abstand zwischen den Elementen innerhalb der Spalte */
-            min-width: 250px; /* Mindestbreite, um Zeilenumbrüche zu vermeiden */
+            gap: 15px; /* vertikaler Abstand zwischen den Elementen innerhalb der Spalte */
+            
+            padding: 20px;
+            border-radius: 20px;
+            border: 2px solid #ccc;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 60%; /* Feste Breite für den Container */
         }
         .form-group {
             position: relative; /* Setze relative Positionierung, damit absolute Kinder (Tooltips) korrekt platziert werden */

@@ -36,3 +36,4 @@ docker.exe run -d -p 80:80 -p 443:443 --name $IMAGE_NAME $IMAGE_NAME
 
 echo "The container was successfully created and started."
 
+echo "Access through https://localhost/"
