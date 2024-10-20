@@ -21,7 +21,6 @@ import com.example.demo.websockets.WebSocketService;
 
 import demo.chess.definitions.engines.EngineConfig;
 import demo.chess.definitions.engines.EvaluationEngine;
-import demo.chess.definitions.engines.PlayerEngine;
 import demo.chess.definitions.engines.impl.NoMoveFoundException;
 import demo.chess.definitions.fields.Field;
 import demo.chess.definitions.moves.Move;
@@ -218,7 +217,8 @@ public class ApiControllerHelperImpl implements ApiControllerHelper {
 	public List<String> getEvaluationEngineMoveList(EvaluationEngine evaluationEngine) throws Exception {
 
 		List<Pair<Double, String>> uniqueList = new ArrayList<>();
-		uniqueList.addAll(evaluationEngine.getBestLines((Game) get("chessGame"), (EngineConfig) get("engineConfigEval")));
+		uniqueList
+				.addAll(evaluationEngine.getBestLines((Game) get("chessGame"), (EngineConfig) get("engineConfigEval")));
 		List<Pair<Double, String>> copyOfUciEngineMoveList = removeDuplicatesByString(uniqueList);
 
 		List<String> answer = new ArrayList<>();

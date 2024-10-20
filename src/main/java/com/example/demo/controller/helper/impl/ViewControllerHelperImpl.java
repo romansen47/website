@@ -1,7 +1,6 @@
 package com.example.demo.controller.helper.impl;
 
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -14,10 +13,8 @@ import com.example.demo.model.DisplayedField;
 import com.example.demo.model.impl.DisplayedChessField;
 
 import demo.chess.definitions.Color;
-import demo.chess.definitions.engines.Engine;
 import demo.chess.definitions.engines.EngineConfig;
 import demo.chess.definitions.engines.EvaluationEngine;
-import demo.chess.definitions.engines.PlayerEngine;
 import demo.chess.game.Game;
 
 @Component
@@ -59,7 +56,8 @@ public class ViewControllerHelperImpl implements ViewControllerHelper {
 
 		model.addAttribute("uciEngineMoveListTop", viewConfig.getUciEngineMoveListTop());
 		model.addAttribute("uciEngineMoveListLeft", viewConfig.getUciEngineMoveListLeft());
-		model.addAttribute("uciEngineMoveListWidth", (((EngineConfig) get("engineConfigEval")).getDepth() + 1) * 6 * 10);
+		model.addAttribute("uciEngineMoveListWidth", 800); // (((EngineConfig) get("engineConfigEval")).getDepth() + 1)
+															// * 6 * 10);
 		model.addAttribute("chessboardSize", 8 * viewConfig.getSquareSize());
 		model.addAttribute("capturedTop", viewConfig.getCapturedPiecesTop());
 		model.addAttribute("capturedLeft", viewConfig.getCapturedPiecesLeft());
@@ -83,11 +81,11 @@ public class ViewControllerHelperImpl implements ViewControllerHelper {
 		model.addAttribute("capturedContainer", viewConfig.isCapturedContainer());
 		model.addAttribute("uciEngineActive", viewConfig.isUciEngineActive());
 
-		double stockFishEvaluation = (double) get("uciEngineEvaluation");
+		double evaluation = (double) get("uciEngineEvaluation");
 		model.addAttribute("uciEngineDepthForEvaluation", viewConfig.getUciEngineDepthForEvaluationEngine());
-		model.addAttribute("stockFishEvaluation", stockFishEvaluation);
+		model.addAttribute("stockFishEvaluation", getRatioEvalBars(evaluation));
 
-		model.addAttribute("heightOfBlackEval", 8 * viewConfig.getSquareSize() * (1 - stockFishEvaluation));
+		model.addAttribute("heightOfBlackEval", 8 * viewConfig.getSquareSize() * (1 - getRatioEvalBars(evaluation)));
 		model.addAttribute("heightOfWhiteEval", 8 * viewConfig.getSquareSize());
 
 		model.addAttribute("clockHeight", viewConfig.getClockSize());
@@ -95,6 +93,17 @@ public class ViewControllerHelperImpl implements ViewControllerHelper {
 
 		setupEngineConfigurations();
 
+	}
+
+	/**
+	 * Calculates the ratio for the evaluation bars based on the evaluation score.
+	 *
+	 * @param eval the evaluation score
+	 * @return the ratio for the evaluation bars
+	 */
+	public double getRatioEvalBars(double eval) {
+		double ans = 0.5 + Math.atan(Math.tan(Math.PI / 10d) * eval) / Math.PI;
+		return ans;
 	}
 
 	@Override
@@ -178,14 +187,14 @@ public class ViewControllerHelperImpl implements ViewControllerHelper {
 		((EngineConfig) get("engineConfigForWhite")).setHashSize(viewConfig.getHashSizeForWhite());
 		((EngineConfig) get("engineConfigForWhite")).setMoveOverhead(viewConfig.getMoveOverheadForWhite());
 		((EngineConfig) get("engineConfigForWhite")).setUciElo(viewConfig.getUciEloForWhite());
-		
+
 		((EngineConfig) get("engineConfigForBlack")).setThreads(viewConfig.getThreadsForBlack());
 		((EngineConfig) get("engineConfigForBlack")).setContempt(viewConfig.getContemptForBlack());
 		((EngineConfig) get("engineConfigForBlack")).setDepth(viewConfig.getUciEngineDepthForBlack());
 		((EngineConfig) get("engineConfigForBlack")).setHashSize(viewConfig.getHashSizeForBlack());
 		((EngineConfig) get("engineConfigForBlack")).setMoveOverhead(viewConfig.getMoveOverheadForBlack());
 		((EngineConfig) get("engineConfigForBlack")).setUciElo(viewConfig.getUciEloForBlack());
-		
+
 		((EngineConfig) get("engineConfigEval")).setMultiPV(viewConfig.getMultiPVForEvaluationEngine());
 		((EngineConfig) get("engineConfigEval")).setDepth(viewConfig.getUciEngineDepthForEvaluationEngine());
 	}

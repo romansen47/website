@@ -2,7 +2,6 @@ package com.example.demo;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
@@ -22,7 +21,6 @@ import com.example.demo.model.Config;
 import com.example.demo.model.impl.ViewConfig;
 
 import demo.chess.admin.impl.ChessAdmin;
-import demo.chess.definitions.Color;
 import demo.chess.definitions.board.impl.ChessBoard;
 import demo.chess.definitions.engines.Engine;
 import demo.chess.definitions.engines.PlayerEngine;
@@ -108,21 +106,21 @@ public class App extends ChessAdmin implements AppAdmin {
 		attributes.put("fields", new ArrayList<>());
 		return attributes;
 	}
-	
+
 	@Bean
 	@Override
-	public Map<Engine, PlayerEngine> playerEngines(){
-		Map<Engine, PlayerEngine> engines = new HashMap<>(); 
-		for (Engine engine:Engine.values()) {
+	public Map<Engine, PlayerEngine> playerEngines() {
+		Map<Engine, PlayerEngine> engines = new HashMap<>();
+		for (Engine engine : Engine.values()) {
 			try {
-				engines.put(engine, new PlayerUciEngine("/usr/games/" + engine.label()) {
+				engines.put(engine, new PlayerUciEngine("/usr/games/" + engine.path()) {
 					@Override
 					public String toString() {
-						return engine.toString();
+						return engine.comment();
 					}
 				});
 			} catch (Exception e) {
-				logger.info("Failed to create player engine {}", engine); 
+				logger.info("Failed to create player engine {}", engine);
 			}
 		}
 		return engines;

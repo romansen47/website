@@ -45,7 +45,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
 			logger.info("WebSocket session is not open or null.");
 		}
 	}
-	
+
 	public void triggerUciEngineMove() throws Exception {
 		if (session != null && session.isOpen()) {
 			session.sendMessage(new TextMessage(WS_MESSAGE.TRIGGERSTOCKFISHMOVE.toString()));
@@ -53,8 +53,8 @@ public class WebSocketHandler extends TextWebSocketHandler {
 			logger.info("WebSocket session is not open or null.");
 		}
 	}
-	
-	public static enum WS_MESSAGE{
+
+	public static enum WS_MESSAGE {
 		RELOAD, MESSAGE, CLOCKS, TRIGGERSTOCKFISHMOVE;
 	}
 

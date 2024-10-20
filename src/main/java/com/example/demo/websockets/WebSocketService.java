@@ -28,7 +28,7 @@ public class WebSocketService {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public void triggerUciEngineMove() {
 		try {
 			webSocketHandler.triggerUciEngineMove();

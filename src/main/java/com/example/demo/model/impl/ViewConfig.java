@@ -20,18 +20,18 @@ public class ViewConfig implements Config {
 	private boolean silent = false;
 
 	private boolean uciEngineActive = true;
-	private int timeForEachPlayer = 60;
+	private int timeForEachPlayer = 300;
 	private int incrementForWhite = 2;
 	private int incrementForBlack = 2;
 	private int updateIntervall = 1;
 	private int animationDuration = 100;
 
-	private Engine evaluationEngine = Engine.STOCKFISH;
-	private Engine playerEngineForWhite = Engine.STOCKFISH;
-	private Engine playerEngineForBlack = Engine.STOCKFISH;
-	
-	private int uciEngineDepthForEvaluationEngine = 15;
-	private int multiPVForEvaluationEngine = 5;
+	private Engine evaluationEngine = Engine.STOCKFISH_16;
+	private Engine playerEngineForWhite = Engine.STOCKFISH_16;
+	private Engine playerEngineForBlack = Engine.STOCKFISH_16;
+
+	private int uciEngineDepthForEvaluationEngine = 10;
+	private int multiPVForEvaluationEngine = 3;
 
 	private int uciEngineDepthForWhite = 0;
 	private int uciEngineDepthForBlack = 0;
@@ -48,10 +48,10 @@ public class ViewConfig implements Config {
 	private int moveOverheadForBlack = 5;
 	private int uciEloForBlack = 0;
 
-	private int leftOffset = 400;
+	private int leftOffset = 450;
 	private int squareSize = 65;
 	private int topBarHeight = 40;
-	private int moveListWidth = 320;
+	private int moveListWidth = 400;
 
 	private int evalWidth;
 

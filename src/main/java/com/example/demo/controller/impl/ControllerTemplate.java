@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.example.demo.AppAdmin;
@@ -19,14 +20,11 @@ import demo.chess.definitions.PieceType;
 import demo.chess.definitions.engines.Engine;
 import demo.chess.definitions.engines.EvaluationEngine;
 import demo.chess.definitions.engines.PlayerEngine;
-import demo.chess.definitions.engines.impl.EvaluationUciEngine;
-import demo.chess.definitions.engines.impl.PlayerUciEngine;
 import demo.chess.definitions.moves.MoveList;
 import demo.chess.definitions.moves.impl.MoveListImpl;
 import demo.chess.definitions.pieces.Piece;
 import demo.chess.game.Game;
 import demo.chess.load.GameLoader;
-import org.apache.logging.log4j.Logger;
 
 /**
  * Abstract controller class providing common functionalities for the Chess
@@ -40,14 +38,14 @@ import org.apache.logging.log4j.Logger;
 public abstract class ControllerTemplate implements ChessController {
 
 	@Autowired
-	protected AppAdmin admin;  
+	protected AppAdmin admin;
 
 	@Autowired
 	protected Map<Engine, EvaluationEngine> evaluationEngines;
-	
+
 	@Autowired
 	protected Map<Engine, PlayerEngine> playerEngines;
-	 
+
 	@Autowired
 	protected WebSocketService webSocketService;
 
@@ -57,9 +55,13 @@ public abstract class ControllerTemplate implements ChessController {
 	@Autowired
 	protected Attributes attributes;
 
-	public void setup() throws Exception{
-		if (get("playerEngineForWhite") == null) put("playerEngineForWhite", playerEngines.get(Engine.FAIRY));
-		if (get("playerEngineForBlack") == null) put("playerEngineForBlack", playerEngines.get(Engine.STOCKFISH));
+	public void setup() throws Exception {
+		if (get("playerEngineForWhite") == null) {
+			put("playerEngineForWhite", playerEngines.get(Engine.STOCKFISH_16));
+		}
+		if (get("playerEngineForBlack") == null) {
+			put("playerEngineForBlack", playerEngines.get(Engine.STOCKFISH_16));
+		}
 	}
 
 	protected void loadGame(String path) throws Exception {
@@ -189,15 +191,16 @@ public abstract class ControllerTemplate implements ChessController {
 	protected Game getChessGame() {
 		return ((Game) get("chessGame"));
 	}
-	
+
 	protected abstract Logger getLogger();
-	
+
 	protected abstract String reset() throws Exception;
 
 	protected EvaluationEngine getEvaluationEngine() {
 		EvaluationEngine evaluationEngine = (EvaluationEngine) get("evaluationEngine");
 		if (evaluationEngine == null) {
 			return this.evaluationEngines.get(Engine.FRUIT);
-		} return evaluationEngine;
+		}
+		return evaluationEngine;
 	}
 }
