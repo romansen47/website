@@ -86,7 +86,7 @@
                     <select name="selectedEngine" th:id="selectedEngine">
                         <option th:each="engine : ${evaluationEngines.keySet()}" 
                                 th:value="${engine}" 
-                                th:text="${engine.comment}" 
+                                th:text="${engine.toString()}" 
                                 th:selected="${engine == viewConfig.evaluationEngine}"></option>
                     </select>
                 </div>

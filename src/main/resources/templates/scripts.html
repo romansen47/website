@@ -42,7 +42,7 @@
             .catch(error => console.error('Error:', error));
         });
     	
-    	document.getElementById('loadGameButtonServer').addEventListener('click', function () {
+		document.getElementById('loadGameButtonServer').addEventListener('click', function () {
             fetch('/api/game/load-game', {
                 method: 'POST',
                 headers: {
@@ -101,6 +101,31 @@
 	        input.click(); // Trigger the file input
 	    });
 		
+	    document.getElementById('importEngine').addEventListener('click', function () {
+	        const input = document.createElement('input');
+	        input.type = 'file';
+	        // input.accept = '.txt';
+	        input.onchange = function (event) {
+	            const file = event.target.files[0];
+	            if (file) {
+	                const formData = new FormData();
+	                formData.append('file', file);
+
+	                // Send the file to the server
+	                fetch('/api/game/import-Engine', {
+	                    method: 'POST',
+	                    body: formData
+	                })
+	                .then(response => response.json())
+	                .then(data => {
+	                    console.log('Engine imported successfully:', data);
+	                })
+	                .catch(error => console.error('Error loading game:', error));
+	            }
+	        };
+	        input.click(); // Trigger the file input
+	    });
+	    
 	    if ([[${uciEngineActive}]]){
 	    	document.getElementById('engineClash').addEventListener('click', function () {
 	            fetch('/startEngineMatch', {
@@ -114,6 +139,18 @@
 	            .catch(error => console.error('Error:', error));
 	        });
     	}
+	    
+	    document.getElementById('shutDown').addEventListener('click', function () {
+            fetch('/shutDown', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => console.log(data))
+            .catch(error => console.error('Error:', error));
+        });
 	    
 	 	// Referenz zum Popup und OK-Button
 	    const newGamePopup = document.getElementById('newGamePopup');

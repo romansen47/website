@@ -3,6 +3,7 @@ package com.example.demo.controller.impl;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -27,6 +28,7 @@ import demo.chess.definitions.Color;
 import demo.chess.definitions.engines.Engine;
 import demo.chess.definitions.engines.EngineConfig;
 import demo.chess.definitions.engines.EvaluationEngine;
+import demo.chess.definitions.engines.PlayerEngine;
 import demo.chess.definitions.engines.UciEngineConfig;
 import demo.chess.definitions.pieces.Piece;
 import demo.chess.definitions.states.State;
@@ -332,6 +334,12 @@ public class MainViewController extends ControllerTemplate {
 		Thread.sleep(200l);
 		webSocketService.triggerUciEngineMove();
 	}
+	
+	@PostMapping("/shutDown")
+	@ResponseBody
+	protected void shutDown() throws Exception {
+		System.exit(0);
+	}
 
 	@GetMapping("/resign")
 	protected String resign() {
@@ -399,9 +407,8 @@ public class MainViewController extends ControllerTemplate {
 			@RequestParam(defaultValue = "false") boolean showUciEngineLines,
 			@RequestParam(defaultValue = "false") boolean uciEngineActive, @RequestParam int updateIntervall,
 			@RequestParam int multiPVForEvaluationEngine, @RequestParam int uciEngineDepthForEvaluationEngine,
-			@RequestParam Engine selectedEngine) throws Exception {
-
-		Game chessGame = getChessGame();
+			@RequestParam String selectedEngine) throws Exception {
+ 
 		EvaluationEngine selected = evaluationEngines.get(selectedEngine);
 		put("evaluationEngine", selected);
 		viewConfig.setEvaluationEngine(selectedEngine);
@@ -443,7 +450,7 @@ public class MainViewController extends ControllerTemplate {
 			@RequestParam int uciEngineDepthForBlack, @RequestParam int threadsForBlack,
 			@RequestParam int hashSizeForBlack, @RequestParam int contemptForBlack,
 			@RequestParam int moveOverheadForBlack, @RequestParam int uciEloForBlack,
-			@RequestParam Engine selectedEngineForWhite, @RequestParam Engine selectedEngineForBlack) throws Exception {
+			@RequestParam String selectedEngineForWhite, @RequestParam String selectedEngineForBlack) throws Exception {
 
 		put("playerEngineForWhite", playerEngines.get(selectedEngineForWhite));
 		viewConfig.setPlayerEngineForWhite(selectedEngineForWhite);

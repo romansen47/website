@@ -41,10 +41,10 @@ public abstract class ControllerTemplate implements ChessController {
 	protected AppAdmin admin;
 
 	@Autowired
-	protected Map<Engine, EvaluationEngine> evaluationEngines;
+	protected Map<String, EvaluationEngine> evaluationEngines;
 
 	@Autowired
-	protected Map<Engine, PlayerEngine> playerEngines;
+	protected Map<String, PlayerEngine> playerEngines;
 
 	@Autowired
 	protected WebSocketService webSocketService;
@@ -57,10 +57,10 @@ public abstract class ControllerTemplate implements ChessController {
 
 	public void setup() throws Exception {
 		if (get("playerEngineForWhite") == null) {
-			put("playerEngineForWhite", playerEngines.get(Engine.STOCKFISH_16));
+			put("playerEngineForWhite", playerEngines.get(Engine.STOCKFISH_16.toString()));
 		}
 		if (get("playerEngineForBlack") == null) {
-			put("playerEngineForBlack", playerEngines.get(Engine.STOCKFISH_16));
+			put("playerEngineForBlack", playerEngines.get(Engine.STOCKFISH_16.toString()));
 		}
 	}
 
@@ -199,7 +199,7 @@ public abstract class ControllerTemplate implements ChessController {
 	protected EvaluationEngine getEvaluationEngine() {
 		EvaluationEngine evaluationEngine = (EvaluationEngine) get("evaluationEngine");
 		if (evaluationEngine == null) {
-			return this.evaluationEngines.get(Engine.FRUIT);
+			return this.evaluationEngines.get(Engine.FRUIT.toString());
 		}
 		return evaluationEngine;
 	}

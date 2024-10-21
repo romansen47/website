@@ -6,6 +6,7 @@
 				<button id="newGame">Start new Game</button>
 				<button id="engineClash" th:if="${uciEngineActive}">Let engines play position</button>
 				<a href='/resign'>Resign!</a> 
+				<button id="shutDown">Shutdown Application</button>
             </div>
         </div> 
 		<div class='dropdown'>
@@ -21,6 +22,7 @@
 		    <div class='dropdown-content'>
 		        <button id="saveGameButton">Download game</button>
 		        <button id="loadGameButton">Upload game</button>
+		        <button id="importEngine">Import an UCI engine</button>
 		    </div>
 		</div>
 		<div class='dropdown'>

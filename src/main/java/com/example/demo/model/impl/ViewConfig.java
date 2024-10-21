@@ -26,9 +26,9 @@ public class ViewConfig implements Config {
 	private int updateIntervall = 1;
 	private int animationDuration = 100;
 
-	private Engine evaluationEngine = Engine.STOCKFISH_16;
-	private Engine playerEngineForWhite = Engine.STOCKFISH_16;
-	private Engine playerEngineForBlack = Engine.STOCKFISH_16;
+	private String evaluationEngine = Engine.STOCKFISH_16.toString();
+	private String playerEngineForWhite = Engine.STOCKFISH_16.toString();
+	private String playerEngineForBlack = Engine.STOCKFISH_16.toString();
 
 	private int uciEngineDepthForEvaluationEngine = 10;
 	private int multiPVForEvaluationEngine = 3;
@@ -210,32 +210,32 @@ public class ViewConfig implements Config {
 	}
 
 	@Override
-	public Engine getEvaluationEngine() {
+	public String getEvaluationEngine() {
 		return evaluationEngine;
 	}
 
 	@Override
-	public void setEvaluationEngine(Engine evaluationEngine) {
+	public void setEvaluationEngine(String evaluationEngine) {
 		this.evaluationEngine = evaluationEngine;
 	}
 
 	@Override
-	public Engine getPlayerEngineForWhite() {
+	public String getPlayerEngineForWhite() {
 		return playerEngineForWhite;
 	}
 
 	@Override
-	public void setPlayerEngineForWhite(Engine playerEngineForWhite) {
+	public void setPlayerEngineForWhite(String playerEngineForWhite) {
 		this.playerEngineForWhite = playerEngineForWhite;
 	}
 
 	@Override
-	public Engine getPlayerEngineForBlack() {
+	public String getPlayerEngineForBlack() {
 		return playerEngineForBlack;
 	}
 
 	@Override
-	public void setPlayerEngineForBlack(Engine playerEngineForBlack) {
+	public void setPlayerEngineForBlack(String playerEngineForBlack) {
 		this.playerEngineForBlack = playerEngineForBlack;
 	}
 

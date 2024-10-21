@@ -125,7 +125,7 @@
                         <select name="selectedEngineForWhite" th:id="selectedEngineForWhite">
                             <option th:each="engine : ${playerEngines.keySet()}"
                                     th:value="${engine}"
-                                    th:text="${engine.comment()}"
+                                    th:text="${engine.toString()}"
                                     th:selected="${engine == viewConfig.playerEngineForWhite}"></option>
                         </select>
                         <span class="tooltip">Choose your engine</span>
@@ -168,7 +168,7 @@
                         <select name="selectedEngineForBlack" th:id="selectedEngineForBlack">
                             <option th:each="engine : ${playerEngines.keySet()}"
                                     th:value="${engine}"
-                                    th:text="${engine.comment()}"
+                                    th:text="${engine.toString()}"
                                     th:selected="${engine == viewConfig.playerEngineForBlack}"></option>
                         </select>
                         <span class="tooltip">Choose your engine</span>

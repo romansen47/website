@@ -300,16 +300,16 @@ public interface Config {
 
 	void setSilent(boolean silent);
 
-	Engine getEvaluationEngine();
+	String getEvaluationEngine();
 
-	void setEvaluationEngine(Engine evaluationEngine);
+	void setEvaluationEngine(String evaluationEngine);
 
-	Engine getPlayerEngineForWhite();
+	String getPlayerEngineForWhite();
 
-	void setPlayerEngineForWhite(Engine playerEngineForWhite);
+	void setPlayerEngineForWhite(String playerEngineForWhite);
 
-	Engine getPlayerEngineForBlack();
+	String getPlayerEngineForBlack();
 
-	void setPlayerEngineForBlack(Engine playerEngineForBlack);
+	void setPlayerEngineForBlack(String playerEngineForBlack);
 
 }

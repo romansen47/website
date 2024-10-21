@@ -1,7 +1,10 @@
 package com.example.demo.controller.impl;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -40,7 +43,9 @@ import demo.chess.definitions.Color;
 import demo.chess.definitions.PieceType;
 import demo.chess.definitions.engines.EngineConfig;
 import demo.chess.definitions.engines.PlayerEngine;
+import demo.chess.definitions.engines.impl.EvaluationUciEngine;
 import demo.chess.definitions.engines.impl.NoMoveFoundException;
+import demo.chess.definitions.engines.impl.PlayerUciEngine;
 import demo.chess.definitions.fields.Field;
 import demo.chess.definitions.moves.Castling;
 import demo.chess.definitions.moves.EnPassant;
@@ -442,6 +447,43 @@ public class ChessApiController extends ControllerTemplate {
 			fw.close();
 
 			loadGame();
+			return ResponseEntity.ok("Game loaded successfully");
+		} catch (IOException e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error loading game");
+		}
+	}
+	
+	@PostMapping("/import-Engine")
+	public ResponseEntity<String> importEngine(@RequestParam("file") MultipartFile file) throws Exception {
+		if (file.isEmpty()) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No file selected.");
+		}
+
+		try {
+			String name = System.getProperty("user.dir") + "/" + file.getOriginalFilename();
+			
+			FileOutputStream fos = new FileOutputStream(name);
+	        BufferedOutputStream bos = new BufferedOutputStream(fos); 
+	        
+			bos.write(file.getBytes());
+			bos.flush();
+			bos.close();
+			fos.close();
+			
+	        new File(name).setExecutable(true);
+
+			evaluationEngines.put(file.getOriginalFilename(), new EvaluationUciEngine(name) {
+				@Override
+				public String toString() {
+					return file.getOriginalFilename();
+				}
+			});
+			playerEngines.put(file.getOriginalFilename(), new PlayerUciEngine(name) {
+				@Override
+				public String toString() {
+					return file.getOriginalFilename();
+				}
+			});
 			return ResponseEntity.ok("Game loaded successfully");
 		} catch (IOException e) {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error loading game");

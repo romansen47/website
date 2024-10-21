@@ -10,7 +10,7 @@ import demo.chess.definitions.engines.PlayerEngine;
 
 public interface AppAdmin extends Admin {
 
-	Map<Engine, PlayerEngine> playerEngines();
+	Map<String, PlayerEngine> playerEngines();
 
 	Attributes attributes();
 }

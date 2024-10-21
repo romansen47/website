@@ -109,14 +109,14 @@ public class App extends ChessAdmin implements AppAdmin {
 
 	@Bean
 	@Override
-	public Map<Engine, PlayerEngine> playerEngines() {
-		Map<Engine, PlayerEngine> engines = new HashMap<>();
+	public Map<String, PlayerEngine> playerEngines() {
+		Map<String, PlayerEngine> engines = new HashMap<>();
 		for (Engine engine : Engine.values()) {
 			try {
-				engines.put(engine, new PlayerUciEngine("/usr/games/" + engine.path()) {
+				engines.put(engine.toString(), new PlayerUciEngine("/usr/games/" + engine.path()) {
 					@Override
 					public String toString() {
-						return engine.comment();
+						return engine.toString();
 					}
 				});
 			} catch (Exception e) {
