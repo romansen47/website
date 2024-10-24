@@ -59,8 +59,6 @@ import demo.chess.save.GameSaver;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletResponse;
 
-import demo.chess.definitions.engines.Engine;
-
 @RestController
 @RequestMapping("/api/game")
 public class ChessApiController extends ControllerTemplate {
@@ -88,6 +86,7 @@ public class ChessApiController extends ControllerTemplate {
 
 	@PostMapping("/getPossibleMoves")
 	@ResponseBody
+	@SuppressWarnings("unchecked")
 	protected ChessApiResponse<List<String>> getPossibleMoves(String field) throws Exception {
 		List<DisplayedField> allfields = (List<DisplayedField>) get("fields");
 		Field clickedField = null;
@@ -156,6 +155,7 @@ public class ChessApiController extends ControllerTemplate {
 	 */
 	@PostMapping("/onPieceClicked")
 	@ResponseBody
+	@SuppressWarnings("unchecked")
 	protected ChessApiResponse<List<String>> onPieceClicked(@RequestParam int id) throws Exception {
 
 		if (!checkForGameState(((Game) get("chessGame")))) {
@@ -275,6 +275,7 @@ public class ChessApiController extends ControllerTemplate {
 	 */
 	@PostMapping("/onFieldClicked")
 	@ResponseBody
+	@SuppressWarnings("unchecked")
 	protected ChessApiResponse<List<String>> onFieldClicked(@RequestParam int id) throws Exception {
 		if (!checkForGameState(((Game) get("chessGame")))) {
 			return new ChessApiResponse<>(true, new ArrayList<>());
@@ -452,7 +453,7 @@ public class ChessApiController extends ControllerTemplate {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error loading game");
 		}
 	}
-	
+
 	@PostMapping("/import-Engine")
 	public ResponseEntity<String> importEngine(@RequestParam("file") MultipartFile file) throws Exception {
 		if (file.isEmpty()) {
@@ -461,16 +462,16 @@ public class ChessApiController extends ControllerTemplate {
 
 		try {
 			String name = System.getProperty("user.dir") + "/" + file.getOriginalFilename();
-			
+
 			FileOutputStream fos = new FileOutputStream(name);
-	        BufferedOutputStream bos = new BufferedOutputStream(fos); 
-	        
+			BufferedOutputStream bos = new BufferedOutputStream(fos);
+
 			bos.write(file.getBytes());
 			bos.flush();
 			bos.close();
 			fos.close();
-			
-	        new File(name).setExecutable(true);
+
+			new File(name).setExecutable(true);
 
 			evaluationEngines.put(file.getOriginalFilename(), new EvaluationUciEngine(name) {
 				@Override
@@ -494,11 +495,17 @@ public class ChessApiController extends ControllerTemplate {
 	 * Handles GET requests to retrieve the list of moves made during the game.
 	 *
 	 * @return A list of strings representing the moves.
+	 * @throws IOException
+	 * @throws NoMoveFoundException
 	 */
 	@GetMapping("/moveList")
 	@ResponseBody
-	public ChessApiResponse<String> getMoveList() {
-		List<Move> moves = ((Game) get("chessGame")).getMoveList();
+	public ChessApiResponse<String> getMoveList() throws NoMoveFoundException, IOException {
+		Game chessGame = (Game) get("chessGame");
+		List<Move> moves = chessGame.getMoveList();
+		// List<String> movesSAN =
+		// chessGame.getMoveList().getShortAlgebraicNotatedMap(chessGame);
+		// logger.info("SAN: {}", movesSAN);
 		StringBuilder moveListHtml = new StringBuilder();
 
 		String prefixWhite = viewConfig.getUciEngineDepthForWhite() == 0
@@ -524,14 +531,23 @@ public class ChessApiController extends ControllerTemplate {
 			moveListHtml.append("<span style='width: 1px; display: inline-block; margin-left: 20px;'>")
 					.append(i / 2 + 1).append("</span>")
 					.append("<span style='width: 40px; display: inline-block; margin-left: 20px;'>").append(" : 	")
-					.append("</span>").append("<span style='width: 60px; display: inline-block;'>")
-					.append(helper.getUnicodeSymbol(moves.get(i).getPiece())).append(" ")
-					.append(moves.get(i).toString()).append("</span>");
-
+					.append("</span>").append("<span style='width: 60px; display: inline-block;'>");
+			if (!viewConfig.isShortAlgebraicNotation()) {
+				moveListHtml.append(helper.getUnicodeSymbol(moves.get(i).getPiece())).append(" ");
+				moveListHtml.append(moves.get(i).toString()).append("</span>");
+			} else {
+				moveListHtml.append(chessGame.getSanMoveList().get(i));
+				moveListHtml.append("</span>");
+			}
 			if (i + 1 < moves.size()) {
-				moveListHtml.append("<span style='width: 60px; display: inline-block; margin-left: 20px;'>")
-						.append(helper.getUnicodeSymbol(moves.get(i + 1).getPiece())).append(" 		")
-						.append(moves.get(i + 1).toString()).append("</span>");
+				if (!viewConfig.isShortAlgebraicNotation()) {
+					moveListHtml.append("<span style='width: 60px; display: inline-block; margin-left: 20px;'>")
+							.append(helper.getUnicodeSymbol(moves.get(i + 1).getPiece())).append(" 		")
+							.append(moves.get(i + 1).toString()).append("</span>");
+				} else {
+					moveListHtml.append("<span style='width: 60px; display: inline-block; margin-left: 20px;'>")
+							.append(chessGame.getSanMoveList().get(i + 1).toString()).append("</span>");
+				}
 			}
 
 			moveListHtml.append("</div>");
@@ -715,6 +731,7 @@ public class ChessApiController extends ControllerTemplate {
 		return new ChessApiResponse<>(true, map);
 	}
 
+	@SuppressWarnings("unchecked")
 	public void applyMove(Move move) throws Exception {
 		Game chessGame = ((Game) get("chessGame"));
 		if (!checkForGameState(chessGame)) {
@@ -729,6 +746,7 @@ public class ChessApiController extends ControllerTemplate {
 			helper.getEvaluationEngineMoveList(this.getEvaluationEngine());
 		}
 		this.webSocketService.updateClocks();
+		this.webSocketService.updateMoveList();
 	}
 
 	protected static class PieceSelection {

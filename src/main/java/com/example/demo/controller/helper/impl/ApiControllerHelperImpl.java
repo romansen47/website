@@ -76,8 +76,9 @@ public class ApiControllerHelperImpl implements ApiControllerHelper {
 	 */
 	@Override
 	public List<Move> getPossibleMoves() throws NoMoveFoundException, IOException {
-		if (((Game) get("chessGame")).getState() == null) {
-			return ((Game) get("chessGame")).getPlayer().getValidMoves(((Game) get("chessGame")));
+		Game chessGame = (Game) get("chessGame");
+		if (chessGame.getState() == null) {
+			return chessGame.getPlayer().getValidMoves(chessGame);
 		}
 		return Collections.emptyList();
 	}

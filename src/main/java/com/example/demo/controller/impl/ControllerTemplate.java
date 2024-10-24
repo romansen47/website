@@ -20,8 +20,6 @@ import demo.chess.definitions.PieceType;
 import demo.chess.definitions.engines.Engine;
 import demo.chess.definitions.engines.EvaluationEngine;
 import demo.chess.definitions.engines.PlayerEngine;
-import demo.chess.definitions.moves.MoveList;
-import demo.chess.definitions.moves.impl.MoveListImpl;
 import demo.chess.definitions.pieces.Piece;
 import demo.chess.game.Game;
 import demo.chess.load.GameLoader;
@@ -64,10 +62,9 @@ public abstract class ControllerTemplate implements ChessController {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	protected void loadGame(String path) throws Exception {
 		GameLoader loader = new GameLoader();
-		MoveList copy = new MoveListImpl();
-		copy.addAll(((Game) get("chessGame")).getMoveList());
 		loader.loadGame(path, ((Game) get("chessGame")));
 		List<DisplayedPiece> listOfPiecesToRemove = new ArrayList<>();
 		if ((boolean) get("regular")) {
@@ -110,6 +107,7 @@ public abstract class ControllerTemplate implements ChessController {
 				}
 			}
 		}
+		webSocketService.updateMoveList();
 		((List<DisplayedPiece>) get("elements")).removeAll(listOfPiecesToRemove);
 	}
 
@@ -179,6 +177,7 @@ public abstract class ControllerTemplate implements ChessController {
 	 * @throws NoElementFoundException if no displayable element is found for the
 	 *                                 given piece
 	 */
+	@SuppressWarnings("unchecked") 
 	protected DisplayedPiece getElement(Piece piece) throws NoElementFoundException {
 		for (DisplayedPiece element : (List<DisplayedPiece>) get("elements")) {
 			if (element.getPiece().equals(piece)) {

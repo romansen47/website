@@ -23,6 +23,8 @@
 		    	updateClocks();  
 		    } else if(event.data.startsWith('TRIGGERSTOCKFISHMOVE')) {
 		    	getUciEngineMove(); 
+		    } else if(event.data.startsWith('MOVELIST')) {
+		    	loadMoveList(); 
 		    }
 		};
 		
@@ -683,9 +685,7 @@
                     moveList.innerHTML = data.data;  // Setze den HTML-Content direkt in die Move-List
                 })
                 .catch(error => console.error('Error loading move list:', error));
-        }
-
-        setInterval(loadMoveList, 250);
+        } 
 
 		function highlightBestMove() {
 		    // Wähle alle .move-item divs aus, überspringe die Überschrift
@@ -984,6 +984,7 @@
 		function myInfoAction() {
 		    console.log('OK-Button im Info-Popup wurde geklickt, Aktion wird ausgeführt.');
 		}
+		loadMoveList();
  
     });
 </script>

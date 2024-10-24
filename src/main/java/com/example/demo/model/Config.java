@@ -1,7 +1,6 @@
 package com.example.demo.model;
 
 import demo.chess.definitions.Color;
-import demo.chess.definitions.engines.Engine;
 
 /**
  * Interface representing the configuration settings for the application.
@@ -311,5 +310,9 @@ public interface Config {
 	String getPlayerEngineForBlack();
 
 	void setPlayerEngineForBlack(String playerEngineForBlack);
+
+	boolean isShortAlgebraicNotation();
+
+	void setShortAlgebraicNotation(boolean shortAlgebraicNotation);
 
 }

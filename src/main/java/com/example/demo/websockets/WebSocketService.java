@@ -44,4 +44,12 @@ public class WebSocketService {
 			e.printStackTrace();
 		}
 	}
+	
+	public void updateMoveList() {
+		try {
+			webSocketHandler.updateMoveList();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 }

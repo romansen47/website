@@ -3,7 +3,6 @@ package com.example.demo.controller.impl;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -28,7 +27,6 @@ import demo.chess.definitions.Color;
 import demo.chess.definitions.engines.Engine;
 import demo.chess.definitions.engines.EngineConfig;
 import demo.chess.definitions.engines.EvaluationEngine;
-import demo.chess.definitions.engines.PlayerEngine;
 import demo.chess.definitions.engines.UciEngineConfig;
 import demo.chess.definitions.pieces.Piece;
 import demo.chess.definitions.states.State;
@@ -54,11 +52,11 @@ public class MainViewController extends ControllerTemplate {
 	public void init() throws Exception {
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
 			evaluationEngines.entrySet().forEach(entry -> {
-				logger.info("Closing {}", entry.getValue());
+				logger.info("Shutting down evaluation engine {}", entry.getValue());
 				entry.getValue().close();
 			});
 			playerEngines.entrySet().forEach(entry -> {
-				logger.info("Closing {}", entry.getValue());
+				logger.info("Shutting down player engine {}", entry.getValue());
 				entry.getValue().close();
 			});
 		}));
@@ -73,6 +71,7 @@ public class MainViewController extends ControllerTemplate {
 	 * @throws Exception
 	 */
 	@Override
+	@SuppressWarnings("unchecked")
 	public void setup() throws Exception {
 
 		super.setup();
@@ -84,11 +83,7 @@ public class MainViewController extends ControllerTemplate {
 		}
 		final Game chessGame = tmpChessGame;
 
-		if (get("evaluationEngine") == null) {
-			put("evaluationEngine", evaluationEngines.get(Engine.FRUIT));
-		}
-
-		put("uciEngineEvaluation", 0.5d);
+		put("uciEngineEvaluation", 0.5d); 
 		put("regular", !viewConfig.getIsFlipped());
 		put("silent", false);
 		put("remainingTimeForWhite", chessGame.getWhitePlayer().getChessClock().getTime(TimeUnit.MILLISECONDS));
@@ -145,6 +140,7 @@ public class MainViewController extends ControllerTemplate {
 	 * @throws Exception If any error occurs during processing.
 	 */
 	@GetMapping("/")
+	@SuppressWarnings("unchecked")
 	protected String mainView(Model model, HttpServletResponse response, boolean update, boolean resigned)
 			throws Exception {
 
@@ -187,6 +183,7 @@ public class MainViewController extends ControllerTemplate {
 		return "mainView";
 	}
 
+	@SuppressWarnings("unchecked")
 	protected void createNewPiecesFromExistingPieces() {
 		((List<DisplayedPiece>) get("elements")).clear();
 		List<DisplayedPiece> newElements = new ArrayList<>();
@@ -334,11 +331,12 @@ public class MainViewController extends ControllerTemplate {
 		Thread.sleep(200l);
 		webSocketService.triggerUciEngineMove();
 	}
-	
+
 	@PostMapping("/shutDown")
 	@ResponseBody
 	protected void shutDown() throws Exception {
-		System.exit(0);
+		// System.exit(0);
+		Runtime.getRuntime().exit(0);
 	}
 
 	@GetMapping("/resign")
@@ -408,7 +406,7 @@ public class MainViewController extends ControllerTemplate {
 			@RequestParam(defaultValue = "false") boolean uciEngineActive, @RequestParam int updateIntervall,
 			@RequestParam int multiPVForEvaluationEngine, @RequestParam int uciEngineDepthForEvaluationEngine,
 			@RequestParam String selectedEngine) throws Exception {
- 
+
 		EvaluationEngine selected = evaluationEngines.get(selectedEngine);
 		put("evaluationEngine", selected);
 		viewConfig.setEvaluationEngine(selectedEngine);
@@ -513,13 +511,16 @@ public class MainViewController extends ControllerTemplate {
 	@PostMapping("/presentationSettings")
 	protected String updatePresentationSettings(@RequestParam String color,
 			@RequestParam(defaultValue = "false") boolean capturedContainer,
-			@RequestParam(defaultValue = "false") boolean silent, @RequestParam int animationDuration,
+			@RequestParam(defaultValue = "false") boolean silent,
+			@RequestParam(defaultValue = "false") boolean shortAlgebraicNotation,
+			@RequestParam int animationDuration,
 			@RequestParam int leftOffset, @RequestParam int squareSize) {
 
 		viewConfig.setLeftOffset(leftOffset);
 		viewConfig.setSquareSize(squareSize);
 		viewConfig.setSilent(silent);
-
+		
+		viewConfig.setShortAlgebraicNotation(shortAlgebraicNotation);
 		viewConfig.setCapturedContainer(capturedContainer);
 
 		viewConfig.setColor(Arrays.stream(Color.values()).filter(enumValue -> enumValue.name().equals(color))

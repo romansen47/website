@@ -45,6 +45,14 @@ public class WebSocketHandler extends TextWebSocketHandler {
 			logger.info("WebSocket session is not open or null.");
 		}
 	}
+	
+	public void updateMoveList() throws Exception {
+		if (session != null && session.isOpen()) {
+			session.sendMessage(new TextMessage(WS_MESSAGE.MOVELIST.toString()));
+		} else {
+			logger.info("WebSocket session is not open or null.");
+		}
+	}
 
 	public void triggerUciEngineMove() throws Exception {
 		if (session != null && session.isOpen()) {
@@ -55,7 +63,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
 	}
 
 	public static enum WS_MESSAGE {
-		RELOAD, MESSAGE, CLOCKS, TRIGGERSTOCKFISHMOVE;
+		RELOAD, MESSAGE, CLOCKS, TRIGGERSTOCKFISHMOVE, MOVELIST;
 	}
 
 }

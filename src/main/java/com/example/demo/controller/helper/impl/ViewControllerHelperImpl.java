@@ -107,6 +107,7 @@ public class ViewControllerHelperImpl implements ViewControllerHelper {
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public void createNewFields() {
 		if ((boolean) get("regular")) {
 			for (int file = 0; file < 8; file++) {

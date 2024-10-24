@@ -19,6 +19,8 @@ public class ViewConfig implements Config {
 	private boolean capturedContainer = false;
 	private boolean silent = false;
 
+	private boolean shortAlgebraicNotation = true;
+	
 	private boolean uciEngineActive = true;
 	private int timeForEachPlayer = 300;
 	private int incrementForWhite = 2;
@@ -575,4 +577,15 @@ public class ViewConfig implements Config {
 	public void setIncrementForBlack(int incrementForBlack) {
 		this.incrementForBlack = incrementForBlack;
 	}
+
+	@Override
+	public boolean isShortAlgebraicNotation() {
+		return shortAlgebraicNotation;
+	}
+
+	@Override
+	public void setShortAlgebraicNotation(boolean shortAlgebraicNotation) {
+		this.shortAlgebraicNotation = shortAlgebraicNotation;
+	}
+
 }
