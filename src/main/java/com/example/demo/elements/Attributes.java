@@ -2,6 +2,6 @@ package com.example.demo.elements;
 
 import java.util.Map;
 
-public interface Attributes extends Map<String, Object> {
+public interface Attributes extends Map<KEY, Object> {
 
 }

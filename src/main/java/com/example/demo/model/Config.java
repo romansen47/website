@@ -315,4 +315,8 @@ public interface Config {
 
 	void setShortAlgebraicNotation(boolean shortAlgebraicNotation);
 
+	int getAdditionalTime();
+
+	void setAdditionalTime(int additionalTime);
+
 }

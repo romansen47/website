@@ -1,5 +1,6 @@
 package com.example.demo.controller.helper.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,23 +9,21 @@ import org.springframework.ui.Model;
 
 import com.example.demo.controller.helper.ViewControllerHelper;
 import com.example.demo.elements.Attributes;
+import com.example.demo.elements.KEY;
 import com.example.demo.model.Config;
 import com.example.demo.model.DisplayedField;
+import com.example.demo.model.DisplayedPiece;
 import com.example.demo.model.impl.DisplayedChessField;
+import com.example.demo.model.impl.DisplayedChessPiece;
 
 import demo.chess.definitions.Color;
 import demo.chess.definitions.engines.EngineConfig;
 import demo.chess.definitions.engines.EvaluationEngine;
+import demo.chess.definitions.pieces.Piece;
 import demo.chess.game.Game;
 
 @Component
-public class ViewControllerHelperImpl implements ViewControllerHelper {
-
-	@Autowired
-	protected Config viewConfig;
-
-	@Autowired
-	protected Attributes attributes;
+public class ViewControllerHelperImpl extends ChessHelper  implements ViewControllerHelper {
 
 	/**
 	 * Adds attributes to the model for rendering the chessboard view.
@@ -40,8 +39,8 @@ public class ViewControllerHelperImpl implements ViewControllerHelper {
 		model.addAttribute("whiteTime", whiteTimeString);
 		model.addAttribute("blackTime", blackTimeString);
 
-		model.addAttribute("fields", (get("fields")));
-		model.addAttribute("elements", (get("elements")));
+		model.addAttribute("elements", (get(KEY.ELEMENTS)));
+		model.addAttribute("fields", (get(KEY.FIELDS)));
 
 		model.addAttribute("animationDuration", viewConfig.getAnimationDuration());
 		model.addAttribute("topBarHeight", viewConfig.getTopBarHeight());
@@ -67,7 +66,7 @@ public class ViewControllerHelperImpl implements ViewControllerHelper {
 		model.addAttribute("clocksLeft", viewConfig.getLeftOffset());
 		model.addAttribute("clocksTop", 8 * viewConfig.getSquareSize() + viewConfig.getChessBoardOffset());
 		model.addAttribute("clockWidth", 8 * viewConfig.getSquareSize());
-		model.addAttribute("evaluationEngine", get("evaluationEngine"));
+		model.addAttribute("evaluationEngine", get(KEY.EVALUATION_ENGINE));
 		model.addAttribute("updateIntervall", viewConfig.getUpdateIntervall() * 1000);
 		model.addAttribute("silent", viewConfig.isSilent());
 
@@ -81,7 +80,7 @@ public class ViewControllerHelperImpl implements ViewControllerHelper {
 		model.addAttribute("capturedContainer", viewConfig.isCapturedContainer());
 		model.addAttribute("uciEngineActive", viewConfig.isUciEngineActive());
 
-		double evaluation = (double) get("uciEngineEvaluation");
+		double evaluation = (double) get(KEY.UCI_ENGINE_EVALUATION);
 		model.addAttribute("uciEngineDepthForEvaluation", viewConfig.getUciEngineDepthForEvaluationEngine());
 		model.addAttribute("stockFishEvaluation", getRatioEvalBars(evaluation));
 
@@ -109,24 +108,24 @@ public class ViewControllerHelperImpl implements ViewControllerHelper {
 	@Override
 	@SuppressWarnings("unchecked")
 	public void createNewFields() {
-		if ((boolean) get("regular")) {
+		if ((boolean) get(KEY.REGULAR)) {
 			for (int file = 0; file < 8; file++) {
 				for (int row = 0; row < 8; row++) {
 					Color color = (row + file) % 2 == 0 ? Color.WHITE : Color.BLACK;
-					((List<DisplayedField>) get("fields"))
+					((List<DisplayedField>) get(KEY.FIELDS))
 							.add(new DisplayedChessField(color, viewConfig.getSquareSize(), viewConfig.getSquareSize(),
 									viewConfig.getSquareSize() * row, viewConfig.getSquareSize() * file,
-									((Game) get("chessGame")).getChessBoard().getField(file + 1, 8 - row)));
+									((Game) get(KEY.CHESSGAME)).getChessBoard().getField(file + 1, 8 - row)));
 				}
 			}
 		} else {
 			for (int file = 0; file < 8; file++) {
 				for (int row = 0; row < 8; row++) {
 					Color color = (row + file) % 2 == 0 ? Color.WHITE : Color.BLACK;
-					((List<DisplayedField>) get("fields"))
+					((List<DisplayedField>) get(KEY.FIELDS))
 							.add(new DisplayedChessField(color, viewConfig.getSquareSize(), viewConfig.getSquareSize(),
 									viewConfig.getSquareSize() * (7 - row), viewConfig.getSquareSize() * (7 - file),
-									((Game) get("chessGame")).getChessBoard().getField(file + 1, 8 - row)));
+									((Game) get(KEY.CHESSGAME)).getChessBoard().getField(file + 1, 8 - row)));
 				}
 			}
 		}
@@ -173,31 +172,67 @@ public class ViewControllerHelperImpl implements ViewControllerHelper {
 		int captureContainerHeight = 4 * squareSize;
 		viewConfig.setCapturedContainerHeight(captureContainerHeight);
 
-		((EngineConfig) get("engineConfigEval")).setDepth(viewConfig.getUciEngineDepthForEvaluationEngine());
-	}
-
-	private Object get(String s) {
-		return attributes.get(s);
+		((EngineConfig) get(KEY.ENGINE_CONFIG_EVAL)).setDepth(viewConfig.getUciEngineDepthForEvaluationEngine());
 	}
 
 	@Override
 	public void setupEngineConfigurations() {
-		((EngineConfig) get("engineConfigForWhite")).setThreads(viewConfig.getThreadsForWhite());
-		((EngineConfig) get("engineConfigForWhite")).setContempt(viewConfig.getContemptForWhite());
-		((EngineConfig) get("engineConfigForWhite")).setDepth(viewConfig.getUciEngineDepthForWhite());
-		((EngineConfig) get("engineConfigForWhite")).setHashSize(viewConfig.getHashSizeForWhite());
-		((EngineConfig) get("engineConfigForWhite")).setMoveOverhead(viewConfig.getMoveOverheadForWhite());
-		((EngineConfig) get("engineConfigForWhite")).setUciElo(viewConfig.getUciEloForWhite());
+		((EngineConfig) get(KEY.ENGINE_CONFIG_FOR_WHITE)).setThreads(viewConfig.getThreadsForWhite());
+		((EngineConfig) get(KEY.ENGINE_CONFIG_FOR_WHITE)).setContempt(viewConfig.getContemptForWhite());
+		((EngineConfig) get(KEY.ENGINE_CONFIG_FOR_WHITE)).setDepth(viewConfig.getUciEngineDepthForWhite());
+		((EngineConfig) get(KEY.ENGINE_CONFIG_FOR_WHITE)).setHashSize(viewConfig.getHashSizeForWhite());
+		((EngineConfig) get(KEY.ENGINE_CONFIG_FOR_WHITE)).setMoveOverhead(viewConfig.getMoveOverheadForWhite());
+		((EngineConfig) get(KEY.ENGINE_CONFIG_FOR_WHITE)).setUciElo(viewConfig.getUciEloForWhite());
 
-		((EngineConfig) get("engineConfigForBlack")).setThreads(viewConfig.getThreadsForBlack());
-		((EngineConfig) get("engineConfigForBlack")).setContempt(viewConfig.getContemptForBlack());
-		((EngineConfig) get("engineConfigForBlack")).setDepth(viewConfig.getUciEngineDepthForBlack());
-		((EngineConfig) get("engineConfigForBlack")).setHashSize(viewConfig.getHashSizeForBlack());
-		((EngineConfig) get("engineConfigForBlack")).setMoveOverhead(viewConfig.getMoveOverheadForBlack());
-		((EngineConfig) get("engineConfigForBlack")).setUciElo(viewConfig.getUciEloForBlack());
+		((EngineConfig) get(KEY.ENGINE_CONFIG_FOR_BLACK)).setThreads(viewConfig.getThreadsForBlack());
+		((EngineConfig) get(KEY.ENGINE_CONFIG_FOR_BLACK)).setContempt(viewConfig.getContemptForBlack());
+		((EngineConfig) get(KEY.ENGINE_CONFIG_FOR_BLACK)).setDepth(viewConfig.getUciEngineDepthForBlack());
+		((EngineConfig) get(KEY.ENGINE_CONFIG_FOR_BLACK)).setHashSize(viewConfig.getHashSizeForBlack());
+		((EngineConfig) get(KEY.ENGINE_CONFIG_FOR_BLACK)).setMoveOverhead(viewConfig.getMoveOverheadForBlack());
+		((EngineConfig) get(KEY.ENGINE_CONFIG_FOR_BLACK)).setUciElo(viewConfig.getUciEloForBlack());
 
-		((EngineConfig) get("engineConfigEval")).setMultiPV(viewConfig.getMultiPVForEvaluationEngine());
-		((EngineConfig) get("engineConfigEval")).setDepth(viewConfig.getUciEngineDepthForEvaluationEngine());
+		((EngineConfig) get(KEY.ENGINE_CONFIG_EVAL)).setMultiPV(viewConfig.getMultiPVForEvaluationEngine());
+		((EngineConfig) get(KEY.ENGINE_CONFIG_EVAL)).setDepth(viewConfig.getUciEngineDepthForEvaluationEngine());
 	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public void createNewPiecesFromExistingPieces(Game chessGame) {
+		((List<DisplayedPiece>) get(KEY.ELEMENTS)).clear();
+		List<DisplayedPiece> newElements = new ArrayList<>();
+		if ((boolean) get(KEY.REGULAR)) {
+			for (Piece piece : chessGame.getWhitePlayer().getPieces()) {
+				newElements.add(new DisplayedChessPiece(getImagePath(piece.getColor(), piece.getType()),
+						viewConfig.getSquareSize(), viewConfig.getSquareSize(),
+						(8 - piece.getField().getRank()) * viewConfig.getSquareSize(),
+						(piece.getField().getFile() - 1) * viewConfig.getSquareSize() + viewConfig.getLeftOffset(),
+						piece));
+			}
+			for (Piece piece : chessGame.getBlackPlayer().getPieces()) {
+				newElements.add(new DisplayedChessPiece(getImagePath(piece.getColor(), piece.getType()),
+						viewConfig.getSquareSize(), viewConfig.getSquareSize(),
+						(8 - piece.getField().getRank()) * viewConfig.getSquareSize(),
+						(piece.getField().getFile() - 1) * viewConfig.getSquareSize() + viewConfig.getLeftOffset(),
+						piece));
+			}
+		} else {
+			for (Piece piece : chessGame.getWhitePlayer().getPieces()) {
+				newElements.add(new DisplayedChessPiece(getImagePath(piece.getColor(), piece.getType()),
+						viewConfig.getSquareSize(), viewConfig.getSquareSize(),
+						(piece.getField().getRank() - 1) * viewConfig.getSquareSize(),
+						(8 - piece.getField().getFile()) * viewConfig.getSquareSize() + viewConfig.getLeftOffset(),
+						piece));
+			}
+			for (Piece piece : chessGame.getBlackPlayer().getPieces()) {
+				newElements.add(new DisplayedChessPiece(getImagePath(piece.getColor(), piece.getType()),
+						viewConfig.getSquareSize(), viewConfig.getSquareSize(),
+						(piece.getField().getRank() - 1) * viewConfig.getSquareSize(),
+						(8 - piece.getField().getFile()) * viewConfig.getSquareSize() + viewConfig.getLeftOffset(),
+						piece));
+			}
+		}
+		((List<DisplayedPiece>) get(KEY.ELEMENTS)).addAll(newElements);
+	}
+
 
 }

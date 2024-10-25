@@ -11,6 +11,7 @@ import com.example.demo.AppAdmin;
 import com.example.demo.ImagePath;
 import com.example.demo.controller.ChessController;
 import com.example.demo.elements.Attributes;
+import com.example.demo.elements.KEY;
 import com.example.demo.model.Config;
 import com.example.demo.model.DisplayedPiece;
 import com.example.demo.websockets.WebSocketService;
@@ -54,121 +55,72 @@ public abstract class ControllerTemplate implements ChessController {
 	protected Attributes attributes;
 
 	public void setup() throws Exception {
-		if (get("playerEngineForWhite") == null) {
-			put("playerEngineForWhite", playerEngines.get(Engine.STOCKFISH_16.toString()));
+		if (get(KEY.PLAYER_ENGINE_FOR_WHITE) == null) {
+			put(KEY.PLAYER_ENGINE_FOR_WHITE, playerEngines.get(Engine.STOCKFISH_16.toString()));
 		}
-		if (get("playerEngineForBlack") == null) {
-			put("playerEngineForBlack", playerEngines.get(Engine.STOCKFISH_16.toString()));
+		if (get(KEY.PLAYER_ENGINE_FOR_BLACK) == null) {
+			put(KEY.PLAYER_ENGINE_FOR_BLACK, playerEngines.get(Engine.STOCKFISH_16.toString()));
 		}
 	}
 
 	@SuppressWarnings("unchecked")
 	protected void loadGame(String path) throws Exception {
+		reset();
 		GameLoader loader = new GameLoader();
-		loader.loadGame(path, ((Game) get("chessGame")));
+		loader.loadGame(path, ((Game) get(KEY.CHESSGAME)));
 		List<DisplayedPiece> listOfPiecesToRemove = new ArrayList<>();
-		if ((boolean) get("regular")) {
-			for (Piece piece : ((Game) get("chessGame")).getWhitePlayer().getPieces()) {
+		if ((boolean) get(KEY.REGULAR)) {
+			for (Piece piece : ((Game) get(KEY.CHESSGAME)).getWhitePlayer().getPieces()) {
 				DisplayedPiece element = getElement(piece);
 				element.setTop((8 - piece.getField().getRank()) * viewConfig.getSquareSize());
 				element.setLeft(
 						viewConfig.getLeftOffset() + (piece.getField().getFile() - 1) * viewConfig.getSquareSize());
 			}
-			for (Piece piece : ((Game) get("chessGame")).getBlackPlayer().getPieces()) {
+			for (Piece piece : ((Game) get(KEY.CHESSGAME)).getBlackPlayer().getPieces()) {
 				DisplayedPiece element = getElement(piece);
 				element.setTop((8 - piece.getField().getRank()) * viewConfig.getSquareSize());
 				element.setLeft(
 						viewConfig.getLeftOffset() + (piece.getField().getFile() - 1) * viewConfig.getSquareSize());
 			}
-			for (DisplayedPiece element : (List<DisplayedPiece>) get("elements")) {
-				if (!((Game) get("chessGame")).getWhitePlayer().getPieces().contains(element.getPiece())
-						&& !((Game) get("chessGame")).getBlackPlayer().getPieces().contains(element.getPiece())) {
+			for (DisplayedPiece element : (List<DisplayedPiece>) get(KEY.ELEMENTS)) {
+				if (!((Game) get(KEY.CHESSGAME)).getWhitePlayer().getPieces().contains(element.getPiece())
+						&& !((Game) get(KEY.CHESSGAME)).getBlackPlayer().getPieces().contains(element.getPiece())) {
 					listOfPiecesToRemove.add(element);
 				}
 			}
 		} else {
-			for (Piece piece : ((Game) get("chessGame")).getWhitePlayer().getPieces()) {
+			for (Piece piece : ((Game) get(KEY.CHESSGAME)).getWhitePlayer().getPieces()) {
 				DisplayedPiece element = getElement(piece);
 				element.setTop((piece.getField().getRank() - 1) * viewConfig.getSquareSize());
 				element.setLeft(
 						viewConfig.getLeftOffset() + (8 - piece.getField().getFile()) * viewConfig.getSquareSize());
 			}
-			for (Piece piece : ((Game) get("chessGame")).getBlackPlayer().getPieces()) {
+			for (Piece piece : ((Game) get(KEY.CHESSGAME)).getBlackPlayer().getPieces()) {
 				DisplayedPiece element = getElement(piece);
 				element.setTop((piece.getField().getRank() - 1) * viewConfig.getSquareSize());
 				element.setLeft(
 						viewConfig.getLeftOffset() + (8 - piece.getField().getFile()) * viewConfig.getSquareSize());
 			}
 
-			for (DisplayedPiece element : (List<DisplayedPiece>) get("elements")) {
-				if (!((Game) get("chessGame")).getWhitePlayer().getPieces().contains(element.getPiece())
-						&& !((Game) get("chessGame")).getBlackPlayer().getPieces().contains(element.getPiece())) {
+			for (DisplayedPiece element : (List<DisplayedPiece>) get(KEY.ELEMENTS)) {
+				if (!((Game) get(KEY.CHESSGAME)).getWhitePlayer().getPieces().contains(element.getPiece())
+						&& !((Game) get(KEY.CHESSGAME)).getBlackPlayer().getPieces().contains(element.getPiece())) {
 					listOfPiecesToRemove.add(element);
 				}
 			}
 		}
 		webSocketService.updateMoveList();
-		((List<DisplayedPiece>) get("elements")).removeAll(listOfPiecesToRemove);
+		((List<DisplayedPiece>) get(KEY.ELEMENTS)).removeAll(listOfPiecesToRemove);
 	}
 
-	public Object get(String s) {
-		return attributes.get(s);
+	public Object get(KEY playerEngineForBlack) {
+		return attributes.get(playerEngineForBlack);
 	}
 
-	public void put(String s, Object o) {
+	public void put(KEY s, Object o) {
 		attributes.put(s, o);
 	}
-
-	protected String getImagePath(Color color, PieceType pieceType) {
-		String imagePath;
-		switch (color) {
-		case WHITE:
-			switch (pieceType) {
-			case KING:
-				imagePath = ImagePath.WHITE_KING.path;
-				break;
-			case QUEEN:
-				imagePath = ImagePath.WHITE_QUEEN.path;
-				break;
-			case ROOK:
-				imagePath = ImagePath.WHITE_ROOK.path;
-				break;
-			case KNIGHT:
-				imagePath = ImagePath.WHITE_KNIGHT.path;
-				break;
-			case BISHOP:
-				imagePath = ImagePath.WHITE_BISHOP.path;
-				break;
-			default:
-				imagePath = ImagePath.WHITE_PAWN.path;
-				break;
-			}
-			break;
-		default:
-			switch (pieceType) {
-			case KING:
-				imagePath = ImagePath.BLACK_KING.path;
-				break;
-			case QUEEN:
-				imagePath = ImagePath.BLACK_QUEEN.path;
-				break;
-			case ROOK:
-				imagePath = ImagePath.BLACK_ROOK.path;
-				break;
-			case KNIGHT:
-				imagePath = ImagePath.BLACK_KNIGHT.path;
-				break;
-			case BISHOP:
-				imagePath = ImagePath.BLACK_BISHOP.path;
-				break;
-			default:
-				imagePath = ImagePath.BLACK_PAWN.path;
-				break;
-			}
-		}
-		return imagePath;
-	}
-
+	
 	/**
 	 * Returns the displayable element associated with the given chess piece.
 	 *
@@ -179,16 +131,16 @@ public abstract class ControllerTemplate implements ChessController {
 	 */
 	@SuppressWarnings("unchecked") 
 	protected DisplayedPiece getElement(Piece piece) throws NoElementFoundException {
-		for (DisplayedPiece element : (List<DisplayedPiece>) get("elements")) {
+		for (DisplayedPiece element : (List<DisplayedPiece>) get(KEY.ELEMENTS)) {
 			if (element.getPiece().equals(piece)) {
 				return element;
 			}
 		}
-		throw new NoElementFoundException(((Game) get("chessGame")), piece);
+		throw new NoElementFoundException(((Game) get(KEY.CHESSGAME)), piece);
 	}
 
 	protected Game getChessGame() {
-		return ((Game) get("chessGame"));
+		return ((Game) get(KEY.CHESSGAME));
 	}
 
 	protected abstract Logger getLogger();
@@ -196,7 +148,7 @@ public abstract class ControllerTemplate implements ChessController {
 	protected abstract String reset() throws Exception;
 
 	protected EvaluationEngine getEvaluationEngine() {
-		EvaluationEngine evaluationEngine = (EvaluationEngine) get("evaluationEngine");
+		EvaluationEngine evaluationEngine = (EvaluationEngine) get(KEY.EVALUATION_ENGINE);
 		if (evaluationEngine == null) {
 			return this.evaluationEngines.get(Engine.FRUIT.toString());
 		}

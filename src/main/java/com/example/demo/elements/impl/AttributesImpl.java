@@ -5,9 +5,10 @@ import java.util.HashMap;
 import org.springframework.stereotype.Component;
 
 import com.example.demo.elements.Attributes;
+import com.example.demo.elements.KEY;
 
 @Component
-public class AttributesImpl extends HashMap<String, Object> implements Attributes {
+public class AttributesImpl extends HashMap<KEY, Object> implements Attributes {
 
 	/**
 	 *

@@ -25,6 +25,7 @@ public class ViewConfig implements Config {
 	private int timeForEachPlayer = 300;
 	private int incrementForWhite = 2;
 	private int incrementForBlack = 2;
+	private int additionalTime = 0;
 	private int updateIntervall = 1;
 	private int animationDuration = 100;
 
@@ -35,8 +36,8 @@ public class ViewConfig implements Config {
 	private int uciEngineDepthForEvaluationEngine = 10;
 	private int multiPVForEvaluationEngine = 3;
 
-	private int uciEngineDepthForWhite = 0;
-	private int uciEngineDepthForBlack = 0;
+	private int uciEngineDepthForWhite = 15;
+	private int uciEngineDepthForBlack = 15;
 
 	private int threadsForWhite = 1;
 	private int hashSizeForWhite = 1024;
@@ -70,6 +71,7 @@ public class ViewConfig implements Config {
 	private int capturedContainerWidth;
 	private int capturedContainerHeight;
 	private boolean isFlipped = false;
+	
 
 	/**
 	 * @return the capturedPiecesLeft
@@ -149,6 +151,16 @@ public class ViewConfig implements Config {
 	@Override
 	public void setTimeForEachPlayer(int timeForEachPlayer) {
 		this.timeForEachPlayer = timeForEachPlayer;
+	}
+
+	@Override
+	public int getAdditionalTime() {
+		return additionalTime;
+	}
+
+	@Override
+	public void setAdditionalTime(int additionalTime) {
+		this.additionalTime = additionalTime;
 	}
 
 	@Override

@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.LogManager;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Component;
 import com.example.demo.controller.helper.ApiControllerHelper;
 import com.example.demo.controller.impl.ChessApiController;
 import com.example.demo.elements.Attributes;
+import com.example.demo.elements.KEY;
 import com.example.demo.model.Config;
 import com.example.demo.websockets.WebSocketService;
 
@@ -26,23 +28,15 @@ import demo.chess.definitions.fields.Field;
 import demo.chess.definitions.moves.Move;
 import demo.chess.definitions.moves.Promotion;
 import demo.chess.definitions.pieces.Piece;
+import demo.chess.definitions.states.State;
 import demo.chess.game.Game;
 
 @Component
-public class ApiControllerHelperImpl implements ApiControllerHelper {
+public class ApiControllerHelperImpl extends ChessHelper implements ApiControllerHelper{
 
 	@SuppressWarnings("unused")
 	private static final Logger logger = LogManager.getLogger(ChessApiController.class);
-
-	@Autowired
-	protected WebSocketService webSocketService;
-
-	@Autowired
-	protected Config viewConfig;
-
-	@Autowired
-	protected Attributes attributes;
-
+ 
 	/**
 	 * Retrieves a list of source fields for all possible moves.
 	 *
@@ -76,7 +70,7 @@ public class ApiControllerHelperImpl implements ApiControllerHelper {
 	 */
 	@Override
 	public List<Move> getPossibleMoves() throws NoMoveFoundException, IOException {
-		Game chessGame = (Game) get("chessGame");
+		Game chessGame = (Game) get(KEY.CHESSGAME);
 		if (chessGame.getState() == null) {
 			return chessGame.getPlayer().getValidMoves(chessGame);
 		}
@@ -169,7 +163,7 @@ public class ApiControllerHelperImpl implements ApiControllerHelper {
 	@Override
 	public List<String> getMoveListWithSymbols() {
 		List<String> moveListWithSymbols = new ArrayList<>();
-		for (Move move : ((Game) get("chessGame")).getMoveList()) {
+		for (Move move : ((Game) get(KEY.CHESSGAME)).getMoveList()) {
 			String moveDescription = getUnicodeSymbol(move.getPiece()) + " " + move.toString();
 			moveListWithSymbols.add(moveDescription);
 		}
@@ -219,7 +213,7 @@ public class ApiControllerHelperImpl implements ApiControllerHelper {
 
 		List<Pair<Double, String>> uniqueList = new ArrayList<>();
 		uniqueList
-				.addAll(evaluationEngine.getBestLines((Game) get("chessGame"), (EngineConfig) get("engineConfigEval")));
+				.addAll(evaluationEngine.getBestLines((Game) get(KEY.CHESSGAME), (EngineConfig) get(KEY.ENGINE_CONFIG_EVAL)));
 		List<Pair<Double, String>> copyOfUciEngineMoveList = removeDuplicatesByString(uniqueList);
 
 		List<String> answer = new ArrayList<>();
@@ -231,17 +225,56 @@ public class ApiControllerHelperImpl implements ApiControllerHelper {
 		for (Pair<Double, String> line : bestLines) {
 			answer.add(line.getLeft() + " : " + line.getRight()); // Bewertung : Zugsequenz
 		}
-		attributes.put("uciEngineMoveList", answer);
+		attributes.put(KEY.UCI_ENGINE_MOVELIST, answer);
 		return answer;
 	}
 
 	@Override
+	public boolean checkForGameState(Game chessGame, EvaluationEngine evaluationEngine) throws Exception {
+		if (chessGame.getState() != null) {
+			evaluationEngine.stopEvaluation();
+			String message = "";
+			long white;
+			long black;
+			if (chessGame.getState().equals(State.BLACK_MATED)) {
+				message = "White won by checkmate!";
+			}
+			if (chessGame.getState().equals(State.WHITE_MATED)) {
+				message = "Black won by checkmate!";
+			}
+			if (chessGame.getState().equals(State.STALEMATE)) {
+				message = "Game ended in a stalemate!";
+			}
+			if (chessGame.getState().equals(State.LOST_ON_TIME)) {
+				white = chessGame.getTimeForEachPlayer() * 1000
+						- chessGame.getWhitePlayer().getChessClock().getTime(TimeUnit.MILLISECONDS);
+				black = chessGame.getTimeForEachPlayer() * 1000
+						- chessGame.getBlackPlayer().getChessClock().getTime(TimeUnit.MILLISECONDS);
+				message = " lost on time!";
+				if (white < 0) {
+					message = "White" + message;
+				} else if (black < 0) {
+					message = "Black" + message;
+				}
+			}
+			if (chessGame.getState().equals(State.WHITE_RESIGNED)) {
+				message = "White resigned!";
+			}
+			if (chessGame.getState().equals(State.BLACK_RESIGNED)) {
+				message = "Black resigned!";
+			}
+			if (message.isEmpty() && chessGame.getState() != null) {
+				message = chessGame.getState().getLabel();
+			}
+			webSocketService.sendMessage(message);
+			return false;
+		}
+		return true;
+	}
+	
+	@Override
 	public String reset() throws Exception {
 		return "redirect:/";
-	}
-
-	private Object get(String s) {
-		return attributes.get(s);
 	}
 
 }

@@ -168,11 +168,12 @@
 	        document.getElementById('newGamePopup').style.display = 'none'; // Popup ausblenden
 	    }
 
-	 // OK-Button-Klick: Senden der Werte an das Backend und Schließen des Popups
+	 	// OK-Button-Klick: Senden der Werte an das Backend und Schließen des Popups
 	    document.getElementById('newGameOkButton').addEventListener('click', function() {
 	        const timeForEachPlayer = document.getElementById('timeForEachPlayer').value;
 	        const incrementForWhite = document.getElementById('incrementForWhite').value;
 	        const incrementForBlack = document.getElementById('incrementForBlack').value;
+	        const additionalTime = document.getElementById('additionalTime').value;
 	        const startingColor = document.getElementById('startingColor').value;
 
 	        // Senden der Werte per Fetch an das Backend
@@ -185,6 +186,7 @@
 	                timeForEachPlayer: timeForEachPlayer,
 	                incrementForWhite: incrementForWhite,
 	                incrementForBlack: incrementForBlack,
+	                additionalTime: additionalTime,
 	                startingColor: startingColor
 	            })
 	        })

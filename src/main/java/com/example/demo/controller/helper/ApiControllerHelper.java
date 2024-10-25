@@ -12,6 +12,7 @@ import demo.chess.definitions.fields.Field;
 import demo.chess.definitions.moves.Move;
 import demo.chess.definitions.moves.Promotion;
 import demo.chess.definitions.pieces.Piece;
+import demo.chess.game.Game;
 
 @Component
 public interface ApiControllerHelper {
@@ -39,4 +40,6 @@ public interface ApiControllerHelper {
 	String reset() throws Exception;
 
 	List<String> getEvaluationEngineMoveList(EvaluationEngine evaluationEngine) throws Exception;
+
+	boolean checkForGameState(Game chessGame, EvaluationEngine evaluationEngine) throws Exception;
 }

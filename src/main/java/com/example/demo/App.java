@@ -16,6 +16,7 @@ import org.thymeleaf.spring6.view.ThymeleafViewResolver;
 import org.thymeleaf.templatemode.TemplateMode;
 
 import com.example.demo.elements.Attributes;
+import com.example.demo.elements.KEY;
 import com.example.demo.elements.impl.AttributesImpl;
 import com.example.demo.model.Config;
 import com.example.demo.model.impl.ViewConfig;
@@ -102,8 +103,8 @@ public class App extends ChessAdmin implements AppAdmin {
 	@Override
 	public Attributes attributes() {
 		Attributes attributes = new AttributesImpl();
-		attributes.put("elements", new ArrayList<>());
-		attributes.put("fields", new ArrayList<>());
+		attributes.put(KEY.ELEMENTS, new ArrayList<>());
+		attributes.put(KEY.FIELDS, new ArrayList<>());
 		return attributes;
 	}
 
