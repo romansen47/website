@@ -325,9 +325,9 @@
 					movePieceByFieldNames(fromField, toField);
 					movePieceByFieldNames(rookSource, rookTarget);
 		        } else if (data.type === "enpassant") {
+		            moveCapturedPiece(data.slayed);
 		            // EnPassant-Logik hier
 					movePieceByFieldNames(fromField, toField);
-		            moveCapturedPiece(data.slayed);
 		        } else if (data.type === "promotion") {
 		            // Promotion-Logik hier
 					movePieceByFieldNames(fromField, toField);
@@ -632,8 +632,9 @@
                                 	moveElement(data.data, field);
                             	}
                             }
-
-							getUciEngineMove();
+                            if (data.success){
+								getUciEngineMove();
+                            }
                         }
                     })
                     .catch(error => console.error('Error:', error));

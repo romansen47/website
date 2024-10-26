@@ -82,13 +82,13 @@ public class App extends ChessAdmin implements AppAdmin {
 		viewResolver.setOrder(1);
 		return viewResolver;
 	}
-
+	
 	/**
 	 * Main method to run the Spring Boot application.
 	 *
 	 * @param args command line arguments
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args) { 
 		SpringApplication.run(App.class, args);
 	}
 

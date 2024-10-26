@@ -121,16 +121,21 @@ public class ChessApiController extends ControllerTemplate {
 	@SuppressWarnings("unchecked")
 	protected ChessApiResponse<List<String>> onPieceClicked(@RequestParam int id) throws Exception {
 
-		Game chessgame = (Game) get(KEY.CHESSGAME);
+		Game chessGame = (Game) get(KEY.CHESSGAME);
+		if (!helper.isHumanAlowedToInteract(chessGame, viewConfig.isUciEngineActive())) {
+			String engine = !viewConfig.getIsFlipped() ? viewConfig.getPlayerEngineForBlack() : viewConfig.getPlayerEngineForWhite();
+			this.webSocketService.sendMessage("Engine " + engine + " is thinking!");
+			return new ChessApiResponse<>(true, new ArrayList<>());
+		}
 		List<DisplayedPiece> elements = (List<DisplayedPiece>) get(KEY.ELEMENTS);
-		if (!helper.checkForGameState(chessgame, getEvaluationEngine())) {
+		if (!helper.checkForGameState(chessGame, getEvaluationEngine())) {
 			return new ChessApiResponse<>(true, new ArrayList<>());
 		}
 		// Get the piece corresponding to the clicked element
 		Piece selectedPiece = elements.get(id).getPiece();
 
 		// Get the color of the current player
-		Color currentPlayerColor = chessgame.getPlayer().getColor();
+		Color currentPlayerColor = chessGame.getPlayer().getColor();
 		// If no field is selected and the piece belongs to the current player
 		if (selectedField == null && selectedPiece.getColor() == currentPlayerColor
 				&& null != selectedPiece.getField()) {
@@ -139,7 +144,7 @@ public class ChessApiController extends ControllerTemplate {
 				selectedField = selectedPiece.getField();
 				List<String> fields = new ArrayList<>();
 				// Get all valid target fields for this piece
-				for (Move move : chessgame.getPlayer().getValidMoves(chessgame)) {
+				for (Move move : chessGame.getPlayer().getValidMoves(chessGame)) {
 					if (move.getSource().getPiece().equals(selectedPiece)) {
 						fields.add(move.getTarget().getName());
 					}
@@ -150,7 +155,7 @@ public class ChessApiController extends ControllerTemplate {
 			// If a field is already selected, attempt to make the move
 			Field targetField = selectedPiece.getField();
 			String selectedFieldName = selectedField.getName();
-			List<Move> moveList = chessgame.getPlayer().getValidMoves(chessgame);
+			List<Move> moveList = chessGame.getPlayer().getValidMoves(chessGame);
 			Move chessMove = null;
 			// Find the move that matches the selected source and target fields
 			for (Move move : moveList) {
@@ -169,11 +174,11 @@ public class ChessApiController extends ControllerTemplate {
 					Field newRookField;
 					int rank = castling.getPiece().getColor().equals(Color.BLACK) ? 8 : 1;
 					if (rook.getField().getFile() == 1) {
-						newKingField = chessgame.getChessBoard().getField(3, rank);
-						newRookField = chessgame.getChessBoard().getField(4, rank);
+						newKingField = chessGame.getChessBoard().getField(3, rank);
+						newRookField = chessGame.getChessBoard().getField(4, rank);
 					} else {
-						newKingField = chessgame.getChessBoard().getField(7, rank);
-						newRookField = chessgame.getChessBoard().getField(6, rank);
+						newKingField = chessGame.getChessBoard().getField(7, rank);
+						newRookField = chessGame.getChessBoard().getField(6, rank);
 					}
 					List<String> answer = List.of("castling", castling.getPiece().getField().getName(),
 							newKingField.getName(), rook.getField().getName(), newRookField.getName());
@@ -243,8 +248,11 @@ public class ChessApiController extends ControllerTemplate {
 	@SuppressWarnings("unchecked")
 	protected ChessApiResponse<List<String>> onFieldClicked(@RequestParam int id) throws Exception {
 		Game chessGame = (Game) get(KEY.CHESSGAME);
+		if (!helper.isHumanAlowedToInteract(chessGame, viewConfig.isUciEngineActive())) {
+			return new ChessApiResponse<>(false, new ArrayList<>());
+		}
 		if (!helper.checkForGameState(chessGame,getEvaluationEngine())) {
-			return new ChessApiResponse<>(true, new ArrayList<>());
+			return new ChessApiResponse<>(false, new ArrayList<>());
 		}
 		Field fieldClickedOn = ((List<DisplayedField>) get(KEY.FIELDS)).get(id).getField();
 		List<String> answer = new ArrayList<>();

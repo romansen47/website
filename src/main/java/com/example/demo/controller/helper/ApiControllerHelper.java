@@ -42,4 +42,6 @@ public interface ApiControllerHelper {
 	List<String> getEvaluationEngineMoveList(EvaluationEngine evaluationEngine) throws Exception;
 
 	boolean checkForGameState(Game chessGame, EvaluationEngine evaluationEngine) throws Exception;
+
+	boolean isHumanAlowedToInteract(Game chessGame, boolean uciEngineActive);
 }

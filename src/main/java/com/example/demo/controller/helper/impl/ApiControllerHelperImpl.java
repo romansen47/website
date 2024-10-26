@@ -14,6 +14,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.example.demo.controller.api.ChessApiResponse;
 import com.example.demo.controller.helper.ApiControllerHelper;
 import com.example.demo.controller.impl.ChessApiController;
 import com.example.demo.elements.Attributes;
@@ -275,6 +276,15 @@ public class ApiControllerHelperImpl extends ChessHelper implements ApiControlle
 	@Override
 	public String reset() throws Exception {
 		return "redirect:/";
+	}
+
+	@Override
+	public boolean isHumanAlowedToInteract(Game chessGame, boolean uciEngineActive) { 
+		boolean humanPlaysWhite = !viewConfig.getIsFlipped() ? true : false;
+		if (uciEngineActive && (humanPlaysWhite && chessGame.getMoveList().size() % 2 == 1 || !humanPlaysWhite && chessGame.getMoveList().size() % 2 == 0 )) {
+			return false;
+		}
+		return true;
 	}
 
 }
