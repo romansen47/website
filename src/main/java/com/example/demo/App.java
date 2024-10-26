@@ -24,7 +24,9 @@ import com.example.demo.model.impl.ViewConfig;
 import demo.chess.admin.impl.ChessAdmin;
 import demo.chess.definitions.board.impl.ChessBoard;
 import demo.chess.definitions.engines.Engine;
+import demo.chess.definitions.engines.EvaluationEngine;
 import demo.chess.definitions.engines.PlayerEngine;
+import demo.chess.definitions.engines.impl.EvaluationUciEngine;
 import demo.chess.definitions.engines.impl.PlayerUciEngine;
 import demo.chess.definitions.moves.MoveList;
 import demo.chess.definitions.moves.impl.MoveListImpl;
@@ -108,6 +110,25 @@ public class App extends ChessAdmin implements AppAdmin {
 		return attributes;
 	}
 
+	@Bean
+	@Override
+	public Map<String, EvaluationEngine> evaluationEngines() {
+		Map<String, EvaluationEngine> engines = new HashMap<>();
+		for (Engine engine : Engine.values()) {
+			try {
+				engines.put(engine.toString(), new EvaluationUciEngine("/usr/games/" + engine.path()) {
+					@Override
+					public String toString() {
+						return engine.toString();
+					}
+				});
+			} catch (Exception e) {
+				logger.info("Failed to create player engine {}", engine);
+			}
+		}
+		return engines;
+	}
+	
 	@Bean
 	@Override
 	public Map<String, PlayerEngine> playerEngines() {

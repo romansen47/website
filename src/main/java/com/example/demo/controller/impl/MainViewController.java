@@ -87,10 +87,6 @@ public class MainViewController extends ControllerTemplate {
 
 		put(KEY.UCI_ENGINE_EVALUATION, 0.5d); 
 		put(KEY.REGULAR, !viewConfig.getIsFlipped());
-		put(KEY.SILENT, false);
-//		put("remainingTimeForWhite", chessGame.getWhitePlayer().getChessClock().getTime(TimeUnit.MILLISECONDS));
-//		put("remainingTimeForBlack", chessGame.getBlackPlayer().getChessClock().getTime(TimeUnit.MILLISECONDS));
-
 		put(KEY.ENGINE_CONFIG_EVAL, new UciEngineConfig());
 		put(KEY.ENGINE_CONFIG_FOR_WHITE, new UciEngineConfig());
 		put(KEY.ENGINE_CONFIG_FOR_BLACK, new UciEngineConfig());
@@ -490,13 +486,10 @@ public class MainViewController extends ControllerTemplate {
 		viewConfig.setLeftOffset(leftOffset);
 		viewConfig.setSquareSize(squareSize);
 		viewConfig.setSilent(silent);
-		
 		viewConfig.setShortAlgebraicNotation(shortAlgebraicNotation);
 		viewConfig.setCapturedContainer(capturedContainer);
-
 		viewConfig.setColor(Arrays.stream(Color.values()).filter(enumValue -> enumValue.name().equals(color))
 				.findFirst().orElse(Color.GREEN));
-
 		viewConfig.setAnimationDuration(animationDuration);
 
 		return "redirect:/";
