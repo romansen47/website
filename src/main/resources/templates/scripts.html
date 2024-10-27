@@ -181,10 +181,9 @@
 	        })
 	        .then(response => response.json())
 	        .then(data => {
-	            console.log('Erfolgreich gestartet:', data);
 	            closeNewGamePopup();
 	        })
-	        .catch(error => console.error('Fehler:', error));
+	        .catch(error => console.error('error:', error));
 	    });
 
 	    window.addEventListener('click', function(event) {
@@ -357,7 +356,7 @@
         }
         
 		if ([[${showEvaluation}]]){
-        	setInterval(fetchUciEngineEvaluationBars, 1000);
+        	setInterval(fetchUciEngineEvaluationBars, [[${updateIntervall}]]);
     	}
     
 		function updateArrowsAndUciEngineMovelist(){
@@ -369,9 +368,8 @@
 			}
 		}
 		
-     	// Aktualisiere den Pfeil regelmäßig
         function updateUciEngineArrow() {
-            fetch('/api/game/uciEngineBestMove') // Backend-Endpunkt für den besten Zug
+            fetch('/api/game/uciEngineBestMove') 
                 .then(response => response.json())
                 .then(data => {
                     const fromField = data.data.from;
@@ -389,45 +387,37 @@
                 .then(response => response.json())
                 .then(data => {
                     const uciEngineMoveList = document.getElementById('uciEngineMoveList');
-                    uciEngineMoveList.innerHTML = ''; // Liste leeren
+                    uciEngineMoveList.innerHTML = ''; 
 
-                    // Füge Überschrift hinzu
                     const header = document.createElement('div');
                     header.classList.add('uciEngine-header');
                     header.textContent = '[[${evaluationEngine}]] infinite evaluation (depth [[${uciEngineDepthForEvaluation}]] and higher):';
                     uciEngineMoveList.appendChild(header);
 
-                    // Iteriere durch die erhaltenen Daten und erzeuge HTML-Elemente für Bewertung und Züge
                     data.data.forEach((move, index) => {
                         const moveItem = document.createElement('div');
                         moveItem.classList.add('move-item');
 
-                        // Verwende eine Grid-Struktur für Bewertung, Doppelpunkt und Zug
                         moveItem.style.display = 'grid';
-                        moveItem.style.gridTemplateColumns = '50px 10px auto'; // Festlegen der Spalten für Bewertung, Doppelpunkt, Zug
-                        moveItem.style.alignItems = 'center'; // Zentrierung vertikal
+                        moveItem.style.gridTemplateColumns = '50px 10px auto';
+                        moveItem.style.alignItems = 'center';
 
-                        // Bewertung (z.B. +1.34)
                         const evaluationSpan = document.createElement('div');
                         evaluationSpan.classList.add('evaluation');
                         evaluationSpan.textContent = move.split(':')[0].trim();
 
-                        // Doppelpunkt
                         const colonSpan = document.createElement('div');
                         colonSpan.classList.add('colon');
                         colonSpan.textContent = ':';
 
-                        // Zug (z.B. e2e4)
                         const moveSpan = document.createElement('div');
                         moveSpan.classList.add('move');
                         moveSpan.textContent = move.split(':')[1].trim();
 
-                        // Füge Bewertung, Doppelpunkt und Zug zu Grid hinzu
                         moveItem.appendChild(evaluationSpan);
                         moveItem.appendChild(colonSpan);
                         moveItem.appendChild(moveSpan);
 
-                        // Klickbarer Event
                         moveItem.style.cursor = 'pointer';
                         moveItem.onclick = function () {
                             handleMoveClick(index);
@@ -436,16 +426,14 @@
                         uciEngineMoveList.appendChild(moveItem);
                     });
 
-                    // Highlight den besten Zug
                     highlightBestMove();
                 })
                 .catch(error => console.error('Error loading UciEngine Move List:', error));
         }
 
-     	// Führe diese Funktion für jedes draggable-Element aus
         document.querySelectorAll('.draggable').forEach((element, index) => {
             element.addEventListener('click', () => {
-                if (element.classList.contains('captured')) return;  // Ignoriere Klicks auf geschlagene Figuren
+                if (element.classList.contains('captured')) return;
                 fetch(`/api/game/onPieceClicked?id=${index}`, { method: 'POST' })
                     .then(response => response.json())
                     .then(data => {
@@ -498,7 +486,7 @@
                                 console.log('Processing piece element:', element);
                                 console.log('Piece field attribute:', pieceField);
                                 highlightField(getFieldFromPiece(element));
-                                markPossibleMoves(data.data); // Markiere mögliche Züge
+                                markPossibleMoves(data.data); 
 								checkForUciEngineMove = false;
                             }
 							if (checkForUciEngineMove){
@@ -520,8 +508,7 @@
             })
             .catch(error => console.error('Error:', error));
      	}
-        
-        // Event-Listener für chessboard Felder
+     	
         document.querySelectorAll('.chessboard div').forEach((field, index) => {
             field.addEventListener('click', () => {
                 fetch(`/api/game/onFieldClicked?id=${index}`, { method: 'POST' })
@@ -601,45 +588,37 @@
                 .then(response => response.json())
                 .then(data => {
                     const moveList = document.getElementById('moveList');
-                    moveList.innerHTML = data.data;  // Setze den HTML-Content direkt in die Move-List
+                    moveList.innerHTML = data.data;
                 })
                 .catch(error => console.error('Error loading move list:', error));
         } 
 
 		function highlightBestMove() {
-		    // Wähle alle .move-item divs aus, überspringe die Überschrift
 		    const moves = document.querySelectorAll('.uciEngine-move-list .move-item');
 		    if (moves.length > 0) {
-		        // Entferne vorherige Hervorhebungen
 		        moves.forEach(move => {
-		            move.style.backgroundColor = ''; // Setze Hintergrundfarbe zurück
-		            move.querySelector('.evaluation').style.fontWeight = ''; // Setze Schriftgewicht zurück
+		            move.style.backgroundColor = ''; 
+		            move.querySelector('.evaluation').style.fontWeight = ''; 
 		        });
 
-		        // Hebe den besten Zug hervor (erste Zeile nach der Überschrift)
-		        moves[0].style.backgroundColor = '#d4edda'; // Leichtes Grün für den besten Zug
-		        moves[0].querySelector('.evaluation').style.fontWeight = 'bold'; // Fettschrift für die Bewertung
+		        moves[0].style.backgroundColor = '#d4edda'; 
+		        moves[0].querySelector('.evaluation').style.fontWeight = 'bold'; 
 		    }
 		}
 
-     	// Funktion zum Abrufen und Aktualisieren der Uhrzeit
         function updateClocks() {
             fetch('/api/game/currentTime')
                 .then(response => response.json())
                 .then(data => {
-                    // Zeit aus der Antwort holen
                     const whiteTime = data.data.whiteTime;
                     const blackTime = data.data.blackTime;
 
-                    // Minuten und Sekunden für Weiß berechnen
                     const whiteMinutes = Math.floor(whiteTime / 60);
                     const whiteSeconds = whiteTime % 60;
 
-                    // Minuten und Sekunden für Schwarz berechnen
                     const blackMinutes = Math.floor(blackTime / 60);
                     const blackSeconds = blackTime % 60;
 
-                    // Uhrenanzeige aktualisieren
                     document.getElementById('whiteClock').textContent = `${whiteMinutes}:${whiteSeconds < 10 ? '0' : ''}${whiteSeconds}`;
                     document.getElementById('blackClock').textContent = `${blackMinutes}:${blackSeconds < 10 ? '0' : ''}${blackSeconds}`;
                 })
@@ -673,7 +652,6 @@
             console.log('Move clicked:', index);
         }
 
-        // Promotion Popup handling
         function showPopup() {
             document.getElementById('overlay').style.display = 'block';
             document.getElementById('popup').style.display = 'block';
@@ -684,7 +662,6 @@
             document.getElementById('popup').style.display = 'none';
         }
 
-     	// Aktualisierung der Event-Listener für die Promotion-Buttons
         document.querySelectorAll('.promotion-button').forEach(button => {
         	
             button.addEventListener('click', function() {
@@ -706,8 +683,6 @@
                         const type 		  = data.data[3];
                         const color 	  = data.data[4];
 
-                        // Entfernen Sie die alte Figur (Bauer)
-                        // Erstellen Sie die neue Figur
                         console.log("versuch die neue Figur zu erstellen");
                         setNewImage(type, color, targetField);
 						getUciEngineMove();
@@ -717,23 +692,21 @@
         });
 
         function setNewImage(pieceType, color, toField) {
-            // Erstellt eine neue Figur an der Position des beförderten Bauern
 			const element = document.querySelector(`img[data-piece-field="${toField}"]`);
             element.setAttribute('data-piece-field', toField);
 
-            // Setzen des Bildes basierend auf dem beförderten Figurtyp
             switch (pieceType) {
                 case 'queen':
-                	element.src = '/'+color+'_queen.png'; // Pfad zum Bild der Dame
+                	element.src = '/'+color+'_queen.png'; 
                     break;
                 case 'rook':
-                	element.src = '/'+color+'_rook.png'; // Pfad zum Bild des Turms
+                	element.src = '/'+color+'_rook.png'; 
                     break;
                 case 'bishop':
-                	element.src = '/'+color+'_bishop.png'; // Pfad zum Bild des Läufers
+                	element.src = '/'+color+'_bishop.png'; 
                     break;
                 case 'knight':
-                	element.src = '/'+color+'_knight.png'; // Pfad zum Bild des Springers
+                	element.src = '/'+color+'_knight.png'; 
                     break;
                 default:
                     console.error('Unknown piece type:', pieceType);
@@ -741,7 +714,6 @@
             }
         }
 
-        // Hier kommt die neue Funktion
         function movePieceByFieldNames(startFieldName, endFieldName) {
             // Find the element corresponding to the starting field
             const startField = document.querySelector(`div[data-field="${startFieldName}"]`);
@@ -763,60 +735,49 @@
         
         function drawArrow(fromField, toField) {
             const svg = document.querySelector('.arrow-layer');
-            const squareSize = [[${squareSize}]]; // Thymeleaf-Ausdruck für die Feldergröße
+            const squareSize = [[${squareSize}]]; 
 
-            // Positionen der Felder berechnen
             const fromRect = document.querySelector(`div[data-field="${fromField}"]`).getBoundingClientRect();
             const toRect = document.querySelector(`div[data-field="${toField}"]`).getBoundingClientRect();
 
-            // Start- und Endpunkte der Linie berechnen
             const startX = fromRect.left + squareSize / 2;
             const startY = fromRect.top + squareSize / 2;
             const endX = toRect.left + squareSize / 2;
             const endY = toRect.top + squareSize / 2;
 
-            // Berechne die Länge, um die Linie zu kürzen
-            const arrowLength = squareSize / 3; // Länge des Pfeilkopfs (größerer Wert für größere Spitze)
-            const lineLengthAdjustment = arrowLength; // Kürze die Linie um die Länge der Pfeilspitze
-            const angle = Math.atan2(endY - startY, endX - startX); // Winkel der Linie
+            const arrowLength = squareSize / 3; 
+            const lineLengthAdjustment = arrowLength;
+            const angle = Math.atan2(endY - startY, endX - startX);
 
-            // Neue Endkoordinaten für die Linie (um die Länge der Pfeilspitze gekürzt)
             const adjustedEndX = endX - 0.9 * lineLengthAdjustment * Math.cos(angle);
             const adjustedEndY = endY - 0.9 * lineLengthAdjustment * Math.sin(angle);
 
-            // Erstelle ein neues Linien-Element
             const arrowLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
             arrowLine.setAttribute("x1", startX);
             arrowLine.setAttribute("y1", startY);
             arrowLine.setAttribute("x2", adjustedEndX);
             arrowLine.setAttribute("y2", adjustedEndY);
             arrowLine.setAttribute("stroke", "red");
-            arrowLine.setAttribute("stroke-width", 7); // Macht die Linie dicker
-            arrowLine.setAttribute("stroke-opacity", 0.5); // Macht die Linie halbtransparent
+            arrowLine.setAttribute("stroke-width", 7);
+            arrowLine.setAttribute("stroke-opacity", 0.5);
 
-            // Vorhandene Pfeile entfernen
             clearArrows();
 
-            // Linie zum SVG hinzufügen
             svg.appendChild(arrowLine);
-
-            // Koordinaten für das Dreieck der Pfeilspitze
+            
             const arrowX1 = endX - arrowLength * Math.cos(angle - Math.PI / 6);
             const arrowY1 = endY - arrowLength * Math.sin(angle - Math.PI / 6);
             const arrowX2 = endX - arrowLength * Math.cos(angle + Math.PI / 6);
             const arrowY2 = endY - arrowLength * Math.sin(angle + Math.PI / 6);
 
-            // Erstelle das Dreieck als Pfeilspitze
             const arrowHead = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
             arrowHead.setAttribute("points", `${endX},${endY} ${arrowX1},${arrowY1} ${arrowX2},${arrowY2}`);
             arrowHead.setAttribute("fill", "red");
-            arrowHead.setAttribute("fill-opacity", 0.5); // Optional: Transparenz des Pfeilkopfs
+            arrowHead.setAttribute("fill-opacity", 0.5); 
 
-            // Pfeilspitze zum SVG hinzufügen
             svg.appendChild(arrowHead);
         }
         
-        // Funktion zum Entfernen aller Pfeile
         function clearArrows() {
             const svg = document.querySelector('.arrow-layer');
             while (svg.firstChild) {
@@ -856,47 +817,35 @@
 		
 		document.getElementById('captured-pieces').remove();
 		
-		// Initialisierung der Popups, inklusive Info-Popup
 	    function initializePopups() {
-	        // OK-Button des Info-Popups
 	        const okButton = document.getElementById('infoOkButton');
 	        const popup = document.getElementById('infoPopup');
 
 	        okButton.onclick = function () {
-	            // Schließt das Info-Popup
 	            popup.style.display = 'none';
 	        };
 	    }
 
-	    // Aufruf der Initialisierungsfunktion
 	    initializePopups();
 	    
-		// Funktion zum Öffnen des Info-Popups mit einer Nachricht
 		function showInfoPopup(message, callback) {
-		    // Setze die Nachricht in das Info-Popup
 		    document.getElementById('infoPopupMessage').textContent = message;
 
-		    // Zeige das Info-Popup an
 		    const popup = document.getElementById('infoPopup');
 		    popup.style.display = 'flex';
 
-		    // Event-Listener für den OK-Button im Info-Popup
 		    document.getElementById('infoOkButton').onclick = function () {
-		        // Verstecke das Info-Popup
 		        popup.style.display = 'none';
 
-		        // Führe die Callback-Funktion aus, wenn sie definiert ist
 		        if (callback) {
 		            callback();
 		        }
 		    };
 		}
 
-		// Beispiel für eine Aktion, die beim Klicken auf OK ausgeführt wird
 		function myInfoAction() {
 		    console.log('OK-Button im Info-Popup wurde geklickt, Aktion wird ausgeführt.');
 		}
-		loadMoveList();
  
     });
 </script>

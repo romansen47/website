@@ -477,9 +477,6 @@ public class ChessApiController extends ControllerTemplate {
 	public ChessApiResponse<String> getMoveList() throws NoMoveFoundException, IOException {
 		Game chessGame = (Game) get(KEY.CHESSGAME);
 		List<Move> moves = chessGame.getMoveList();
-		// List<String> movesSAN =
-		// chessGame.getMoveList().getShortAlgebraicNotatedMap(chessGame);
-		// logger.info("SAN: {}", movesSAN);
 		StringBuilder moveListHtml = new StringBuilder();
 
 		String prefixWhite = viewConfig.getUciEngineDepthForWhite() == 0
@@ -705,34 +702,6 @@ public class ChessApiController extends ControllerTemplate {
 		map.put("to", mv.substring(2, 4));
 		return new ChessApiResponse<>(true, map);
 	}
-	private Map<String, String> expectedBoardState = new HashMap<>();
-
-	private void saveBoardState(Game chessGame) {
-	    expectedBoardState.clear();
-	    for (DisplayedPiece piece : (List<DisplayedPiece>) get(KEY.ELEMENTS)) {
-	        String position = piece.getPiece().getField().getName();
-	        expectedBoardState.put(position, piece.getPiece().toString());
-	    }
-	}
-
-	private void validateDisplayedPieces(Game chessGame) {
-	    List<DisplayedPiece> elements = (List<DisplayedPiece>) get(KEY.ELEMENTS);
-	    List<DisplayedPiece> toRemove = new ArrayList<>();
-
-	    for (DisplayedPiece piece : elements) {
-
-	        String position = piece.getPiece().getField().getName();
-	        String expectedPiece = expectedBoardState.get(position);
-
-	        if (expectedPiece == null || !expectedPiece.equals(piece.getPiece().toString())) {
-	            toRemove.add(piece);
-	        }
-	    }
-
-	    elements.removeAll(toRemove);
-	    ((List<DisplayedPiece>)get(KEY.ELEMENTS)).clear();
-	    ((List<DisplayedPiece>)get(KEY.ELEMENTS)).addAll(elements);
-	}
 
 	@SuppressWarnings("unchecked")
 	public void applyMove(Move move) throws Exception {
@@ -744,7 +713,6 @@ public class ChessApiController extends ControllerTemplate {
 			return;
 		}
 		chessGame.apply(move);
-		validateDisplayedPieces(chessGame);
 		if (viewConfig.isShowArrows() || viewConfig.isShowEvaluation() || viewConfig.isShowUciEngineLines()) {
 			((List<Pair<Double, String>>) get(KEY.UCI_ENGINE_MOVELIST)).clear();
 			helper.getEvaluationEngineMoveList(this.getEvaluationEngine());

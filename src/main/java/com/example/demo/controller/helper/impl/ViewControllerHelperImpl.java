@@ -171,8 +171,8 @@ public class ViewControllerHelperImpl extends ChessHelper  implements ViewContro
 
 		((EngineConfig) get(KEY.ENGINE_CONFIG_EVAL)).setDepth(viewConfig.getUciEngineDepthForEvaluationEngine());
 
-		((List<DisplayedPiece>) get(KEY.ELEMENTS)).clear();
-		((List<DisplayedField>) get(KEY.FIELDS)).clear();
+//		((List<DisplayedPiece>) get(KEY.ELEMENTS)).clear();
+//		((List<DisplayedField>) get(KEY.FIELDS)).clear();
 	}
 
 	@Override

@@ -122,6 +122,7 @@ public class MainViewController extends ControllerTemplate {
 		helper.createNewFields();
 		helper.createNewPiecesFromExistingPieces((Game)get(KEY.CHESSGAME));
 		webSocketService.updateClocks();
+		webSocketService.updateMoveList();
 
 		return "mainView";
 	}
