@@ -11,16 +11,11 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.example.demo.controller.api.ChessApiResponse;
 import com.example.demo.controller.helper.ApiControllerHelper;
 import com.example.demo.controller.impl.ChessApiController;
-import com.example.demo.elements.Attributes;
 import com.example.demo.elements.KEY;
-import com.example.demo.model.Config;
-import com.example.demo.websockets.WebSocketService;
 
 import demo.chess.definitions.engines.EngineConfig;
 import demo.chess.definitions.engines.EvaluationEngine;
@@ -37,7 +32,7 @@ public class ApiControllerHelperImpl extends ChessHelper implements ApiControlle
 
 	@SuppressWarnings("unused")
 	private static final Logger logger = LogManager.getLogger(ChessApiController.class);
- 
+
 	/**
 	 * Retrieves a list of source fields for all possible moves.
 	 *
@@ -272,14 +267,14 @@ public class ApiControllerHelperImpl extends ChessHelper implements ApiControlle
 		}
 		return true;
 	}
-	
+
 	@Override
 	public String reset() throws Exception {
 		return "redirect:/";
 	}
 
 	@Override
-	public boolean isHumanAlowedToInteract(Game chessGame, boolean uciEngineActive) { 
+	public boolean isHumanAlowedToInteract(Game chessGame, boolean uciEngineActive) {
 		boolean humanPlaysWhite = !viewConfig.getIsFlipped() ? true : false;
 		if (uciEngineActive && (humanPlaysWhite && chessGame.getMoveList().size() % 2 == 1 || !humanPlaysWhite && chessGame.getMoveList().size() % 2 == 0 )) {
 			return false;

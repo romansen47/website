@@ -8,7 +8,6 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.example.demo.AppAdmin;
-import com.example.demo.ImagePath;
 import com.example.demo.controller.ChessController;
 import com.example.demo.elements.Attributes;
 import com.example.demo.elements.KEY;
@@ -16,8 +15,6 @@ import com.example.demo.model.Config;
 import com.example.demo.model.DisplayedPiece;
 import com.example.demo.websockets.WebSocketService;
 
-import demo.chess.definitions.Color;
-import demo.chess.definitions.PieceType;
 import demo.chess.definitions.engines.Engine;
 import demo.chess.definitions.engines.EvaluationEngine;
 import demo.chess.definitions.engines.PlayerEngine;
@@ -120,7 +117,7 @@ public abstract class ControllerTemplate implements ChessController {
 	public void put(KEY s, Object o) {
 		attributes.put(s, o);
 	}
-	
+
 	/**
 	 * Returns the displayable element associated with the given chess piece.
 	 *
@@ -129,7 +126,7 @@ public abstract class ControllerTemplate implements ChessController {
 	 * @throws NoElementFoundException if no displayable element is found for the
 	 *                                 given piece
 	 */
-	@SuppressWarnings("unchecked") 
+	@SuppressWarnings("unchecked")
 	protected DisplayedPiece getElement(Piece piece) throws NoElementFoundException {
 		for (DisplayedPiece element : (List<DisplayedPiece>) get(KEY.ELEMENTS)) {
 			if (element.getPiece().equals(piece)) {
@@ -137,10 +134,31 @@ public abstract class ControllerTemplate implements ChessController {
 			}
 		}
 		throw new NoElementFoundException(((Game) get(KEY.CHESSGAME)), piece);
+	} 
+	
+	protected Game createNewGame() throws Exception {
+		Game chessGame = (Game) get(KEY.CHESSGAME);
+		if (chessGame != null) {
+			evaluationEngines.entrySet().stream().forEach(entry -> entry.getValue().stopEvaluation());
+			playerEngines.entrySet().stream().forEach(entry -> entry.getValue().stopEvaluation());
+			if (chessGame.getWhitePlayer().getChessClock().isStarted()) {
+				chessGame.getWhitePlayer().getChessClock().stop();
+			}
+			if (chessGame.getBlackPlayer().getChessClock().isStarted()) {
+				chessGame.getBlackPlayer().getChessClock().stop();
+			}
+		}
+		chessGame = admin.chessGame(viewConfig.getTimeForEachPlayer());
+		put(KEY.CHESSGAME, chessGame);
+		return chessGame;
 	}
-
-	protected Game getChessGame() {
-		return ((Game) get(KEY.CHESSGAME));
+	
+	protected Game getChessGame() throws Exception {
+		Game chessGame = ((Game) get(KEY.CHESSGAME));
+		if (chessGame == null) {
+			chessGame = createNewGame();
+		}
+		return chessGame;
 	}
 
 	protected abstract Logger getLogger();

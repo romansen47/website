@@ -2,30 +2,30 @@ package com.example.demo.elements;
 
 public enum KEY {
 
-	ELEMENTS, 
-	
+	ELEMENTS,
+
 	FIELDS,
 
 	PLAYER_ENGINE_FOR_WHITE,
-	
+
 	ENGINE_CONFIG_FOR_WHITE,
-	
+
 	ENGINE_CONFIG_FOR_BLACK,
-	
+
 	PLAYER_ENGINE_FOR_BLACK,
-	
+
 	REGULAR,
-	
+
 	CHESSGAME,
-	
+
 	ENGINE_MATCH,
-	
+
 	ENGINE_CONFIG_EVAL,
-	
+
 	EVALUATION_ENGINE,
-	
+
 	UCI_ENGINE_EVALUATION,
-	
+
 	UCI_ENGINE_MOVELIST;
-	
+
 }

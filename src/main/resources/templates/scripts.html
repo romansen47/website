@@ -16,7 +16,6 @@
 		    if (event.data === 'RELOAD') {
 		        window.location.reload();
 		    } else if (event.data.startsWith('MESSAGE')) {
-		        // Extrahiere die Nachricht ohne trim
 		        const message = event.data.substring(7); 
 		        showInfoPopup(message);
 		    } else if(event.data.startsWith('CLOCKS')) {
@@ -57,18 +56,16 @@
         });
 		
 		document.getElementById('saveGameButton').addEventListener('click', function () {
-	        // Fetch the game data from the server
 	        fetch('/api/game/download-game', {
 	            method: 'GET'
 	        })
 	        .then(response => response.blob())
 	        .then(blob => {
-	            // Create a temporary anchor element to trigger the download
 	            const url = window.URL.createObjectURL(blob);
 	            const a = document.createElement('a');
 	            a.style.display = 'none';
 	            a.href = url;
-	            a.download = 'chessgame.txt'; // Default name for the saved game file
+	            a.download = 'chessgame.txt';
 
 	            document.body.appendChild(a);
 	            a.click();
@@ -87,7 +84,6 @@
 	                const formData = new FormData();
 	                formData.append('file', file);
 
-	                // Send the file to the server
 	                fetch('/api/game/upload-game', {
 	                    method: 'POST',
 	                    body: formData
@@ -95,25 +91,23 @@
 	                .then(response => response.json())
 	                .then(data => {
 	                    console.log('Game loaded successfully:', data);
-	                    window.location.reload(); // Optionally reload the page after loading the game
+	                    window.location.reload();
 	                })
 	                .catch(error => console.error('Error loading game:', error));
 	            }
 	        };
-	        input.click(); // Trigger the file input
+	        input.click();
 	    });
 		
 	    document.getElementById('importEngine').addEventListener('click', function () {
 	        const input = document.createElement('input');
 	        input.type = 'file';
-	        // input.accept = '.txt';
 	        input.onchange = function (event) {
 	            const file = event.target.files[0];
 	            if (file) {
 	                const formData = new FormData();
 	                formData.append('file', file);
 
-	                // Send the file to the server
 	                fetch('/api/game/import-Engine', {
 	                    method: 'POST',
 	                    body: formData
@@ -125,7 +119,7 @@
 	                .catch(error => console.error('Error loading game:', error));
 	            }
 	        };
-	        input.click(); // Trigger the file input
+	        input.click();
 	    });
 	    
 	    if ([[${uciEngineActive}]]){
@@ -154,21 +148,17 @@
             .catch(error => console.error('Error:', error));
         });
 	    
-	 	// Referenz zum Popup und OK-Button
 	    const newGamePopup = document.getElementById('newGamePopup');
 	    const okBtn = document.getElementById('newGameOkButton');
 
-	 	// Funktion zum Öffnen des New Game Popups
 	    function openNewGamePopup() {
-	        document.getElementById('newGamePopup').style.display = 'flex'; // Popup anzeigen
+	        document.getElementById('newGamePopup').style.display = 'flex'; 
 	    }
 
-	    // Funktion zum Schließen des New Game Popups
 	    function closeNewGamePopup() {
-	        document.getElementById('newGamePopup').style.display = 'none'; // Popup ausblenden
+	        document.getElementById('newGamePopup').style.display = 'none'; 
 	    }
 
-	 	// OK-Button-Klick: Senden der Werte an das Backend und Schließen des Popups
 	    document.getElementById('newGameOkButton').addEventListener('click', function() {
 	        const timeForEachPlayer = document.getElementById('timeForEachPlayer').value;
 	        const incrementForWhite = document.getElementById('incrementForWhite').value;
@@ -176,7 +166,6 @@
 	        const additionalTime = document.getElementById('additionalTime').value;
 	        const startingColor = document.getElementById('startingColor').value;
 
-	        // Senden der Werte per Fetch an das Backend
 	        fetch('/reset-board', {
 	            method: 'POST',
 	            headers: {
@@ -193,23 +182,20 @@
 	        .then(response => response.json())
 	        .then(data => {
 	            console.log('Erfolgreich gestartet:', data);
-	            // Popup nach erfolgreicher Übertragung schließen
 	            closeNewGamePopup();
 	        })
 	        .catch(error => console.error('Fehler:', error));
 	    });
 
-	    // Funktion, um das Popup auch zu schließen, wenn außerhalb des Popups geklickt wird
 	    window.addEventListener('click', function(event) {
 	        const popup = document.getElementById('newGamePopup');
 	        if (event.target === popup) {
-	            closeNewGamePopup(); // Schließt das Popup, wenn der Nutzer außerhalb davon klickt
+	            closeNewGamePopup(); 
 	        }
 	    });
 
-	    // Event-Listener für den Button "Start new Game"
 	    document.getElementById('newGame').addEventListener('click', function () {
-	        openNewGamePopup(); // Popup wird geöffnet, wenn auf "Start new Game" geklickt wird
+	        openNewGamePopup(); 
 	    });
 	    
         function getFieldFromPiece(element) {
@@ -273,7 +259,6 @@
 		            element.setAttribute('data-piece-field', targetFieldId);
 		            element.style.transition = 'top [[${animationDuration}]]ms, left [[${animationDuration}]]ms';
 
-		            // Bewegungssound abspielen
 		            if(![[${silent}]]){
 			            const moveSound = document.getElementById('moveSound');
 			            setTimeout(function() {
@@ -284,40 +269,38 @@
 		    }
 		}
 
-		function getUciEngineMove(){
-					// Neuen Code hinzufügen: UciEngine-Zug nach dem menschlichen Zug
-			fetch('/api/game/checkUciEnginePlayer', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				}
-			})
-			.then(response => response.json())
-			.then(data => {
-				if (data.data.uciEngineActive) {
-					processUciEngineMove(data.data);
-				}
-				if (data.data.engineClash){
-					getUciEngineMove();
-				}
-			})
-			.catch(error => console.error('Error processing UciEngine move:', error));
+		async function getUciEngineMove() {
+		    fetch('/api/game/checkUciEnginePlayer', {
+		        method: 'POST',
+		        headers: {
+		            'Content-Type': 'application/json'
+		        }
+		    })
+		    .then(response => response.json())
+		    .then(async data => { // Hier async hinzufügen
+		        if (data.data.uciEngineActive) {
+		            await processUciEngineMove(data.data); // await verwenden
+		        }
+		        if (data.data.engineClash) {
+		            await getUciEngineMove(); // rekursiver Aufruf
+		        }
+		    })
+		    .catch(error => console.error('Error processing UciEngine move:', error));
 		}
 				
-		function processUciEngineMove(data) {
+		async function processUciEngineMove(data) {
 
 		    console.log("data:" + JSON.stringify(data));
 
 		    const uciEngineMove = data.move;
 		    
-		    const fromField = uciEngineMove.substring(0, 2); // Beispiel: "e2"
-		    const toField = uciEngineMove.substring(2, 4);   // Beispiel: "e4"
+		    const fromField = uciEngineMove.substring(0, 2); 
+		    const toField = uciEngineMove.substring(2, 4);   
 
 		    console.log(uciEngineMove);
 		    console.log(fromField);
 		    console.log(toField);
 		        
-		    // Prüfe den Typ des Zugs
 		    if (data.type) {
 		        if (data.type === "castling") {
 					const rookSource = data.rooksource;
@@ -326,106 +309,40 @@
 					movePieceByFieldNames(rookSource, rookTarget);
 		        } else if (data.type === "enpassant") {
 		            moveCapturedPiece(data.slayed);
-		            // EnPassant-Logik hier
 					movePieceByFieldNames(fromField, toField);
 		        } else if (data.type === "promotion") {
-		            // Promotion-Logik hier
-					movePieceByFieldNames(fromField, toField);
+		        	// pay attention to the order!
+		            if (data.slayed){
+			            moveCapturedPiece(data.slayed);
+		            }
+		            movePieceByFieldNames(fromField, toField);
 					setNewImage(data.pieceType, data.color, toField);
-		            moveCapturedPiece(data.slayed)
 		        }
 		    } else {
-		        if (data.slayed) {
-		            moveCapturedPiece(data.slayed);
-		        }
-		        // Verwende die bestehende moveElement-Methode, um UciEngine-Zug auszuführen
-		        movePieceByFieldNames(fromField, toField);
+		    	 if (data.slayed != null) {
+		             await moveCapturedPiece(data.slayed);
+		         }
+		         await movePieceByFieldNames(fromField, toField);
 		    }
-		}
+		} 
 		
 		function moveCapturedPiece(capturedPieceField) {
 			const capturedPiece = document.querySelector(`img[data-piece-field="${capturedPieceField}"]`);
-		    console.log("searching for data-piece-field=" + capturedPieceField + " and found: " + capturedPiece);
-		    if (capturedPiece) {
-				const delay = [[${animationDuration}]] / 2;
-				setTimeout(function() {
-					if(![[${silent}]]){
-						document.getElementById('captureSound').play();
-					}
-					const capturedContainer = document.getElementById('captured-pieces');
-			        if (capturedContainer) {  // Ensure the container exists
-			            
-			            // Calculate the next position inside the container
-			            const capturedIndex = capturedContainer.children.length;
-			            const containerWidth = capturedContainer.clientWidth;
-			            const pieceWidth = parseInt(getComputedStyle(capturedPiece).width);
-			            const pieceHeight = parseInt(getComputedStyle(capturedPiece).height); // Height of the piece
-
-			            // Calculate target position in the container (no leftOffset needed here)
-			            const newLeft = (capturedIndex % Math.floor(containerWidth / pieceWidth)) * pieceWidth;
-			            const newTop = Math.floor(capturedIndex / Math.floor(containerWidth / pieceWidth)) * pieceHeight;
-
-			            // Animation logic: Moving the piece from its current position to the container
-			            const chessboardRect = document.querySelector('.chessboard').getBoundingClientRect();
-			            const pieceRect = capturedPiece.getBoundingClientRect();
-			            const containerRect = capturedContainer.getBoundingClientRect();
-
-			            // Consider the leftOffset for proper positioning during animation
-			            const leftOffset = parseInt('[[${piecesOffset}]]');  // Assuming leftOffset is passed from the backend
-
-			            // Set initial position for animation (relative to chessboard and with added leftOffset)
-			            const startLeft = pieceRect.left - chessboardRect.left + leftOffset;
-			            const startTop = pieceRect.top - chessboardRect.top;
-
-			            // Set the piece to its current position before animation starts
-			            capturedPiece.style.position = 'absolute';
-			            capturedPiece.style.left = `${startLeft}px`;
-			            capturedPiece.style.top = `${startTop}px`;
-
-			            // Calculate the target position for the piece in the container
-			            const endLeft = newLeft + containerRect.left - chessboardRect.left + leftOffset;  // ADD leftOffset here for animation
-
-			            // The issue might be here, so let's add pieceHeight/2 to account for the piece height difference
-			            const endTop = newTop + containerRect.top - chessboardRect.top;  // Target inside container
-						console.log('pieceHeight',pieceHeight);
-			            const adjustedEndTop = endTop + pieceHeight;  // Adjusted to match final position
-
-			            // Apply animation for transition to the container
-			            setTimeout(() => {
-			                capturedPiece.style.transition = 'top 0.5s ease, left 0.5s ease';  // Smooth animation
-			                capturedPiece.style.left = `${endLeft}px`;
-			                capturedPiece.style.top = `${adjustedEndTop}px`;  // Adjusted top for animation
-
-			                // After animation completes, move the piece into the container
-			                setTimeout(() => {
-			                    capturedContainer.appendChild(capturedPiece);
-
-			                    // Now set final position WITHOUT leftOffset for proper placement in the container
-			                    capturedPiece.style.left = `${newLeft}px`;  // Ohne leftOffset
-			                    capturedPiece.style.top = `${newTop}px`;
-			                    capturedPiece.style.transition = '';  // Reset transition after move
-			                }, 500);  // Duration of the animation (0.5s)
-			            }, 10); // Minimal timeout to start animation
-
-			        } else {
-			        	capturedPiece.remove();
-			        }
-	            }, delay);  
-		    } else {
-		        console.error('Error: captured piece not found');
-		    }
+			if(![[${silent}]]){
+	            const captureSound = document.getElementById('captureSound');
+	            setTimeout(function() {
+	            	captureSound.play();
+	            }, [[${animationDuration}]]);
+            }
+			capturedPiece.remove();
 		}
         
         function updateEvaluationBars(stockFishEvaluation) {
         	if ([[${showEvaluation}]]){
 	            const blackEval = document.querySelector('.blackEval');
 	            const whiteEval = document.querySelector('.whiteEval');
-	
-	            // Berechne die neue Höhe für den schwarzen Balken
-	            const chessboardHeight = 8 * [[${squareSize}]]; // Beispiel für die Höhe des Schachbretts; passe den Wert an die tatsächliche Höhe an
+	            const chessboardHeight = 8 * [[${squareSize}]];
 	            const newBlackHeight = chessboardHeight * (1 - stockFishEvaluation);
-	
-	            // Setze die neue Höhe des schwarzen Balkens
 	            blackEval.style.height = `${newBlackHeight}px`;
             }
         } 
@@ -434,7 +351,6 @@
             fetch('/api/game/uciEngineEvaluation')
                 .then(response => response.json())
                 .then(data => {
-                    // Aktualisiere die Bewertungsbalken mit der erhaltenen Bewertung
                     updateEvaluationBars(data.data);
                 })
                 .catch(error => console.error('Error fetching UciEngine evaluation:', error));
@@ -938,14 +854,7 @@
 	        makeElementDraggable(uciEngineMoveList, '/updateUciEngineMoveListPosition');
 		}
 		
-		if ([[${capturedContainer}]]){	
-			const capturedPiecesContainer = document.getElementById('captured-pieces');		
-	        capturedPiecesContainer.style.top = [[${capturedTop}]]+'px';
-	        capturedPiecesContainer.style.left = [[${capturedLeft}]]+'px';
-	        makeElementDraggable(capturedPiecesContainer, '/updateCapturedPiecesPosition');
-		} else{
-			document.getElementById('captured-pieces').remove();
-		}
+		document.getElementById('captured-pieces').remove();
 		
 		// Initialisierung der Popups, inklusive Info-Popup
 	    function initializePopups() {

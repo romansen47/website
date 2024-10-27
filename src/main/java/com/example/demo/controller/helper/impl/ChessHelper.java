@@ -3,7 +3,6 @@ package com.example.demo.controller.helper.impl;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.example.demo.ImagePath;
-import com.example.demo.controller.helper.ViewControllerHelper;
 import com.example.demo.elements.Attributes;
 import com.example.demo.elements.KEY;
 import com.example.demo.model.Config;
@@ -22,7 +21,7 @@ public abstract class ChessHelper{
 
 	@Autowired
 	protected WebSocketService webSocketService;
-	
+
 	protected void put(KEY key, Object o) {
 		attributes.put(key, o);
 	}

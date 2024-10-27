@@ -45,7 +45,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
 			logger.info("WebSocket session is not open or null.");
 		}
 	}
-	
+
 	public void updateMoveList() throws Exception {
 		if (session != null && session.isOpen()) {
 			session.sendMessage(new TextMessage(WS_MESSAGE.MOVELIST.toString()));

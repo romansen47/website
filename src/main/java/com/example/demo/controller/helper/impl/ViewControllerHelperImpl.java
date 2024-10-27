@@ -1,29 +1,37 @@
 package com.example.demo.controller.helper.impl;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 import org.springframework.ui.Model;
 
 import com.example.demo.controller.helper.ViewControllerHelper;
-import com.example.demo.elements.Attributes;
 import com.example.demo.elements.KEY;
-import com.example.demo.model.Config;
 import com.example.demo.model.DisplayedField;
 import com.example.demo.model.DisplayedPiece;
 import com.example.demo.model.impl.DisplayedChessField;
 import com.example.demo.model.impl.DisplayedChessPiece;
 
 import demo.chess.definitions.Color;
+import demo.chess.definitions.engines.ChessEngine;
 import demo.chess.definitions.engines.EngineConfig;
 import demo.chess.definitions.engines.EvaluationEngine;
+import demo.chess.definitions.engines.PlayerEngine;
+import demo.chess.definitions.engines.UciEngineConfig;
 import demo.chess.definitions.pieces.Piece;
+import demo.chess.definitions.states.State;
 import demo.chess.game.Game;
+import demo.chess.save.GameSaver;
 
 @Component
 public class ViewControllerHelperImpl extends ChessHelper  implements ViewControllerHelper {
+
+	protected static final Logger logger = LogManager.getLogger();
 
 	/**
 	 * Adds attributes to the model for rendering the chessboard view.
@@ -34,7 +42,7 @@ public class ViewControllerHelperImpl extends ChessHelper  implements ViewContro
 	 * @param model           the model to add attributes to
 	 */
 	@Override
-	public void addAttributes(String color, String whiteTimeString, String blackTimeString, Model model) {
+	public void addModelAttributes(String color, String whiteTimeString, String blackTimeString, Model model) {
 
 		model.addAttribute("whiteTime", whiteTimeString);
 		model.addAttribute("blackTime", blackTimeString);
@@ -58,10 +66,6 @@ public class ViewControllerHelperImpl extends ChessHelper  implements ViewContro
 		model.addAttribute("uciEngineMoveListWidth", 800); // (((EngineConfig) get("engineConfigEval")).getDepth() + 1)
 															// * 6 * 10);
 		model.addAttribute("chessboardSize", 8 * viewConfig.getSquareSize());
-		model.addAttribute("capturedTop", viewConfig.getCapturedPiecesTop());
-		model.addAttribute("capturedLeft", viewConfig.getCapturedPiecesLeft());
-		model.addAttribute("capturedWidth", viewConfig.getCapturedContainerWidth());
-		model.addAttribute("capturedHeight", viewConfig.getCapturedContainerHeight());
 		model.addAttribute("piecesOffset", viewConfig.getLeftOffset());
 		model.addAttribute("clocksLeft", viewConfig.getLeftOffset());
 		model.addAttribute("clocksTop", 8 * viewConfig.getSquareSize() + viewConfig.getChessBoardOffset());
@@ -77,7 +81,6 @@ public class ViewControllerHelperImpl extends ChessHelper  implements ViewContro
 		model.addAttribute("showUciEngineLines", viewConfig.isShowUciEngineLines());
 
 		model.addAttribute("showArrows", viewConfig.isShowArrows());
-		model.addAttribute("capturedContainer", viewConfig.isCapturedContainer());
 		model.addAttribute("uciEngineActive", viewConfig.isUciEngineActive());
 
 		double evaluation = (double) get(KEY.UCI_ENGINE_EVALUATION);
@@ -134,6 +137,13 @@ public class ViewControllerHelperImpl extends ChessHelper  implements ViewContro
 	@Override
 	public void setUnsetViewVariables(EvaluationEngine evaluationEngine) {
 
+
+		put(KEY.UCI_ENGINE_EVALUATION, 0.5d);
+		put(KEY.REGULAR, !viewConfig.getIsFlipped());
+		put(KEY.ENGINE_CONFIG_EVAL, new UciEngineConfig());
+		put(KEY.ENGINE_CONFIG_FOR_WHITE, new UciEngineConfig());
+		put(KEY.ENGINE_CONFIG_FOR_BLACK, new UciEngineConfig());
+
 		int leftOffset = viewConfig.getLeftOffset();
 		int squareSize = viewConfig.getSquareSize();
 		int topBarHeight = viewConfig.getTopBarHeight();
@@ -157,22 +167,12 @@ public class ViewControllerHelperImpl extends ChessHelper  implements ViewContro
 		int uciEngineMoveListLeft = 8 * squareSize + leftOffset + evalWidth + chessBoardOffset;
 		viewConfig.setUciEngineMoveListLeft(uciEngineMoveListLeft);
 
-		int uciEngineMoveListTop = topBarHeight;
-		viewConfig.setUciEngineMoveListTop(uciEngineMoveListTop);
-
-		int captureContainerLeft = leftOffset - 2;
-		viewConfig.setCapturedPiecesLeft(captureContainerLeft);
-
-		int captureContainerTop = topBarHeight + 8 * squareSize + clockSize + chessBoardOffset;
-		viewConfig.setCapturedPiecesTop(captureContainerTop);
-
-		int captureContainerWidth = 8 * squareSize + 4;
-		viewConfig.setCapturedContainerWidth(captureContainerWidth);
-
 		int captureContainerHeight = 4 * squareSize;
-		viewConfig.setCapturedContainerHeight(captureContainerHeight);
 
 		((EngineConfig) get(KEY.ENGINE_CONFIG_EVAL)).setDepth(viewConfig.getUciEngineDepthForEvaluationEngine());
+
+		((List<DisplayedPiece>) get(KEY.ELEMENTS)).clear();
+		((List<DisplayedField>) get(KEY.FIELDS)).clear();
 	}
 
 	@Override
@@ -194,7 +194,7 @@ public class ViewControllerHelperImpl extends ChessHelper  implements ViewContro
 		((EngineConfig) get(KEY.ENGINE_CONFIG_EVAL)).setMultiPV(viewConfig.getMultiPVForEvaluationEngine());
 		((EngineConfig) get(KEY.ENGINE_CONFIG_EVAL)).setDepth(viewConfig.getUciEngineDepthForEvaluationEngine());
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public void createNewPiecesFromExistingPieces(Game chessGame) {
@@ -232,6 +232,102 @@ public class ViewControllerHelperImpl extends ChessHelper  implements ViewContro
 			}
 		}
 		((List<DisplayedPiece>) get(KEY.ELEMENTS)).addAll(newElements);
+	}
+
+	@Override
+	public void createShutdownHooks(Map<String, ? extends ChessEngine> engines) {
+		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+			engines.entrySet().forEach(entry -> {
+				logger.info("Shutting down evaluation engine {}", entry.getValue());
+				entry.getValue().close();
+			});
+		}));
+	}
+
+	@Override
+	public void seupClocks(Game chessGame) {
+		chessGame.getWhitePlayer().setupClock(viewConfig.getTimeForEachPlayer(), viewConfig.getIncrementForWhite(),
+				() -> {
+					chessGame.setState(State.LOST_ON_TIME);
+					if (!chessGame.getWhitePlayer().getChessClock().isStopped()) {
+						chessGame.getWhitePlayer().getChessClock().stop();
+					}
+					if (!chessGame.getBlackPlayer().getChessClock().isStopped()) {
+						chessGame.getBlackPlayer().getChessClock().stop();
+					}
+					webSocketService.sendMessage("White lost on time!");
+				});
+
+		chessGame.getBlackPlayer().setupClock(viewConfig.getTimeForEachPlayer(), viewConfig.getIncrementForBlack(),
+				() -> {
+					chessGame.setState(State.LOST_ON_TIME);
+					if (!chessGame.getWhitePlayer().getChessClock().isStopped()) {
+						chessGame.getWhitePlayer().getChessClock().stop();
+					}
+					if (!chessGame.getBlackPlayer().getChessClock().isStopped()) {
+						chessGame.getBlackPlayer().getChessClock().stop();
+					}
+					webSocketService.sendMessage("Black lost on time!");
+				});
+	} 
+
+	@Override
+	public void saveGame(String path, Game chessGame) throws IOException {
+		GameSaver saver = new GameSaver();
+		saver.saveGame(chessGame.getMoveList(), path);
+	}
+
+	@Override
+	public void updateUciEngineSettings(int uciEngineDepthForWhite, int threadsForWhite, int hashSizeForWhite,
+			int contemptForWhite, int moveOverheadForWhite, int uciEloForWhite, int uciEngineDepthForBlack,
+			int threadsForBlack, int hashSizeForBlack, int contemptForBlack, int moveOverheadForBlack,
+			int uciEloForBlack, String selectedEngineForWhite, String selectedEngineForBlack, Map<String, PlayerEngine> playerEngines) {
+
+		
+		put(KEY.PLAYER_ENGINE_FOR_WHITE, playerEngines.get(selectedEngineForWhite));
+		viewConfig.setPlayerEngineForWhite(selectedEngineForWhite);
+
+		viewConfig.setThreadsForWhite(threadsForWhite);
+		((EngineConfig) get(KEY.ENGINE_CONFIG_FOR_WHITE)).setThreads(threadsForWhite);
+
+		viewConfig.setHashSizeForWhite(hashSizeForWhite);
+		((EngineConfig) get(KEY.ENGINE_CONFIG_FOR_WHITE)).setHashSize(hashSizeForWhite);
+
+		viewConfig.setContemptForWhite(contemptForWhite);
+		((EngineConfig) get(KEY.ENGINE_CONFIG_FOR_WHITE)).setContempt(contemptForWhite);
+
+		viewConfig.setUciEloForWhite(uciEloForWhite);
+		((EngineConfig) get(KEY.ENGINE_CONFIG_FOR_WHITE)).setUciElo(uciEloForWhite);
+
+		viewConfig.setMoveOverheadForWhite(moveOverheadForWhite);
+		((EngineConfig) get(KEY.ENGINE_CONFIG_FOR_WHITE)).setMoveOverhead(moveOverheadForWhite);
+
+		viewConfig.setUciEngineDepthForWhite(uciEngineDepthForWhite);
+		((EngineConfig) get(KEY.ENGINE_CONFIG_FOR_WHITE)).setDepth(uciEngineDepthForWhite);
+
+
+		put(KEY.PLAYER_ENGINE_FOR_BLACK, playerEngines.get(selectedEngineForBlack));
+		viewConfig.setPlayerEngineForBlack(selectedEngineForBlack);
+
+		viewConfig.setThreadsForBlack(threadsForBlack);
+		((EngineConfig) get(KEY.ENGINE_CONFIG_FOR_BLACK)).setThreads(threadsForBlack);
+
+		viewConfig.setHashSizeForBlack(hashSizeForBlack);
+		((EngineConfig) get(KEY.ENGINE_CONFIG_FOR_BLACK)).setHashSize(hashSizeForBlack);
+
+		viewConfig.setContemptForBlack(contemptForBlack);
+		((EngineConfig) get(KEY.ENGINE_CONFIG_FOR_BLACK)).setContempt(contemptForBlack);
+
+		viewConfig.setMoveOverheadForBlack(moveOverheadForBlack);
+		((EngineConfig) get(KEY.ENGINE_CONFIG_FOR_BLACK)).setMoveOverhead(moveOverheadForBlack);
+
+		viewConfig.setUciEloForBlack(uciEloForBlack);
+		((EngineConfig) get(KEY.ENGINE_CONFIG_FOR_BLACK)).setUciElo(uciEloForBlack);
+
+		viewConfig.setUciEngineDepthForBlack(uciEngineDepthForBlack);
+		((EngineConfig) get(KEY.ENGINE_CONFIG_FOR_BLACK)).setDepth(uciEngineDepthForBlack);
+
+		
 	}
 
 

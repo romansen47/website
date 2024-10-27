@@ -152,30 +152,6 @@ public interface Config {
 
 	void setMoveListWidth(int moveListWidth);
 
-	int getCapturedContainerWidth();
-
-	void setCapturedContainerWidth(int moveListWidth);
-
-	/**
-	 * @return the capturedPiecesLeft
-	 */
-	int getCapturedPiecesLeft();
-
-	/**
-	 * @param capturedPiecesLeft the capturedPiecesLeft to set
-	 */
-	void setCapturedPiecesLeft(int capturedPiecesLeft);
-
-	/**
-	 * @return the capturedPiecesTop
-	 */
-	int getCapturedPiecesTop();
-
-	/**
-	 * @param capturedPiecesTop the capturedPiecesTop to set
-	 */
-	void setCapturedPiecesTop(int capturedPiecesTop);
-
 	/**
 	 * @param evalWidth the evalWidth to set
 	 */
@@ -184,10 +160,6 @@ public interface Config {
 	int getClockSize();
 
 	void setClockSize(int clockSize);
-
-	int getCapturedContainerHeight();
-
-	void setCapturedContainerHeight(int capturedContainerHeight);
 
 	/**
 	 * @return the showArrows
@@ -282,10 +254,6 @@ public interface Config {
 	int getAnimationDuration();
 
 	void setAnimationDuration(int animationDuration);
-
-	boolean isCapturedContainer();
-
-	void setCapturedContainer(boolean capturedContainer);
 
 	int getIncrementForWhite();
 

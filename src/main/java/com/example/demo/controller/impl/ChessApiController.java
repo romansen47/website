@@ -55,7 +55,6 @@ import demo.chess.definitions.moves.Move;
 import demo.chess.definitions.moves.Promotion;
 import demo.chess.definitions.pieces.Piece;
 import demo.chess.definitions.pieces.impl.Rook;
-import demo.chess.definitions.states.State;
 import demo.chess.game.Game;
 import demo.chess.save.GameSaver;
 import jakarta.annotation.PostConstruct;
@@ -122,13 +121,14 @@ public class ChessApiController extends ControllerTemplate {
 	protected ChessApiResponse<List<String>> onPieceClicked(@RequestParam int id) throws Exception {
 
 		Game chessGame = (Game) get(KEY.CHESSGAME);
+
+		List<DisplayedPiece> elements = (List<DisplayedPiece>) get(KEY.ELEMENTS);
+		if (!helper.checkForGameState(chessGame, getEvaluationEngine())) {
+			return new ChessApiResponse<>(true, new ArrayList<>());
+		}
 		if (!helper.isHumanAlowedToInteract(chessGame, viewConfig.isUciEngineActive())) {
 			String engine = !viewConfig.getIsFlipped() ? viewConfig.getPlayerEngineForBlack() : viewConfig.getPlayerEngineForWhite();
 			this.webSocketService.sendMessage("Engine " + engine + " is thinking!");
-			return new ChessApiResponse<>(true, new ArrayList<>());
-		}
-		List<DisplayedPiece> elements = (List<DisplayedPiece>) get(KEY.ELEMENTS);
-		if (!helper.checkForGameState(chessGame, getEvaluationEngine())) {
 			return new ChessApiResponse<>(true, new ArrayList<>());
 		}
 		// Get the piece corresponding to the clicked element
@@ -248,10 +248,7 @@ public class ChessApiController extends ControllerTemplate {
 	@SuppressWarnings("unchecked")
 	protected ChessApiResponse<List<String>> onFieldClicked(@RequestParam int id) throws Exception {
 		Game chessGame = (Game) get(KEY.CHESSGAME);
-		if (!helper.isHumanAlowedToInteract(chessGame, viewConfig.isUciEngineActive())) {
-			return new ChessApiResponse<>(false, new ArrayList<>());
-		}
-		if (!helper.checkForGameState(chessGame,getEvaluationEngine())) {
+		if (!helper.checkForGameState(chessGame,getEvaluationEngine()) || !helper.isHumanAlowedToInteract(chessGame, viewConfig.isUciEngineActive())) {
 			return new ChessApiResponse<>(false, new ArrayList<>());
 		}
 		Field fieldClickedOn = ((List<DisplayedField>) get(KEY.FIELDS)).get(id).getField();
@@ -384,9 +381,9 @@ public class ChessApiController extends ControllerTemplate {
 
 	@GetMapping("/download-game")
 	public ResponseEntity<InputStreamResource> downloadGame() throws IOException {
-		
+
 		Game chessGame = (Game) get(KEY.CHESSGAME);
-		
+
 		String gameData = "";
 		if (chessGame.getMoveList().size() == 1) {
 			gameData = chessGame.getMoveList().get(0).toString();
@@ -620,8 +617,6 @@ public class ChessApiController extends ControllerTemplate {
 
 	@PostMapping("/updateCapturedPiecesPosition")
 	public ChessApiResponse<String> updateCapturedPiecesPosition(@RequestParam int top, @RequestParam int left) {
-		viewConfig.setCapturedPiecesTop(top);
-		viewConfig.setCapturedPiecesLeft(left);
 		return new ChessApiResponse<>(true, "Position updated");
 	}
 
@@ -646,20 +641,20 @@ public class ChessApiController extends ControllerTemplate {
 			}
 			response.put("uciEngineActive", true);
 			if (move instanceof Castling) {
-				logger.info("{} applying castling: {}", playerEngine, move);
+				logger.info("{} suggesting castling: {}", playerEngine, move);
 				response.put("type", "castling");
 				response.put("rooksource", ((Castling) move).getRook().getField().toString());
 				applyMove(move);
 				response.put("rooktarget", ((Castling) move).getRook().getField().toString());
 				response.put("move", move.toString());
 			} else if (move instanceof EnPassant) {
-				logger.info("{} applying enpassent: {}", playerEngine, move);
+				logger.info("{} suggesting enpassent: {}", playerEngine, move);
 				response.put("type", "enpassant");
 				response.put("slayed", ((EnPassant) move).getSlayedPiece().getField().toString());
 				response.put("move", move.toString());
 				applyMove(move);
 			} else if (move instanceof Promotion) {
-				logger.info("{} applying promotion: {}", playerEngine, move);
+				logger.info("{} suggesting promotion: {}", playerEngine, move);
 				response.put("type", "promotion");
 				if (move.getTarget().getPiece() != null) {
 					response.put("slayed", move.getTarget().toString());
@@ -710,6 +705,34 @@ public class ChessApiController extends ControllerTemplate {
 		map.put("to", mv.substring(2, 4));
 		return new ChessApiResponse<>(true, map);
 	}
+	private Map<String, String> expectedBoardState = new HashMap<>();
+
+	private void saveBoardState(Game chessGame) {
+	    expectedBoardState.clear();
+	    for (DisplayedPiece piece : (List<DisplayedPiece>) get(KEY.ELEMENTS)) {
+	        String position = piece.getPiece().getField().getName();
+	        expectedBoardState.put(position, piece.getPiece().toString());
+	    }
+	}
+
+	private void validateDisplayedPieces(Game chessGame) {
+	    List<DisplayedPiece> elements = (List<DisplayedPiece>) get(KEY.ELEMENTS);
+	    List<DisplayedPiece> toRemove = new ArrayList<>();
+
+	    for (DisplayedPiece piece : elements) {
+
+	        String position = piece.getPiece().getField().getName();
+	        String expectedPiece = expectedBoardState.get(position);
+
+	        if (expectedPiece == null || !expectedPiece.equals(piece.getPiece().toString())) {
+	            toRemove.add(piece);
+	        }
+	    }
+
+	    elements.removeAll(toRemove);
+	    ((List<DisplayedPiece>)get(KEY.ELEMENTS)).clear();
+	    ((List<DisplayedPiece>)get(KEY.ELEMENTS)).addAll(elements);
+	}
 
 	@SuppressWarnings("unchecked")
 	public void applyMove(Move move) throws Exception {
@@ -721,6 +744,7 @@ public class ChessApiController extends ControllerTemplate {
 			return;
 		}
 		chessGame.apply(move);
+		validateDisplayedPieces(chessGame);
 		if (viewConfig.isShowArrows() || viewConfig.isShowEvaluation() || viewConfig.isShowUciEngineLines()) {
 			((List<Pair<Double, String>>) get(KEY.UCI_ENGINE_MOVELIST)).clear();
 			helper.getEvaluationEngineMoveList(this.getEvaluationEngine());

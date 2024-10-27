@@ -16,11 +16,10 @@ public class ViewConfig implements Config {
 	private boolean showArrows = false;
 	private boolean showEvaluation = false;
 	private boolean showUciEngineLines = false;
-	private boolean capturedContainer = false;
 	private boolean silent = false;
 
 	private boolean shortAlgebraicNotation = true;
-	
+
 	private boolean uciEngineActive = true;
 	private int timeForEachPlayer = 300;
 	private int incrementForWhite = 2;
@@ -66,44 +65,8 @@ public class ViewConfig implements Config {
 	private int moveListTop;
 	private int moveListLeft;
 
-	private int capturedPiecesLeft;
-	private int capturedPiecesTop;
-	private int capturedContainerWidth;
-	private int capturedContainerHeight;
 	private boolean isFlipped = false;
-	
 
-	/**
-	 * @return the capturedPiecesLeft
-	 */
-	@Override
-	public int getCapturedPiecesLeft() {
-		return capturedPiecesLeft;
-	}
-
-	/**
-	 * @param capturedPiecesLeft the capturedPiecesLeft to set
-	 */
-	@Override
-	public void setCapturedPiecesLeft(int capturedPiecesLeft) {
-		this.capturedPiecesLeft = capturedPiecesLeft;
-	}
-
-	/**
-	 * @return the capturedPiecesTop
-	 */
-	@Override
-	public int getCapturedPiecesTop() {
-		return capturedPiecesTop;
-	}
-
-	/**
-	 * @param capturedPiecesTop the capturedPiecesTop to set
-	 */
-	@Override
-	public void setCapturedPiecesTop(int capturedPiecesTop) {
-		this.capturedPiecesTop = capturedPiecesTop;
-	}
 
 	/**
 	 * @param evalWidth the evalWidth to set
@@ -304,26 +267,6 @@ public class ViewConfig implements Config {
 	@Override
 	public void setMoveListWidth(int moveListWidth) {
 		this.moveListWidth = moveListWidth;
-	}
-
-	@Override
-	public int getCapturedContainerWidth() {
-		return capturedContainerWidth;
-	}
-
-	@Override
-	public void setCapturedContainerWidth(int capturedContainerWidth) {
-		this.capturedContainerWidth = capturedContainerWidth;
-	}
-
-	@Override
-	public int getCapturedContainerHeight() {
-		return capturedContainerHeight;
-	}
-
-	@Override
-	public void setCapturedContainerHeight(int capturedContainerHeight) {
-		this.capturedContainerHeight = capturedContainerHeight;
 	}
 
 	@Override
@@ -558,16 +501,6 @@ public class ViewConfig implements Config {
 	@Override
 	public void setAnimationDuration(int animationDuration) {
 		this.animationDuration = animationDuration;
-	}
-
-	@Override
-	public boolean isCapturedContainer() {
-		return capturedContainer;
-	}
-
-	@Override
-	public void setCapturedContainer(boolean capturedContainer) {
-		this.capturedContainer = capturedContainer;
 	}
 
 	@Override
