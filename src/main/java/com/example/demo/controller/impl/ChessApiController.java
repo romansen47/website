@@ -631,6 +631,7 @@ public class ChessApiController extends ControllerTemplate {
 					: ((PlayerEngine) get(KEY.PLAYER_ENGINE_FOR_BLACK));
 			EngineConfig config = color.equals(Color.WHITE) ? (EngineConfig) get(KEY.ENGINE_CONFIG_FOR_WHITE)
 					: (EngineConfig) get(KEY.ENGINE_CONFIG_FOR_BLACK);
+			
 			Move move = playerEngine.getBestMove(chessGame, config);
 
 			if ((boolean) get(KEY.ENGINE_MATCH)) {
@@ -661,12 +662,12 @@ public class ChessApiController extends ControllerTemplate {
 				response.put("color", ((Promotion) move).getPromotedPiece().getColor().toString().toLowerCase());
 				applyMove(move);
 			} else if (move.getTarget().getPiece() != null) {
-				logger.info("{} applying regular slaying: {}", playerEngine, move);
+				logger.info("{} suggesting regular slaying: {}", playerEngine, move);
 				response.put("slayed", move.getTarget().toString());
 				response.put("move", move.toString());
 				applyMove(move);
 			} else {
-				logger.info("{} applying regular move: {}", playerEngine, move);
+				logger.info("{} suggesting regular move: {}", playerEngine, move);
 				response.put("move", move.toString());
 				applyMove(move);
 			}

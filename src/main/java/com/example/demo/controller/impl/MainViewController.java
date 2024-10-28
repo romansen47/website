@@ -169,7 +169,10 @@ public class MainViewController extends ControllerTemplate {
 
 		viewConfig.setTimeForEachPlayer(timeForEachPlayer);
 		viewConfig.setIncrementForWhite(incrementForWhite);
+		chessGame.setIncrementForWhite(incrementForWhite);
+		
 		viewConfig.setIncrementForBlack(incrementForBlack);
+		chessGame.setIncrementForBlack(incrementForBlack);
 		viewConfig.setAdditionalTime(additionalTime);
 
 		chessGame.getWhitePlayer().setAdditionalTime(additionalTime);
@@ -256,13 +259,27 @@ public class MainViewController extends ControllerTemplate {
 	 */
 	@GetMapping("/settings")
 	protected String settings(Model model) {
+		Game chessGame = (Game) get(KEY.CHESSGAME);
+		suspendIfNeeded(chessGame);
+		
 		model.addAttribute("viewConfig", viewConfig);
 		model.addAttribute("evaluationEngines", evaluationEngines);
 		return "settings";
 	}
 
+	private void suspendIfNeeded(Game chessGame) {
+		if(chessGame.getWhitePlayer().getChessClock().isStarted()) {
+			chessGame.getWhitePlayer().getChessClock().suspend();
+		}
+		if(chessGame.getBlackPlayer().getChessClock().isStarted()) {
+			chessGame.getBlackPlayer().getChessClock().suspend(); 
+		}
+	}
+	
 	@GetMapping("/uciEngine-settings")
 	protected String uciEngineSettings(Model model) {
+		Game chessGame = (Game) get(KEY.CHESSGAME);
+		suspendIfNeeded(chessGame);
 		model.addAttribute("playerEngines", playerEngines);
 		model.addAttribute("viewConfig", viewConfig);
 		return "uciEngine-settings";
@@ -270,6 +287,8 @@ public class MainViewController extends ControllerTemplate {
 
 	@GetMapping("/presentation-settings")
 	protected String presentationSettings(Model model) {
+		Game chessGame = (Game) get(KEY.CHESSGAME);
+		suspendIfNeeded(chessGame);
 		List<String> colorList = Arrays.asList("GREEN", "BROWN", "RED", "BLUE", "YELLOW");
 		model.addAttribute("colorList", colorList);
 		model.addAttribute("viewConfig", viewConfig);
@@ -315,6 +334,14 @@ public class MainViewController extends ControllerTemplate {
 
 		viewConfig.setUciEngineActive(uciEngineActive);
 
+		Game chessGame = (Game) get(KEY.CHESSGAME);
+
+		if (chessGame.getWhitePlayer().getChessClock().isSuspended()) {
+			chessGame.getWhitePlayer().getChessClock().resume();
+		}
+		if (chessGame.getBlackPlayer().getChessClock().isSuspended()) {
+			chessGame.getBlackPlayer().getChessClock().resume();
+		} 
 		return "redirect:/";
 	}
 
@@ -347,6 +374,13 @@ public class MainViewController extends ControllerTemplate {
 		hashSizeForBlack, contemptForBlack,
 		moveOverheadForBlack, uciEloForBlack,
 		selectedEngineForWhite, selectedEngineForBlack, this.playerEngines);
+		Game chessGame = (Game) get(KEY.CHESSGAME);
+		if (chessGame.getWhitePlayer().getChessClock().isSuspended()) {
+			chessGame.getWhitePlayer().getChessClock().resume();
+		}
+		if (chessGame.getBlackPlayer().getChessClock().isSuspended()) {
+			chessGame.getBlackPlayer().getChessClock().resume();
+		} 
 		return "redirect:/";
 	}
 
@@ -378,6 +412,14 @@ public class MainViewController extends ControllerTemplate {
 				.findFirst().orElse(Color.GREEN));
 		viewConfig.setAnimationDuration(animationDuration);
 
+		Game chessGame = (Game) get(KEY.CHESSGAME);
+
+		if (chessGame.getWhitePlayer().getChessClock().isSuspended()) {
+			chessGame.getWhitePlayer().getChessClock().resume();
+		}
+		if (chessGame.getBlackPlayer().getChessClock().isSuspended()) {
+			chessGame.getBlackPlayer().getChessClock().resume();
+		} 
 		return "redirect:/";
 	}
 
