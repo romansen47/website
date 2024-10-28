@@ -60,19 +60,65 @@ import demo.chess.save.GameSaver;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletResponse;
 
+/**
+ * The `ChessApiController` class provides RESTful endpoints for managing and interacting
+ * with a chess game. It handles various game operations, such as retrieving possible moves,
+ * responding to user interactions with pieces and fields, and managing game state and engine
+ * interactions. Additionally, it offers file operations for saving, loading, and downloading games.
+ *
+ * Key functionalities include:
+ * - **Move Validation**: Retrieves and validates possible moves for selected pieces, allowing
+ *   user interactions to highlight valid moves and enforce rules like castling, en passant, and promotion.
+ * - **Piece and Field Interaction**: Responds to piece and field clicks, determining if moves
+ *   are valid and applying them while updating the game state accordingly.
+ * - **Engine Management**: Integrates UCI chess engines for move suggestions and evaluations,
+ *   updating clients with engine-provided moves and handling special moves.
+ * - **Game State Persistence**: Enables saving and loading of game states to/from files, allowing
+ *   users to resume gameplay or review previous games.
+ * - **Move List and Evaluation**: Provides UI support by exposing move lists and evaluation data
+ *   for client display, including the generation of evaluation bars and best-move highlights.
+ * - **WebSocket Communication**: Sends real-time updates to clients on clocks, move lists, and
+ *   game states, ensuring synchronization across user interfaces.
+ *
+ * This controller serves as a bridge between the frontend and backend, managing interactions
+ * and game logic for a responsive and interactive chess application, with extensive support
+ * for UCI engine evaluation and move analysis.
+ */
 @RestController
 @RequestMapping("/api/game")
 public class ChessApiController extends ControllerTemplate {
 
+	/**
+	 * Logger instance for capturing and recording runtime information, errors, and
+	 * diagnostic messages within the `ChessApiController`.
+	 */
 	protected static final Logger logger = LogManager.getLogger();
 
+	/**
+	 * Helper class that provides various utility methods for handling API
+	 * operations, such as validating game state, managing game interactions,
+	 * and processing requests.
+	 */
 	@Autowired
 	private ApiControllerHelper helper;
 
+	/**
+	 * Stores the currently selected chess piece as a string representation,
+	 * typically used to track the piece selected by the user for interaction
+	 * on the chessboard.
+	 */
 	protected String selectedPiece;
 
+	/**
+	 * Represents the field on the chessboard that is currently selected by the user.
+	 * Used to determine valid moves and manage board interactions for the selected piece.
+	 */
 	protected Field selectedField = null;
 
+	/**
+	 * Holds a list of valid promotion moves, enabling the application to provide
+	 * promotion options when a pawn reaches the last rank.
+	 */
 	List<Promotion> validPromotions = new ArrayList<>();
 
 	@Override
@@ -85,6 +131,14 @@ public class ChessApiController extends ControllerTemplate {
 		put(KEY.UCI_ENGINE_MOVELIST, new ArrayList<>());
 	}
 
+	/**
+     * Retrieves the possible moves for a piece on the clicked field. This method
+     * processes POST requests to get all valid target fields where the piece can move.
+     *
+     * @param field The chess board field where the piece is located.
+     * @return A `ChessApiResponse` containing a list of possible target fields.
+     * @throws Exception If there are issues accessing the possible moves.
+     */
 	@PostMapping("/getPossibleMoves")
 	@ResponseBody
 	@SuppressWarnings("unchecked")
@@ -113,7 +167,7 @@ public class ChessApiController extends ControllerTemplate {
 	 *
 	 * @param id The ID of the clicked piece.
 	 * @return A response entity containing a list of target fields as strings.
-	 * @throws Exception
+	 * @throws Exception if s.t. wrong happens
 	 */
 	@PostMapping("/onPieceClicked")
 	@ResponseBody
@@ -308,6 +362,16 @@ public class ChessApiController extends ControllerTemplate {
 		}
 	}
 
+	/**
+     * Selects a promotion piece based on user input and applies the promotion move.
+     * This method is typically invoked when a pawn reaches the promotion rank,
+     * and the user selects the piece for promotion (e.g., Queen).
+     *
+     * @param pieceSelection The selected piece for promotion.
+     * @param response       The HTTP response object.
+     * @return A `ChessApiResponse` containing the promotion details.
+     * @throws Exception If no valid promotion move is found or there is an error during promotion.
+     */
 	@PostMapping("/selectPiece")
 	@ResponseBody
 	protected ChessApiResponse<List<String>> selectPiece(@RequestBody PieceSelection pieceSelection,
@@ -346,20 +410,33 @@ public class ChessApiController extends ControllerTemplate {
 
 	/**
 	 * Handles POST requests to save the current game state to a file.
+	 * <p>
+	 * This method attempts to save the game to a predefined file (`save-game.txt`).
+	 * If the save operation is successful, it returns an HTTP 200 response with a
+	 * success message. If an error occurs during the file-saving process, it
+	 * returns an HTTP 500 response with an error message.
+	 * </p>
 	 *
-	 * @throws IOException If any I/O error occurs during saving.
+	 * @return a `ResponseEntity` with a message indicating success or failure of
+	 *         the save operation
 	 */
 	@PostMapping("/save-game")
 	@ResponseBody
 	public ResponseEntity<String> saveGame() {
-		try {
-			saveGame("save-game.txt");
-			return ResponseEntity.ok("Game saved successfully");
-		} catch (IOException e) {
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error saving game");
-		}
+	    try {
+	        saveGame("save-game.txt");
+	        return ResponseEntity.ok("Game saved successfully");
+	    } catch (IOException e) {
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error saving game");
+	    }
 	}
 
+	/**
+     * Helper method to save the game state to a specified file path.
+     *
+     * @param path The file path to save the game data.
+     * @throws IOException If an I/O error occurs while saving.
+     */
 	protected void saveGame(String path) throws IOException {
 		GameSaver saver = new GameSaver();
 		saver.saveGame(((Game) get(KEY.CHESSGAME)).getMoveList(), path);
@@ -379,6 +456,12 @@ public class ChessApiController extends ControllerTemplate {
 		helper.sendReloadSignal();
 	}
 
+	/**
+     * Downloads the game moves as a file for the user to save locally.
+     *
+     * @return A `ResponseEntity` containing the file with moves in text format.
+     * @throws IOException If an error occurs while preparing the file.
+     */
 	@GetMapping("/download-game")
 	public ResponseEntity<InputStreamResource> downloadGame() throws IOException {
 
@@ -406,7 +489,14 @@ public class ChessApiController extends ControllerTemplate {
 				.contentType(MediaType.APPLICATION_OCTET_STREAM).body(new InputStreamResource(bis));
 	}
 
-	// Load game: Client uploads a game file to the server
+	 /**
+     * Uploads a saved game file from the client to the server, which is then
+     * loaded into the game for resuming or reviewing previous moves.
+     *
+     * @param file The file containing the saved game state.
+     * @return A `ResponseEntity` confirming successful load or detailing any error.
+     * @throws Exception If an error occurs during the file upload or load process.
+     */
 	@PostMapping("/upload-game")
 	public ResponseEntity<String> uploadGame(@RequestParam("file") MultipartFile file) throws Exception {
 		if (file.isEmpty()) {
@@ -428,6 +518,14 @@ public class ChessApiController extends ControllerTemplate {
 		}
 	}
 
+	/**
+     * Imports a UCI chess engine from an uploaded file, adds it to the available
+     * engines, and makes it executable for use in the game.
+     *
+     * @param file The file containing the engine executable.
+     * @return A `ResponseEntity` confirming successful import or detailing any error.
+     * @throws Exception If an error occurs during file upload or import.
+     */
 	@PostMapping("/import-Engine")
 	public ResponseEntity<String> importEngine(@RequestParam("file") MultipartFile file) throws Exception {
 		if (file.isEmpty()) {
@@ -469,8 +567,8 @@ public class ChessApiController extends ControllerTemplate {
 	 * Handles GET requests to retrieve the list of moves made during the game.
 	 *
 	 * @return A list of strings representing the moves.
-	 * @throws IOException
-	 * @throws NoMoveFoundException
+	 * @throws IOException if s.t. goes wrong
+	 * @throws NoMoveFoundException if no move is found
 	 */
 	@GetMapping("/moveList")
 	@ResponseBody
@@ -544,9 +642,9 @@ public class ChessApiController extends ControllerTemplate {
 	 * Gets the UciEngine evaluation score.
 	 *
 	 * @return the UciEngine evaluation score
-	 * @throws ExecutionException
-	 * @throws InterruptedException
-	 * @throws IOException
+	 * @throws ExecutionException if s.t. in future task goes wrong
+	 * @throws InterruptedException if s.t. in future task goes wrong
+	 * @throws IOException if s.t. in future task goes wrong
 	 */
 	@GetMapping("/uciEngineEvaluation")
 	@ResponseBody
@@ -595,6 +693,19 @@ public class ChessApiController extends ControllerTemplate {
 		viewConfig.setMoveListLeft(left);
 	}
 
+	/**
+	 * Retrieves the remaining time for each player in the current game.
+	 * <p>
+	 * This endpoint calculates the time left for both the white and black players
+	 * based on the total time allocated to each player and the elapsed time
+	 * tracked by each player's clock. The remaining time is returned as a map
+	 * with keys "whiteTime" and "blackTime", each representing the remaining time
+	 * in seconds for the respective player.
+	 * </p>
+	 *
+	 * @return a `ChessApiResponse` containing a map with the remaining time for
+	 *         both players in seconds
+	 */
 	@GetMapping("/currentTime")
 	@ResponseBody
 	public ChessApiResponse<Map<String, Integer>> getCurrentTime() {
@@ -612,11 +723,30 @@ public class ChessApiController extends ControllerTemplate {
 		return new ChessApiResponse<>(true, timeMap);
 	}
 
+    /**
+     * Updates the position of captured pieces on the display, as specified by
+     * the provided screen coordinates.
+     *
+     * @param top  The new top position (in pixels).
+     * @param left The new left position (in pixels).
+     * @return A `ChessApiResponse` confirming the position update.
+     */
 	@PostMapping("/updateCapturedPiecesPosition")
 	public ChessApiResponse<String> updateCapturedPiecesPosition(@RequestParam int top, @RequestParam int left) {
 		return new ChessApiResponse<>(true, "Position updated");
 	}
 
+	 /**
+     * Checks if the UCI engine is active and provides the next suggested move from
+     * the engine for the current player. If the UCI engine is active, it retrieves
+     * the best move, which may include castling, en passant, promotion, or a regular move.
+     * If the UCI engine is not active or if the game state does not allow moves,
+     * a response indicating that the engine is inactive is returned.
+     *
+     * @return A `ChessApiResponse` containing details about the UCI engine's status,
+     *         the type of move suggested, and additional move information if applicable.
+     * @throws Exception If an error occurs during the move retrieval process.
+     */
 	@PostMapping("/checkUciEnginePlayer")
 	public ChessApiResponse<Map<String, Object>> checkUciEnginePlayer() throws Exception {
 		Game chessGame = (Game) get(KEY.CHESSGAME);
@@ -631,7 +761,7 @@ public class ChessApiController extends ControllerTemplate {
 					: ((PlayerEngine) get(KEY.PLAYER_ENGINE_FOR_BLACK));
 			EngineConfig config = color.equals(Color.WHITE) ? (EngineConfig) get(KEY.ENGINE_CONFIG_FOR_WHITE)
 					: (EngineConfig) get(KEY.ENGINE_CONFIG_FOR_BLACK);
-			
+
 			Move move = playerEngine.getBestMove(chessGame, config);
 
 			if ((boolean) get(KEY.ENGINE_MATCH)) {
@@ -679,6 +809,16 @@ public class ChessApiController extends ControllerTemplate {
 		}
 	}
 
+	/**
+     * Retrieves the best move suggested by the UCI engine for display as an arrow
+     * on the chessboard. This method ensures that a valid move is provided by the
+     * engine and formats it for use in the frontend. If the game state does not
+     * allow moves, an empty response is returned.
+     *
+     * @return A `ChessApiResponse` containing a map with "from" and "to" keys,
+     *         representing the start and end coordinates of the best move as strings.
+     * @throws Exception If any error occurs during move retrieval from the engine.
+     */
 	@GetMapping("/uciEngineBestMove")
 	protected ChessApiResponse<Map<String, String>> getBestMoveForArrow() throws Exception {
 		Map<String, String> map = new LinkedHashMap<>();
@@ -704,6 +844,16 @@ public class ChessApiController extends ControllerTemplate {
 		return new ChessApiResponse<>(true, map);
 	}
 
+	 /**
+     * Applies a specified move to the current game state. This method first checks
+     * if the game state allows for the move and, if so, updates the game with the
+     * new move. It also updates various UI components, including clocks and move
+     * lists, and refreshes evaluation or arrow visuals if configured to display them.
+     *
+     * @param move The move to apply to the game.
+     * @throws Exception If an error occurs during the move application or if the
+     *                   game state check fails.
+     */
 	@SuppressWarnings("unchecked")
 	public void applyMove(Move move) throws Exception {
 		Game chessGame = ((Game) get(KEY.CHESSGAME));
@@ -722,26 +872,58 @@ public class ChessApiController extends ControllerTemplate {
 		this.webSocketService.updateMoveList();
 	}
 
-	protected static class PieceSelection {
-		private String piece;
-
-		public String getPiece() {
-			return piece;
-		}
-
-		public void setPiece(String piece) {
-			this.piece = piece;
-		}
-	}
-
+	/**
+     * Resets the game state to its initial configuration. This method invokes the
+     * helper’s reset logic, ensuring that all relevant game components and configurations
+     * are restored to their default states.
+     *
+     * @return A string confirmation of the reset process.
+     * @throws Exception If any error occurs during the reset operation.
+     */
 	@Override
 	protected String reset() throws Exception {
 		return helper.reset();
 	}
 
+	/**
+     * Retrieves the logger instance associated with this controller. This logger
+     * can be used for debugging, information, or error logging within the controller.
+     *
+     * @return The logger instance for this class.
+     */
 	@Override
 	protected Logger getLogger() {
 		return logger;
 	}
+
+	/**
+     * The `PieceSelection` class represents a selected piece during a promotion in a chess game.
+     * This class holds information about the type of piece chosen by the user when a pawn is promoted.
+     *
+     * It includes:
+     * - A getter method to retrieve the selected piece type.
+     * - A setter method to set the piece type during promotion.
+     */
+    protected static class PieceSelection {
+        private String piece;
+
+        /**
+         * Retrieves the type of the selected piece.
+         *
+         * @return A string representing the selected piece type, such as "queen" or "knight".
+         */
+        public String getPiece() {
+            return piece;
+        }
+
+        /**
+         * Sets the type of the selected piece during a promotion.
+         *
+         * @param piece A string representing the type of piece chosen for promotion.
+         */
+        public void setPiece(String piece) {
+            this.piece = piece;
+        }
+    }
 
 }

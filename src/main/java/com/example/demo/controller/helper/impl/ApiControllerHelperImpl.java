@@ -27,43 +27,42 @@ import demo.chess.definitions.pieces.Piece;
 import demo.chess.definitions.states.State;
 import demo.chess.game.Game;
 
+/**
+ * The `ApiControllerHelperImpl` class implements the `ApiControllerHelper` interface,
+ * providing utility methods to facilitate interaction with the chess game logic
+ * in the `ChessApiController`. This implementation enables controller operations
+ * for handling moves, board state, evaluation results, and user interface interactions.
+ *
+ * Core functionalities include:
+ * - Retrieving possible moves and fields for a selected piece.
+ * - Managing promotion move options for pawns.
+ * - Converting chess moves into symbolic representation for display.
+ * - Providing calculations for evaluation bars based on engine evaluations.
+ * - Communicating game state updates and reset signals through WebSocket messages.
+ * - Filtering duplicate engine suggestions and preparing move lists for evaluation.
+ * - Checking game states (e.g., checkmate, stalemate) and sending corresponding messages.
+ * - Verifying if human interaction is allowed based on current player status.
+ *
+ * This helper class operates as a Spring component, allowing it to be injected where needed
+ * and providing easy access to shared game configuration and helper methods from the
+ * `ChessHelper` superclass.
+ */
 @Component
 public class ApiControllerHelperImpl extends ChessHelper implements ApiControllerHelper{
 
 	@SuppressWarnings("unused")
 	private static final Logger logger = LogManager.getLogger(ChessApiController.class);
 
-	/**
-	 * Retrieves a list of source fields for all possible moves.
-	 *
-	 * @return A list of source fields.
-	 * @throws NoMoveFoundException If no valid moves are found.
-	 * @throws IOException          If an I/O error occurs.
-	 */
 	@Override
 	public List<Field> getSourceFields() throws NoMoveFoundException, IOException {
 		return getPossibleMoves().stream().map(Move::getSource).distinct().toList();
 	}
 
-	/**
-	 * Retrieves a list of target fields for all possible moves.
-	 *
-	 * @return A list of target fields.
-	 * @throws NoMoveFoundException If no valid moves are found.
-	 * @throws IOException          If an I/O error occurs.
-	 */
 	@Override
 	public List<Field> getTargetFields() throws NoMoveFoundException, IOException {
 		return getPossibleMoves().stream().map(Move::getTarget).distinct().toList();
 	}
 
-	/**
-	 * Retrieves a list of possible moves for the current player.
-	 *
-	 * @return A list of valid moves.
-	 * @throws NoMoveFoundException If no valid moves are found.
-	 * @throws IOException          If an I/O error occurs.
-	 */
 	@Override
 	public List<Move> getPossibleMoves() throws NoMoveFoundException, IOException {
 		Game chessGame = (Game) get(KEY.CHESSGAME);
@@ -84,25 +83,12 @@ public class ApiControllerHelperImpl extends ChessHelper implements ApiControlle
 		}
 	}
 
-	/**
-	 * Calculates the ratio for the evaluation bars based on the evaluation score.
-	 *
-	 * @param eval the evaluation score
-	 * @return the ratio for the evaluation bars
-	 */
 	@Override
 	public double getRatioEvalBars(double eval) {
 		double ans = 0.5 + Math.atan(Math.tan(Math.PI / 10d) * eval) / Math.PI;
 		return ans;
 	}
 
-	/**
-	 * Converts the top and left pixel positions to chessboard file and rank.
-	 *
-	 * @param top  the top pixel position
-	 * @param left the left pixel position
-	 * @return an array containing the file and rank
-	 */
 	@Override
 	public int[] fileRankFor(int top, int left) {
 		int[] answer = new int[2];
@@ -166,10 +152,6 @@ public class ApiControllerHelperImpl extends ChessHelper implements ApiControlle
 		return moveListWithSymbols;
 	}
 
-	/**
-	 * Sends a reload signal to the client to reload the page. This is typically
-	 * done using WebSocket or Server-Sent Events (SSE).
-	 */
 	@Override
 	public void sendReloadSignal() {
 		try {

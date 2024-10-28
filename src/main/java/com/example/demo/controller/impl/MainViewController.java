@@ -24,33 +24,75 @@ import demo.chess.definitions.Color;
 import demo.chess.definitions.engines.EngineConfig;
 import demo.chess.definitions.engines.EvaluationEngine;
 import demo.chess.definitions.states.State;
-import demo.chess.game.Game; 
+import demo.chess.game.Game;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletResponse;
 
 /**
- * This class is the controller responsible for managing the main view of the
- * chess application. It handles user input, updates the model, and returns the
- * appropriate view to be rendered.
+ * The `MainViewController` class is the primary controller for managing and
+ * rendering the main view of the chess application. This controller handles
+ * essential functionalities, including:
+ *
+ * - **Game Setup and Initialization**: Configures game settings, initializes
+ * the chessboard view, and establishes engine configurations, readying the
+ * application for gameplay. - **User Interaction**: Processes user actions,
+ * such as resetting the board, starting a new game, adjusting engine match
+ * settings, and managing piece movement. The controller ensures all moves and
+ * settings adhere to the game's current configuration. - **Game State
+ * Management**: Utilizes helper methods to handle the chess game state by
+ * updating clocks, resetting the game board, saving and loading game states,
+ * and configuring UI elements for proper display of the chessboard and pieces.
+ * - **Settings Management**: Handles the retrieval and application of settings
+ * related to the appearance, UCI engine configurations, and other customizable
+ * game aspects. This allows users to tailor the gameplay experience, with
+ * settings for color themes, board orientation, player time increments, and
+ * more. - **Engine Management**: Configures and initiates UCI (Universal Chess
+ * Interface) engines for automated move analysis, evaluation, and gameplay. It
+ * also provides methods to start engine matches and synchronize UCI engine
+ * activity with user gameplay. - **WebSocket Communication**: Ensures real-time
+ * communication with the frontend, providing live updates on clocks, moves, and
+ * state changes. This keeps the game state consistent across different clients
+ * and interfaces.
+ *
+ * This class acts as a bridge between user interactions and game logic,
+ * ensuring smooth gameplay, responsive UI updates, and robust control of the
+ * chess engine configurations. It leverages the `ViewControllerHelper` for
+ * encapsulating complex UI setup and configuration tasks, promoting code
+ * modularity and clarity.
  */
 @Controller
 public class MainViewController extends ControllerTemplate {
 
+	/**
+	 * Logger instance for logging important events and errors within the
+	 * controller.
+	 */
 	protected static final Logger logger = LogManager.getLogger();
 
+	/**
+	 * Helper instance for managing various view-related operations and
+	 * configuration adjustments.
+	 * <p>
+	 * This helper provides utility methods that support complex UI interactions and
+	 * setup tasks for the main view.
+	 * </p>
+	 */
 	@Autowired
 	private ViewControllerHelper helper;
 
+	/**
+	 * Initializes the chess game by setting up displayable elements, engines, and
+	 * shutdown hooks. This method is called after the bean has been constructed.
+	 *
+	 * @throws Exception if initialization fails
+	 */
 	@PostConstruct
 	public void init() throws Exception {
 		Game chessGame = getChessGame();
-		
 		setup();
-		 
 		helper.createNewPiecesFromExistingPieces(chessGame);
 		helper.createShutdownHooks(evaluationEngines);
 		helper.createShutdownHooks(playerEngines);
-
 		helper.setupEngineConfigurations();
 		helper.createNewPiecesFromExistingPieces((Game) get(KEY.CHESSGAME));
 	}
@@ -60,18 +102,15 @@ public class MainViewController extends ControllerTemplate {
 	 * initial board configuration. This method is called after the bean has been
 	 * constructed.
 	 *
-	 * @throws Exception
+	 * @throws Exception if s.t. goes wrong
 	 */
 	@Override
 	@SuppressWarnings("unchecked")
 	public void setup() throws Exception {
-
 		super.setup();
 		final Game chessGame = getChessGame();
-
 		helper.seupClocks(chessGame);
 		helper.setUnsetViewVariables(this.getEvaluationEngine());
-
 		helper.createNewFields();
 
 	}
@@ -87,8 +126,7 @@ public class MainViewController extends ControllerTemplate {
 	 */
 	@GetMapping("/")
 	@SuppressWarnings("unchecked")
-	protected String mainView(Model model, HttpServletResponse response)
-			throws Exception {
+	protected String mainView(Model model, HttpServletResponse response) throws Exception {
 
 		// Initialize the time allocated for each player
 		int timeForEachPlayer = viewConfig.getTimeForEachPlayer();
@@ -120,13 +158,19 @@ public class MainViewController extends ControllerTemplate {
 
 		((List<DisplayedField>) get(KEY.FIELDS)).clear();
 		helper.createNewFields();
-		helper.createNewPiecesFromExistingPieces((Game)get(KEY.CHESSGAME));
+		helper.createNewPiecesFromExistingPieces((Game) get(KEY.CHESSGAME));
 		webSocketService.updateClocks();
 		webSocketService.updateMoveList();
 
 		return "mainView";
 	}
 
+	/**
+	 * Reloads the game state from a local save file, resetting and setting up the
+	 * game.
+	 *
+	 * @throws Exception if reloading fails
+	 */
 	protected void reloadGame() throws Exception {
 		helper.saveGame("local.txt", getChessGame());
 		setup();
@@ -134,10 +178,11 @@ public class MainViewController extends ControllerTemplate {
 	}
 
 	/**
-	 * Handles POST requests to reset the chessboard to its initial state.
+	 * Resets the chessboard to its initial state, reconfiguring the board and UI
+	 * elements.
 	 *
-	 * @return A message indicating that the chessboard has been reset.
-	 * @throws Exception If any error occurs during the reset.
+	 * @return A redirect URL to the main view with the reset board.
+	 * @throws Exception if reset fails
 	 */
 	@Override
 	protected String reset() throws Exception {
@@ -145,18 +190,17 @@ public class MainViewController extends ControllerTemplate {
 		createNewGame();
 		setup();
 		this.helper.setUnsetViewVariables(this.getEvaluationEngine());
-		helper.createNewPiecesFromExistingPieces((Game)get(KEY.CHESSGAME));
+		helper.createNewPiecesFromExistingPieces((Game) get(KEY.CHESSGAME));
 		return "redirect:/?reset=true";
 	}
 
 	/**
-	 * Handles POST requests to reset the chessboard to its initial state.
+	 * Starts a new game with the specified configuration from the client.
 	 *
-	 * @return A message indicating that the chessboard has been reset.
-	 * @throws Exception If any error occurs during the reset.
+	 * @param params The configuration parameters for the new game.
+	 * @return A redirect URL indicating the board reset status.
+	 * @throws Exception if game start fails
 	 */
-	@PostMapping("/reset-board")
-	@ResponseBody
 	protected String startNewGame(@RequestBody Map<String, Object> params) throws Exception {
 
 		Game chessGame = (Game) get(KEY.CHESSGAME);
@@ -170,7 +214,7 @@ public class MainViewController extends ControllerTemplate {
 		viewConfig.setTimeForEachPlayer(timeForEachPlayer);
 		viewConfig.setIncrementForWhite(incrementForWhite);
 		chessGame.setIncrementForWhite(incrementForWhite);
-		
+
 		viewConfig.setIncrementForBlack(incrementForBlack);
 		chessGame.setIncrementForBlack(incrementForBlack);
 		viewConfig.setAdditionalTime(additionalTime);
@@ -210,6 +254,13 @@ public class MainViewController extends ControllerTemplate {
 		return "redirect:/?reset=true";
 	}
 
+	/**
+	 * Starts an engine match, where both players are controlled by chess engines.
+	 * Initializes the clocks and settings for both engines and triggers the first
+	 * move by the UCI engine.
+	 *
+	 * @throws Exception if starting the engine match fails
+	 */
 	@PostMapping("/startEngineMatch")
 	@ResponseBody
 	protected void startEngineGame() throws Exception {
@@ -226,12 +277,24 @@ public class MainViewController extends ControllerTemplate {
 		webSocketService.triggerUciEngineMove();
 	}
 
+	/**
+	 * Shuts down the application by exiting the runtime.
+	 *
+	 * @throws Exception if shutdown fails
+	 */
 	@PostMapping("/shutDown")
 	@ResponseBody
 	protected void shutDown() throws Exception {
 		Runtime.getRuntime().exit(0);
 	}
 
+	/**
+	 * Allows the current player to resign the game, setting the game state to
+	 * indicate resignation and stopping the player's clock.
+	 *
+	 * @return A redirect to the main view after the resignation.
+	 * @throws Exception if resignation processing fails
+	 */
 	@GetMapping("/resign")
 	protected String resign() throws Exception {
 		put(KEY.ENGINE_MATCH, false);
@@ -261,21 +324,34 @@ public class MainViewController extends ControllerTemplate {
 	protected String settings(Model model) {
 		Game chessGame = (Game) get(KEY.CHESSGAME);
 		suspendIfNeeded(chessGame);
-		
+
 		model.addAttribute("viewConfig", viewConfig);
 		model.addAttribute("evaluationEngines", evaluationEngines);
 		return "settings";
 	}
 
+	/**
+	 * Suspends the clocks of both players if they are currently running. This
+	 * method is used during settings or other interruptions.
+	 *
+	 * @param chessGame The current game instance.
+	 */
 	private void suspendIfNeeded(Game chessGame) {
-		if(chessGame.getWhitePlayer().getChessClock().isStarted()) {
+		if (chessGame.getWhitePlayer().getChessClock().isRunning()) {
 			chessGame.getWhitePlayer().getChessClock().suspend();
 		}
-		if(chessGame.getBlackPlayer().getChessClock().isStarted()) {
-			chessGame.getBlackPlayer().getChessClock().suspend(); 
+		if (chessGame.getBlackPlayer().getChessClock().isRunning()) {
+			chessGame.getBlackPlayer().getChessClock().suspend();
 		}
 	}
-	
+
+	/**
+	 * Handles the GET request for the UCI engine settings page, displaying
+	 * available player engines and other configurations.
+	 *
+	 * @param model The model used to pass data to the view.
+	 * @return The name of the UCI engine settings view.
+	 */
 	@GetMapping("/uciEngine-settings")
 	protected String uciEngineSettings(Model model) {
 		Game chessGame = (Game) get(KEY.CHESSGAME);
@@ -285,6 +361,13 @@ public class MainViewController extends ControllerTemplate {
 		return "uciEngine-settings";
 	}
 
+	/**
+	 * Handles the GET request for presentation settings, such as color themes.
+	 * Populates the model with available color options.
+	 *
+	 * @param model The model used to pass data to the view.
+	 * @return The name of the presentation settings view.
+	 */
 	@GetMapping("/presentation-settings")
 	protected String presentationSettings(Model model) {
 		Game chessGame = (Game) get(KEY.CHESSGAME);
@@ -296,18 +379,44 @@ public class MainViewController extends ControllerTemplate {
 	}
 
 	/**
-	 * Handles the POST request to update the settings. Applies the new settings and
-	 * reloads the game if necessary.
+	 * Updates various settings related to the evaluation and analysis capabilities
+	 * of the chess UI, particularly configurations for the UCI engine.
+	 * <p>
+	 * This method allows configuring settings such as whether to show arrows for
+	 * moves, enable evaluation displays, and set up the UCI engine's depth and
+	 * multi-variation analysis.
+	 * </p>
 	 *
-	 * @param uciEngineActive   The new value for the UciEngine activation setting.
-	 * @param color             The selected color theme.
-	 * @param timeForEachPlayer The new time allocated for each player.
-	 * @param leftOffset        The new left offset for the chessboard.
-	 * @param squareSize        The new size for each square on the chessboard.
-	 * @param uciEngineDepth    The new depth for UciEngine analysis.
-	 * @return A redirect to the main view with updated settings.
-	 * @throws Exception If any error occurs during the update.
+	 * @param showArrows                        Flag indicating if arrows should be
+	 *                                          displayed on the board to show
+	 *                                          suggested moves or analysis results.
+	 * @param showEvaluation                    Flag indicating if the evaluation
+	 *                                          bar should be displayed, providing
+	 *                                          insight into the current position
+	 *                                          strength.
+	 * @param showUciEngineLines                Flag indicating if UCI engine lines
+	 *                                          (move suggestions) should be shown
+	 *                                          in the UI.
+	 * @param uciEngineActive                   Flag to enable or disable the UCI
+	 *                                          engine for move suggestions and
+	 *                                          analysis.
+	 * @param updateIntervall                   Interval for updates, controlling
+	 *                                          how frequently the engine analysis
+	 *                                          is updated.
+	 * @param multiPVForEvaluationEngine        Number of variations to display from
+	 *                                          the UCI engine’s analysis
+	 *                                          (multi-principal variation).
+	 * @param uciEngineDepthForEvaluationEngine Maximum depth for the UCI engine's
+	 *                                          analysis, defining the calculation
+	 *                                          depth.
+	 * @param selectedEngine                    The engine selected for evaluation,
+	 *                                          which will be set as the active
+	 *                                          engine for analysis.
+	 * @return A redirect to the main view after applying the updated settings.
+	 * @throws Exception If an error occurs while updating the engine
+	 *                   configurations.
 	 */
+
 	@PostMapping("/updateSettings")
 	protected String updateSettings(@RequestParam(defaultValue = "false") boolean showArrows,
 			@RequestParam(defaultValue = "false") boolean showEvaluation,
@@ -334,29 +443,49 @@ public class MainViewController extends ControllerTemplate {
 
 		viewConfig.setUciEngineActive(uciEngineActive);
 
-		Game chessGame = (Game) get(KEY.CHESSGAME);
-
-		if (chessGame.getWhitePlayer().getChessClock().isSuspended()) {
-			chessGame.getWhitePlayer().getChessClock().resume();
-		}
-		if (chessGame.getBlackPlayer().getChessClock().isSuspended()) {
-			chessGame.getBlackPlayer().getChessClock().resume();
-		} 
 		return "redirect:/";
 	}
 
 	/**
-	 * Handles the POST request to update the settings. Applies the new settings and
-	 * reloads the game if necessary.
+	 * Handles POST requests to update settings for the UCI (Universal Chess
+	 * Interface) engine for both players.
+	 * <p>
+	 * This method accepts configuration parameters for the UCI engine specific to
+	 * the white and black players, including engine depth, thread count, hash size,
+	 * contempt factor, move overhead, Elo rating, and the selected engine for each
+	 * player. These parameters are passed to the helper to update the engine
+	 * settings accordingly.
+	 * </p>
 	 *
-	 * @param uciEngineActive   The new value for the UciEngine activation setting.
-	 * @param color             The selected color theme.
-	 * @param timeForEachPlayer The new time allocated for each player.
-	 * @param leftOffset        The new left offset for the chessboard.
-	 * @param squareSize        The new size for each square on the chessboard.
-	 * @param uciEngineDepth    The new depth for UciEngine analysis.
-	 * @return A redirect to the main view with updated settings.
-	 * @throws Exception If any error occurs during the update.
+	 * @param uciEngineDepthForWhite Depth of analysis for the white player’s UCI
+	 *                               engine.
+	 * @param threadsForWhite        Number of threads allocated to the white
+	 *                               player’s engine.
+	 * @param hashSizeForWhite       Hash size (in MB) for the white player’s engine
+	 *                               to use for caching.
+	 * @param contemptForWhite       Contempt factor for the white player’s engine,
+	 *                               influencing engine bias.
+	 * @param moveOverheadForWhite   Time overhead in milliseconds allocated to each
+	 *                               move for the white engine.
+	 * @param uciEloForWhite         Elo rating to be used as a strength setting for
+	 *                               the white player’s engine.
+	 * @param uciEngineDepthForBlack Depth of analysis for the black player’s UCI
+	 *                               engine.
+	 * @param threadsForBlack        Number of threads allocated to the black
+	 *                               player’s engine.
+	 * @param hashSizeForBlack       Hash size (in MB) for the black player’s engine
+	 *                               to use for caching.
+	 * @param contemptForBlack       Contempt factor for the black player’s engine,
+	 *                               influencing engine bias.
+	 * @param moveOverheadForBlack   Time overhead in milliseconds allocated to each
+	 *                               move for the black engine.
+	 * @param uciEloForBlack         Elo rating to be used as a strength setting for
+	 *                               the black player’s engine.
+	 * @param selectedEngineForWhite The engine selected for the white player.
+	 * @param selectedEngineForBlack The engine selected for the black player.
+	 * @return A redirect to the main view after the UCI engine settings have been
+	 *         updated.
+	 * @throws Exception if updating the UCI engine settings fails.
 	 */
 	@PostMapping("/uciEngine-settings")
 	protected String updateUciEngineSettings(@RequestParam int uciEngineDepthForWhite,
@@ -367,41 +496,41 @@ public class MainViewController extends ControllerTemplate {
 			@RequestParam int moveOverheadForBlack, @RequestParam int uciEloForBlack,
 			@RequestParam String selectedEngineForWhite, @RequestParam String selectedEngineForBlack) throws Exception {
 
-		helper.updateUciEngineSettings(uciEngineDepthForWhite,
-		threadsForWhite, hashSizeForWhite, contemptForWhite,
-		moveOverheadForWhite, uciEloForWhite,
-		uciEngineDepthForBlack, threadsForBlack,
-		hashSizeForBlack, contemptForBlack,
-		moveOverheadForBlack, uciEloForBlack,
-		selectedEngineForWhite, selectedEngineForBlack, this.playerEngines);
-		Game chessGame = (Game) get(KEY.CHESSGAME);
-		if (chessGame.getWhitePlayer().getChessClock().isSuspended()) {
-			chessGame.getWhitePlayer().getChessClock().resume();
-		}
-		if (chessGame.getBlackPlayer().getChessClock().isSuspended()) {
-			chessGame.getBlackPlayer().getChessClock().resume();
-		} 
+		helper.updateUciEngineSettings(uciEngineDepthForWhite, threadsForWhite, hashSizeForWhite, contemptForWhite,
+				moveOverheadForWhite, uciEloForWhite, uciEngineDepthForBlack, threadsForBlack, hashSizeForBlack,
+				contemptForBlack, moveOverheadForBlack, uciEloForBlack, selectedEngineForWhite, selectedEngineForBlack,
+				this.playerEngines);
 		return "redirect:/";
 	}
 
 	/**
-	 * Handles the POST request to update the settings. Applies the new settings and
-	 * reloads the game if necessary.
+	 * Updates the presentation settings for the chessboard view.
+	 * <p>
+	 * This method allows the client to configure settings related to the visual
+	 * appearance and animation of the chessboard, such as color, offset, and square
+	 * size.
+	 * </p>
 	 *
-	 * @param uciEngineActive   The new value for the UciEngine activation setting.
-	 * @param color             The selected color theme.
-	 * @param timeForEachPlayer The new time allocated for each player.
-	 * @param leftOffset        The new left offset for the chessboard.
-	 * @param squareSize        The new size for each square on the chessboard.
-	 * @param uciEngineDepth    The new depth for UciEngine analysis.
-	 * @return A redirect to the main view with updated settings.
-	 * @throws Exception If any error occurs during the update.
+	 * @param color                  The selected color theme for the chessboard.
+	 *                               The method will set this based on available
+	 *                               color values, defaulting to GREEN if the input
+	 *                               is invalid.
+	 * @param silent                 Whether the UI should operate in silent mode.
+	 *                               If true, audio or notifications are suppressed.
+	 * @param shortAlgebraicNotation Determines if short algebraic notation should
+	 *                               be used in displaying moves.
+	 * @param animationDuration      The duration of animations (e.g., for piece
+	 *                               movement) in milliseconds.
+	 * @param leftOffset             The left offset of the chessboard, in pixels.
+	 *                               This configures horizontal positioning.
+	 * @param squareSize             The size of each square on the chessboard, in
+	 *                               pixels.
+	 * @return A redirect to the main view with the updated presentation settings.
 	 */
 	@PostMapping("/presentationSettings")
 	protected String updatePresentationSettings(@RequestParam String color,
 			@RequestParam(defaultValue = "false") boolean silent,
-			@RequestParam(defaultValue = "false") boolean shortAlgebraicNotation,
-			@RequestParam int animationDuration,
+			@RequestParam(defaultValue = "false") boolean shortAlgebraicNotation, @RequestParam int animationDuration,
 			@RequestParam int leftOffset, @RequestParam int squareSize) {
 
 		viewConfig.setLeftOffset(leftOffset);
@@ -412,17 +541,14 @@ public class MainViewController extends ControllerTemplate {
 				.findFirst().orElse(Color.GREEN));
 		viewConfig.setAnimationDuration(animationDuration);
 
-		Game chessGame = (Game) get(KEY.CHESSGAME);
-
-		if (chessGame.getWhitePlayer().getChessClock().isSuspended()) {
-			chessGame.getWhitePlayer().getChessClock().resume();
-		}
-		if (chessGame.getBlackPlayer().getChessClock().isSuspended()) {
-			chessGame.getBlackPlayer().getChessClock().resume();
-		} 
 		return "redirect:/";
 	}
 
+	/**
+	 * Provides a logger instance specific to this controller.
+	 *
+	 * @return the logger for this controller
+	 */
 	@Override
 	protected Logger getLogger() {
 		return logger;

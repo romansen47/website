@@ -11,62 +11,131 @@ import demo.chess.definitions.engines.Engine;
  */
 public class ViewConfig implements Config {
 
-	// presets
-	private Color color = Color.GREEN;
-	private boolean showArrows = false;
-	private boolean showEvaluation = false;
-	private boolean showUciEngineLines = false;
-	private boolean silent = false;
+    /** Default color theme for the chessboard. */
+    private Color color = Color.GREEN;
 
-	private boolean shortAlgebraicNotation = true;
+    /** Indicates whether arrows should be shown for moves on the board. */
+    private boolean showArrows = false;
 
-	private boolean uciEngineActive = true;
-	private int timeForEachPlayer = 300;
-	private int incrementForWhite = 2;
-	private int incrementForBlack = 2;
-	private int additionalTime = 0;
-	private int updateIntervall = 1;
-	private int animationDuration = 100;
+    /** Indicates whether evaluation scores should be displayed on the board. */
+    private boolean showEvaluation = false;
 
-	private String evaluationEngine = Engine.STOCKFISH_16.toString();
-	private String playerEngineForWhite = Engine.STOCKFISH_16.toString();
-	private String playerEngineForBlack = Engine.STOCKFISH_16.toString();
+    /** Indicates whether lines from the UCI engine's suggestions should be shown. */
+    private boolean showUciEngineLines = false;
 
-	private int uciEngineDepthForEvaluationEngine = 10;
-	private int multiPVForEvaluationEngine = 3;
+    /** If true, disables sound effects in the application. */
+    private boolean silent = false;
 
-	private int uciEngineDepthForWhite = 0;
-	private int uciEngineDepthForBlack = 0;
+    /** Determines if the board displays moves using short algebraic notation. */
+    private boolean shortAlgebraicNotation = true;
 
-	private int threadsForWhite = 1;
-	private int hashSizeForWhite = 1024;
-	private int contemptForWhite = 99;
-	private int moveOverheadForWhite = 0;
-	private int uciEloForWhite = 0;
+    /** Activates or deactivates the UCI engine in the application. */
+    private boolean uciEngineActive = true;
 
-	private int threadsForBlack = 1;
-	private int hashSizeForBlack = 1024;
-	private int contemptForBlack = 99;
-	private int moveOverheadForBlack = 0;
-	private int uciEloForBlack = 0;
+    /** The total time allocated for each player in seconds. */
+    private int timeForEachPlayer = 300;
 
-	private int leftOffset = 450;
-	private int squareSize = 65;
-	private int topBarHeight = 40;
-	private int moveListWidth = 400;
+    /** Increment in seconds added to the white player’s clock after each move. */
+    private int incrementForWhite = 2;
 
-	private int evalWidth;
+    /** Increment in seconds added to the black player’s clock after each move. */
+    private int incrementForBlack = 2;
 
-	private int chessBoardOffset;
-	private int uciEngineMoveListTop;
-	private int uciEngineMoveListLeft;
-	private int clockSize;
+    /** Additional time in seconds given to each player at the start of the game. */
+    private int additionalTime = 0;
 
-	private int moveListTop;
-	private int moveListLeft;
+    /** Interval in seconds at which the UCI engine updates its evaluation. */
+    private int updateIntervall = 1;
 
-	private boolean isFlipped = false;
+    /** Duration in milliseconds for animations, such as piece movements. */
+    private int animationDuration = 100;
 
+    /** Specifies the name of the engine used for evaluation purposes. */
+    private String evaluationEngine = Engine.STOCKFISH_16.toString();
+
+    /** Specifies the UCI engine for the white player. */
+    private String playerEngineForWhite = Engine.STOCKFISH_16.toString();
+
+    /** Specifies the UCI engine for the black player. */
+    private String playerEngineForBlack = Engine.STOCKFISH_16.toString();
+
+    /** Depth setting for the evaluation engine’s analysis. */
+    private int uciEngineDepthForEvaluationEngine = 10;
+
+    /** MultiPV setting for the evaluation engine, determining how many top moves to analyze. */
+    private int multiPVForEvaluationEngine = 3;
+
+    /** Depth setting for the UCI engine’s analysis for the white player. */
+    private int uciEngineDepthForWhite = 0;
+
+    /** Depth setting for the UCI engine’s analysis for the black player. */
+    private int uciEngineDepthForBlack = 0;
+
+    /** Number of threads used by the white player's engine. */
+    private int threadsForWhite = 1;
+
+    /** Hash size in MB allocated for the white player's engine. */
+    private int hashSizeForWhite = 1024;
+
+    /** Contempt factor for the white player's engine, influencing move selection. */
+    private int contemptForWhite = 99;
+
+    /** Milliseconds added as move overhead for the white player. */
+    private int moveOverheadForWhite = 0;
+
+    /** Elo rating setting for the white player's UCI engine. */
+    private int uciEloForWhite = 0;
+
+    /** Number of threads used by the black player's engine. */
+    private int threadsForBlack = 1;
+
+    /** Hash size in MB allocated for the black player's engine. */
+    private int hashSizeForBlack = 1024;
+
+    /** Contempt factor for the black player's engine, influencing move selection. */
+    private int contemptForBlack = 99;
+
+    /** Milliseconds added as move overhead for the black player. */
+    private int moveOverheadForBlack = 0;
+
+    /** Elo rating setting for the black player's UCI engine. */
+    private int uciEloForBlack = 0;
+
+    /** Left offset in pixels for positioning the chessboard on the screen. */
+    private int leftOffset = 450;
+
+    /** Size of each square on the chessboard in pixels. */
+    private int squareSize = 65;
+
+    /** Height of the top bar in pixels. */
+    private int topBarHeight = 40;
+
+    /** Width of the move list display area in pixels. */
+    private int moveListWidth = 400;
+
+    /** Width of the evaluation display area in pixels. */
+    private int evalWidth;
+
+    /** Vertical offset in pixels for positioning the chessboard. */
+    private int chessBoardOffset;
+
+    /** Vertical position in pixels for the UCI engine's move list. */
+    private int uciEngineMoveListTop;
+
+    /** Horizontal position in pixels for the UCI engine's move list. */
+    private int uciEngineMoveListLeft;
+
+    /** Size of the clocks displayed on the screen in pixels. */
+    private int clockSize;
+
+    /** Vertical position in pixels for the move list display. */
+    private int moveListTop;
+
+    /** Horizontal position in pixels for the move list display. */
+    private int moveListLeft;
+
+    /** If true, the board is flipped so the black side is at the bottom. */
+    private boolean isFlipped = false;
 
 	/**
 	 * @param evalWidth the evalWidth to set

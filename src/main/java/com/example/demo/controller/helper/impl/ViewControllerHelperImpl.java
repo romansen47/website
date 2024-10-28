@@ -28,19 +28,30 @@ import demo.chess.definitions.states.State;
 import demo.chess.game.Game;
 import demo.chess.save.GameSaver;
 
+/**
+ * The `ViewControllerHelperImpl` class implements the `ViewControllerHelper` interface,
+ * offering methods to set up and manage the visual representation and configuration
+ * of a chess game within the application. This component is responsible for synchronizing
+ * the frontend model with backend game data, allowing efficient updates to the user interface.
+ *
+ * Key functionalities provided by this helper class include:
+ * - Configuring the chessboard and related UI elements (like evaluation bars, clocks, and move lists).
+ * - Managing engine configurations for players and evaluation engines.
+ * - Creating and displaying pieces and fields based on the game state and user settings.
+ * - Setting up shutdown hooks for engines to ensure proper resource management.
+ * - Implementing and managing clocks with increment options and game-over messages.
+ * - Saving and loading games to/from external storage.
+ *
+ * This helper utilizes the `ChessHelper` superclass for common chess operations,
+ * and integrates settings from the `viewConfig` to control various UI parameters.
+ * It also interacts with the WebSocket service for real-time UI updates.
+ */
 @Component
 public class ViewControllerHelperImpl extends ChessHelper  implements ViewControllerHelper {
 
+	/** Logger instance for capturing error details related to this exception. */
 	protected static final Logger logger = LogManager.getLogger();
 
-	/**
-	 * Adds attributes to the model for rendering the chessboard view.
-	 *
-	 * @param color           the color theme for the chessboard
-	 * @param whiteTimeString the time left for the white player in "MM:SS" format
-	 * @param blackTimeString the time left for the black player in "MM:SS" format
-	 * @param model           the model to add attributes to
-	 */
 	@Override
 	public void addModelAttributes(String color, String whiteTimeString, String blackTimeString, Model model) {
 
@@ -137,7 +148,6 @@ public class ViewControllerHelperImpl extends ChessHelper  implements ViewContro
 	@Override
 	public void setUnsetViewVariables(EvaluationEngine evaluationEngine) {
 
-
 		put(KEY.UCI_ENGINE_EVALUATION, 0.5d);
 		put(KEY.REGULAR, !viewConfig.getIsFlipped());
 		put(KEY.ENGINE_CONFIG_EVAL, new UciEngineConfig());
@@ -167,12 +177,8 @@ public class ViewControllerHelperImpl extends ChessHelper  implements ViewContro
 		int uciEngineMoveListLeft = 8 * squareSize + leftOffset + evalWidth + chessBoardOffset;
 		viewConfig.setUciEngineMoveListLeft(uciEngineMoveListLeft);
 
-		int captureContainerHeight = 4 * squareSize;
-
 		((EngineConfig) get(KEY.ENGINE_CONFIG_EVAL)).setDepth(viewConfig.getUciEngineDepthForEvaluationEngine());
 
-//		((List<DisplayedPiece>) get(KEY.ELEMENTS)).clear();
-//		((List<DisplayedField>) get(KEY.FIELDS)).clear();
 	}
 
 	@Override
@@ -238,7 +244,10 @@ public class ViewControllerHelperImpl extends ChessHelper  implements ViewContro
 	public void createShutdownHooks(Map<String, ? extends ChessEngine> engines) {
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
 			engines.entrySet().forEach(entry -> {
-				logger.info("Shutting down evaluation engine {}", entry.getValue());
+				String type = entry.getValue() instanceof EvaluationEngine ? "evaluation" : "player";
+				if (entry.getValue() instanceof EvaluationEngine) {
+					logger.info("Shutting down {} engine {}", type, entry.getValue());
+				}
 				entry.getValue().close();
 			});
 		}));
@@ -269,7 +278,7 @@ public class ViewControllerHelperImpl extends ChessHelper  implements ViewContro
 					}
 					webSocketService.sendMessage("Black lost on time!");
 				});
-	} 
+	}
 
 	@Override
 	public void saveGame(String path, Game chessGame) throws IOException {
@@ -283,7 +292,7 @@ public class ViewControllerHelperImpl extends ChessHelper  implements ViewContro
 			int threadsForBlack, int hashSizeForBlack, int contemptForBlack, int moveOverheadForBlack,
 			int uciEloForBlack, String selectedEngineForWhite, String selectedEngineForBlack, Map<String, PlayerEngine> playerEngines) {
 
-		
+
 		put(KEY.PLAYER_ENGINE_FOR_WHITE, playerEngines.get(selectedEngineForWhite));
 		viewConfig.setPlayerEngineForWhite(selectedEngineForWhite);
 
@@ -327,8 +336,5 @@ public class ViewControllerHelperImpl extends ChessHelper  implements ViewContro
 		viewConfig.setUciEngineDepthForBlack(uciEngineDepthForBlack);
 		((EngineConfig) get(KEY.ENGINE_CONFIG_FOR_BLACK)).setDepth(uciEngineDepthForBlack);
 
-		
 	}
-
-
 }

@@ -38,8 +38,18 @@ import demo.chess.game.impl.ChessGame;
 /**
  * Main application class for the Chess application.
  * <p>
- * This class initializes the Spring Boot application and provides configuration
- * beans.
+ * The `App` class serves as the entry point for the chess application. It
+ * extends `ChessAdmin` and implements `AppAdmin`, allowing it to provide
+ * essential services and beans for managing chess games, configuring view
+ * settings, and initializing chess engines.
+ * </p>
+ *
+ * <p>
+ * This class configures the Spring Boot application and provides a range of
+ * beans for application-wide use, including template resolvers, chess game
+ * instances, and UCI chess engines. It ensures the application's configuration
+ * is managed in a modular, Spring-compliant way, supporting the application's
+ * view, logic, and chess game instances.
  * </p>
  */
 @SpringBootApplication
@@ -48,15 +58,22 @@ public class App extends ChessAdmin implements AppAdmin {
 	private static final Logger logger = LogManager.getLogger(App.class);
 
 	/**
-	 * Bean for the view configuration.
+	 * Bean for the view configuration, providing display and layout settings
+	 * for the application's views.
 	 *
-	 * @return a new instance of {@link ViewConfig}
+	 * @return a new instance of {@link ViewConfig} that holds view configuration data
 	 */
 	@Bean
 	public Config viewConfig() {
 		return new ViewConfig();
 	}
 
+	/**
+	 * Bean to resolve templates for Thymeleaf. Configures the template resolver with
+	 * the template path, suffix, mode, and caching settings.
+	 *
+	 * @return a {@link SpringResourceTemplateResolver} for Thymeleaf templates
+	 */
 	@Bean
 	public SpringResourceTemplateResolver templateResolver() {
 		SpringResourceTemplateResolver templateResolver = new SpringResourceTemplateResolver();
@@ -67,6 +84,12 @@ public class App extends ChessAdmin implements AppAdmin {
 		return templateResolver;
 	}
 
+	/**
+	 * Bean for the Thymeleaf template engine. Sets the previously defined
+	 * template resolver and enables Spring EL compiler support.
+	 *
+	 * @return a configured {@link SpringTemplateEngine} instance
+	 */
 	@Bean
 	public SpringTemplateEngine templateEngine() {
 		SpringTemplateEngine templateEngine = new SpringTemplateEngine();
@@ -75,6 +98,13 @@ public class App extends ChessAdmin implements AppAdmin {
 		return templateEngine;
 	}
 
+	/**
+	 * Bean for configuring the Thymeleaf view resolver. It binds the
+	 * Thymeleaf template engine to the view resolver and sets its order
+	 * of execution.
+	 *
+	 * @return a {@link ThymeleafViewResolver} for rendering views
+	 */
 	@Bean
 	public ThymeleafViewResolver viewResolver() {
 		ThymeleafViewResolver viewResolver = new ThymeleafViewResolver();
@@ -84,7 +114,7 @@ public class App extends ChessAdmin implements AppAdmin {
 	}
 
 	/**
-	 * Main method to run the Spring Boot application.
+	 * Main method to start the Spring Boot application.
 	 *
 	 * @param args command line arguments
 	 */
@@ -92,6 +122,15 @@ public class App extends ChessAdmin implements AppAdmin {
 		SpringApplication.run(App.class, args);
 	}
 
+	/**
+	 * Bean for creating a new chess game instance. Configures the chess game with
+	 * the specified time, players, and chess board, and returns it for use in
+	 * gameplay and simulation.
+	 *
+	 * @param time the time control setting for the game
+	 * @return a new {@link ChessGame} instance
+	 * @throws Exception if an error occurs during game initialization
+	 */
 	@Override
 	@Bean
 	@Scope("prototype")
@@ -101,6 +140,13 @@ public class App extends ChessAdmin implements AppAdmin {
 				new BlackPlayerImpl(moveList, "ChessGame"), moveList, this, time);
 	}
 
+	/**
+	 * Bean to initialize and provide application attributes. Populates the
+	 * attribute map with essential data like elements and fields, allowing
+	 * components across the application to store and retrieve attribute values.
+	 *
+	 * @return a new {@link Attributes} instance containing initial attribute data
+	 */
 	@Bean(name = "attributes")
 	@Override
 	public Attributes attributes() {
@@ -110,6 +156,13 @@ public class App extends ChessAdmin implements AppAdmin {
 		return attributes;
 	}
 
+	/**
+	 * Bean for configuring and providing evaluation engines. Each engine in
+	 * {@link Engine} is instantiated and added to a map, allowing the application
+	 * to retrieve and use different evaluation engines for move analysis.
+	 *
+	 * @return a map of engine names to their respective {@link EvaluationEngine} instances
+	 */
 	@Bean
 	@Override
 	public Map<String, EvaluationEngine> evaluationEngines() {
@@ -123,12 +176,19 @@ public class App extends ChessAdmin implements AppAdmin {
 					}
 				});
 			} catch (Exception e) {
-				logger.info("Failed to create player engine {}", engine);
+				logger.info("Failed to create evaluation engine {}", engine);
 			}
 		}
 		return engines;
 	}
 
+	/**
+	 * Bean for configuring and providing player engines. Each engine in
+	 * {@link Engine} is instantiated and added to a map, allowing the application
+	 * to retrieve and use different player engines for simulating AI moves.
+	 *
+	 * @return a map of engine names to their respective {@link PlayerEngine} instances
+	 */
 	@Bean
 	@Override
 	public Map<String, PlayerEngine> playerEngines() {
