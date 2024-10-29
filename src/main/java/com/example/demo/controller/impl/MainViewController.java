@@ -201,6 +201,8 @@ public class MainViewController extends ControllerTemplate {
 	 * @return A redirect URL indicating the board reset status.
 	 * @throws Exception if game start fails
 	 */
+	@PostMapping("/reset-board")
+	@ResponseBody
 	protected String startNewGame(@RequestBody Map<String, Object> params) throws Exception {
 
 		Game chessGame = (Game) get(KEY.CHESSGAME);
