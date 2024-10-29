@@ -217,7 +217,8 @@ public abstract class ControllerTemplate implements ChessController {
 			}
 			if (chessGame.getBlackPlayer().getChessClock().isStarted()) {
 				chessGame.getBlackPlayer().getChessClock().stop();
-			}
+			} 
+			evaluationEngines.entrySet().stream().forEach(entry -> entry.getValue().clearChachedLines());
 		}
 		chessGame = admin.chessGame(viewConfig.getTimeForEachPlayer());
 		put(KEY.CHESSGAME, chessGame);
