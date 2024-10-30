@@ -111,7 +111,7 @@ public class ViewConfig implements Config {
     private int topBarHeight = 40;
 
     /** Width of the move list display area in pixels. */
-    private int moveListWidth = 400;
+    private int moveListWidth = 250;
 
     /** Width of the evaluation display area in pixels. */
     private int evalWidth;

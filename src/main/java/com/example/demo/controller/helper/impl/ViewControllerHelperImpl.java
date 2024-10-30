@@ -103,8 +103,6 @@ public class ViewControllerHelperImpl extends ChessHelper  implements ViewContro
 
 		model.addAttribute("clockHeight", viewConfig.getClockSize());
 		model.addAttribute("clockFontSize", viewConfig.getClockSize() / 2);
-
-		model.addAttribute("positionsAsStrings", get(KEY.POSITIONS_AS_STRINGS));
 		
 		setupEngineConfigurations();
 
@@ -138,6 +136,8 @@ public class ViewControllerHelperImpl extends ChessHelper  implements ViewContro
 
 		int moveListTop = topBarHeight;
 		viewConfig.setMoveListTop(moveListTop);
+		
+		viewConfig.setUciEngineMoveListTop(moveListTop);
 
 		int uciEngineMoveListLeft = 8 * squareSize + leftOffset + evalWidth + chessBoardOffset;
 		viewConfig.setUciEngineMoveListLeft(uciEngineMoveListLeft);

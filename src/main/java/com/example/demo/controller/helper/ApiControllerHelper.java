@@ -6,6 +6,7 @@ import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Component;
 
+import demo.chess.definitions.engines.EngineConfig;
 import demo.chess.definitions.engines.EvaluationEngine;
 import demo.chess.definitions.engines.impl.NoMoveFoundException;
 import demo.chess.definitions.fields.Field;
@@ -156,4 +157,6 @@ public interface ApiControllerHelper {
      * @return True if human interaction is allowed; false otherwise.
      */
     boolean isHumanAlowedToInteract(Game chessGame, boolean uciEngineActive);
+
+	String createToolTipForConfig(EngineConfig config);
 }

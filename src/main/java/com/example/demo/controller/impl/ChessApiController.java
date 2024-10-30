@@ -566,6 +566,51 @@ public class ChessApiController extends ControllerTemplate {
 	}
 
 	/**
+	 * Handles GET requests to retrieve the players
+	 *
+	 * @return The current players
+	 * @throws IOException if s.t. goes wrong
+	 * @throws NoMoveFoundException if no move is found
+	 */
+	@GetMapping("/getPlayers")
+	@ResponseBody
+	public ChessApiResponse<Map<String, String>> getPlayers() throws NoMoveFoundException, IOException {
+		Map<String, String> players = new HashMap<>();
+		if (!((Boolean) get(KEY.ENGINE_MATCH))) {
+			if (((Boolean) get(KEY.REGULAR))){
+				players.put("white", "Player");
+				players.put("whitetooltip", "The human player");
+				players.put("black", get(KEY.PLAYER_ENGINE_FOR_BLACK).toString());
+				players.put("blacktooltip", helper.createToolTipForConfig((EngineConfig) get(KEY.ENGINE_CONFIG_FOR_BLACK)));
+			} else {
+				players.put("black", "Player");
+				players.put("blacktooltip", "The human player");
+				players.put("white", get(KEY.PLAYER_ENGINE_FOR_WHITE).toString()); 
+				players.put("whitetooltip", helper.createToolTipForConfig((EngineConfig) get(KEY.ENGINE_CONFIG_FOR_WHITE)));
+			}
+		} else { 
+			players.put("white", get(KEY.PLAYER_ENGINE_FOR_WHITE).toString());
+			players.put("whitetooltip", helper.createToolTipForConfig((EngineConfig) get(KEY.ENGINE_CONFIG_FOR_WHITE)));
+			players.put("black", get(KEY.PLAYER_ENGINE_FOR_BLACK).toString());
+			players.put("blacktooltip", helper.createToolTipForConfig((EngineConfig) get(KEY.ENGINE_CONFIG_FOR_BLACK)));
+		}
+	    return new ChessApiResponse<>(true, players);
+	}
+	
+	/**
+	 * Handles GET requests to retrieve the players
+	 *
+	 * @return The current players
+	 * @throws IOException if s.t. goes wrong
+	 * @throws NoMoveFoundException if no move is found
+	 */
+	@GetMapping("/getPositionStrings")
+	@ResponseBody
+	public ChessApiResponse<List<String>> getPositionStrings() throws NoMoveFoundException, IOException {
+	    return new ChessApiResponse<>(true, (List<String>)get(KEY.POSITIONS_AS_STRINGS));
+	}
+	
+	/**
 	 * Handles GET requests to retrieve the list of moves made during the game.
 	 *
 	 * @return A list of strings representing the moves.
@@ -826,8 +871,7 @@ public class ChessApiController extends ControllerTemplate {
 		this.webSocketService.updateClocks();
 		this.webSocketService.updateMoveList();
 		String positionAsString = createPositionAsString(chessGame);
-		((List<String>) get(KEY.POSITIONS_AS_STRINGS)).add(positionAsString);
-		this.webSocketService.sendPositionString(positionAsString);
+		((List<String>) get(KEY.POSITIONS_AS_STRINGS)).add(positionAsString); 
 	}
 	
 	/**

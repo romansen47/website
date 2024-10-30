@@ -251,6 +251,17 @@ public class ApiControllerHelperImpl extends ChessHelper implements ApiControlle
 	}
 
 	@Override
+	public String createToolTipForConfig(EngineConfig config) {
+		String tooltip = 	"Depth: " + config.getDepth() + "\n" +
+							"Contempt: " + config.getContempt() + "\n" + 
+							"Hashsize: " + config.getHashSize() + "\n" + 
+							"Threads: " + config.getThreads() + "\n" +
+							"UCI Elo: " + config.getUciElo() + "\n" +
+							"MultiPV: " + config.getMultiPV();
+		return tooltip;
+	}
+
+	@Override
 	public String reset() throws Exception {
 		return "redirect:/";
 	}
@@ -263,5 +274,4 @@ public class ApiControllerHelperImpl extends ChessHelper implements ApiControlle
 		}
 		return true;
 	}
-
 }

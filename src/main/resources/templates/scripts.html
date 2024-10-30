@@ -2,7 +2,6 @@
     document.addEventListener('DOMContentLoaded', function () {
 		
     	var protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    	var positionStringsList = [[${positionsAsStrings}]];
 		var socket = new WebSocket(protocol + '//' + window.location.host + '/ws');
 		socket.onopen = function () {
 		    console.log('WebSocket connection established');
@@ -24,11 +23,7 @@
 		    	getUciEngineMove(); 
 		    } else if(event.data.startsWith('MOVELIST')) {
 		    	loadMoveList(); 
-		    } else if (event.data.startsWith('POSITION')) {
-		        const positionString = event.data.substring(8);
-		        positionStringsList.push(positionString);
-		        console.log("Added new position to positionStringsList:", positionString);
-		    }
+		    } 
 		};
 		
 		socket.onclose = function () {
@@ -568,7 +563,7 @@
                     document.removeEventListener('mousemove', onMouseMove);
                     document.onmouseup = null;
 
-                    fetch(updatePositionUrl, {
+                    fetch("/api/game" + updatePositionUrl, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/x-www-form-urlencoded'
@@ -586,48 +581,153 @@
                 return false;
             };
         }
-        
-        function loadMoveList() {
-            fetch('/api/game/moveList')
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        const moveList = document.getElementById('moveList');
-                        moveList.innerHTML = '';
 
-                        data.data.forEach((move, index) => {
-                            const moveItem = document.createElement('div');
-                            moveItem.classList.add('move-item'); // Nur für reguläre Liste beibehalten
-                            moveItem.setAttribute('data-move-index', index);
-                            moveItem.textContent = move;
+    	
+    	
+    	function loadMoveList() {
+    		var positionStrings;
+    		var whitePlayer = "Player";
+        	var whitePlayerToolTip = "";
+        	var blackPlayer = "STOCKFISH_16";
+        	var blackPlayerToolTip = "";
+    	    fetch('/api/game/getPlayers', {
+    	        method: 'GET'
+    	    })
+    	    .then(response => {
+    	        if (!response.ok) {
+    	            throw new Error(`HTTP error! Status: ${response.status}`);
+    	        }
+    	        return response.json();
+    	    })
+    	    .then(playerData => {
+    	        whitePlayer = playerData.data.white;
+    	        whitePlayerToolTip = playerData.data.whitetooltip;
+    	        blackPlayer = playerData.data.black;
+    	        blackPlayerToolTip = playerData.data.blacktooltip;
+    	        console.log("White Player:", whitePlayer, "White Player ToolTip:", whitePlayerToolTip, "Black Player:", blackPlayer, "Black Player ToolTip:", blackPlayerToolTip);
 
-                            moveList.appendChild(moveItem);
+    	        return fetch('/api/game/getPositionStrings', {
+    	            method: 'GET'
+    	        });
+    	    })
+    	    .then(response => {
+    	        if (!response.ok) {
+    	            throw new Error(`HTTP error! Status: ${response.status}`);
+    	        }
+    	        return response.json();
+    	    })
+    	    .then(positionData => {
+    	        positionStrings = positionData.data;
 
-                            // Hover für Vorschau
-                            moveItem.addEventListener('mouseenter', function () {
-                                hoverTimeout = setTimeout(() => {
-                                    const positionString = getPositionStringByIndex(index);
-                                    displayHoveringChessboard(positionString);
+    	        return fetch('/api/game/moveList');
+    	    })
+    	    .then(response => response.json())
+    	    .then(moveData => {
+    	        if (moveData.success) {
+    	            const moveList = document.getElementById('moveList');
+    	            moveList.innerHTML = '';
 
-                                    moveItem.addEventListener('mousemove', function (e) {
-                                        const hoveringChessboard = document.getElementById('hoveringChessboard');
-                                        hoveringChessboard.style.left = `${e.pageX + 20}px`;
-                                        hoveringChessboard.style.top = `${e.pageY + 20}px`;
-                                    });
-                                }, 1000); // 1 Sekunde Verzögerung
-                            });
+    	            // Spieler-Header erstellen
+    	            const headerRow = document.createElement('div');
+    	            headerRow.classList.add('move-list-header');
+    	            headerRow.style.display = 'flex';
+    	            headerRow.style.justifyContent = 'space-between';
+    	            headerRow.style.marginBottom = '10px';
 
-                            moveItem.addEventListener('mouseleave', function () {
-                                clearTimeout(hoverTimeout);
-                                document.getElementById('hoveringChessboard').style.display = 'none';
-                            });
-                        });
-                    } else {
-                        console.error('Error loading move list:', data.message);
-                    }
-                })
-                .catch(error => console.error('Error loading move list:', error));
-        }
+    	            const whitePlayerName = document.createElement('div');
+    	            whitePlayerName.classList.add('player-name', 'white-player');
+    	            whitePlayerName.style.fontWeight = 'bold';
+    	            whitePlayerName.textContent = whitePlayer;
+    	            whitePlayerName.title = whitePlayerToolTip;
+    	            headerRow.appendChild(whitePlayerName);
+
+    	            const blackPlayerName = document.createElement('div');
+    	            blackPlayerName.classList.add('player-name', 'black-player');
+    	            blackPlayerName.style.fontWeight = 'bold';
+    	            blackPlayerName.textContent = blackPlayer;
+    	            blackPlayerName.title = blackPlayerToolTip;
+    	            headerRow.appendChild(blackPlayerName);
+
+    	            moveList.appendChild(headerRow);
+
+    	            const divider = document.createElement('hr');
+    	            divider.style.border = '1px solid #ccc';
+    	            divider.style.margin = '5px 0 10px';
+    	            moveList.appendChild(divider);
+
+    	            // Zugliste erstellen
+    	            moveData.data.forEach((move, index) => {
+    	                if (index % 2 === 0) {
+    	                    const moveRow = document.createElement('div');
+    	                    moveRow.classList.add('move-row');
+    	                    moveRow.style.display = 'flex';
+    	                    moveRow.style.gap = '10px';
+
+    	                    const moveNumber = document.createElement('span');
+    	                    moveNumber.classList.add('move-number');
+    	                    moveNumber.textContent = `${Math.floor(index / 2) + 1}.`;
+    	                    moveNumber.style.fontWeight = 'bold';
+    	                    moveNumber.style.width = '30px';
+    	                    moveRow.appendChild(moveNumber);
+
+    	                    const moveWhite = document.createElement('span');
+    	                    moveWhite.classList.add('move');
+    	                    moveWhite.textContent = move;
+    	                    moveRow.appendChild(moveWhite);
+
+    	                    const showPreview = (event, positionString) => {
+    	                        const hoveringChessboard = document.getElementById('hoveringChessboard');
+    	                        hoveringChessboard.style.left = `${event.pageX + 20}px`;
+    	                        hoveringChessboard.style.top = `${event.pageY + 20}px`;
+    	                        displayHoveringChessboard(positionString);
+    	                    };
+
+    	                    moveWhite.addEventListener('mouseenter', function (e) {
+    	                        const positionString = positionStrings[index];
+    	                        hoverTimeout = setTimeout(() => {
+    	                            showPreview(e, positionString);
+    	                            moveWhite.addEventListener('mousemove', (event) => showPreview(event, positionString));
+    	                        }, 250);
+    	                    });
+
+    	                    moveWhite.addEventListener('mouseleave', function () {
+    	                        clearTimeout(hoverTimeout);
+    	                        document.getElementById('hoveringChessboard').style.display = 'none';
+    	                        moveWhite.removeEventListener('mousemove', showPreview);
+    	                    });
+
+    	                    if (moveData.data[index + 1]) {
+    	                        const moveBlack = document.createElement('span');
+    	                        moveBlack.classList.add('move');
+    	                        moveBlack.textContent = moveData.data[index + 1];
+    	                        moveRow.appendChild(moveBlack);
+
+    	                        moveBlack.addEventListener('mouseenter', function (e) {
+    	                            const positionString = positionStrings[index + 1];
+    	                            hoverTimeout = setTimeout(() => {
+    	                                showPreview(e, positionString);
+    	                                moveBlack.addEventListener('mousemove', (event) => showPreview(event, positionString));
+    	                            }, 250);
+    	                        });
+
+    	                        moveBlack.addEventListener('mouseleave', function () {
+    	                            clearTimeout(hoverTimeout);
+    	                            document.getElementById('hoveringChessboard').style.display = 'none';
+    	                            moveBlack.removeEventListener('mousemove', showPreview);
+    	                        });
+    	                    }
+
+    	                    moveList.appendChild(moveRow);
+    	                }
+    	            });
+    	        } else {
+    	            console.error('Error loading move list:', moveData.message);
+    	        }
+    	    })
+    	    .catch(error => console.error('Error in loadMoveList:', error));
+    	}
+
+
 
         const pieceImagePaths = {
         	    'P': '/white_pawn.png',
@@ -644,12 +744,12 @@
         	    'k': '/black_king.png',
         }
         
-        function getPositionStringByIndex(index) {
+        function getPositionStringByIndex(positionStringsList, index) {
             return positionStringsList[index];
         }
 
 		function highlightBestMove() {
-		    const moves = document.querySelectorAll('.uciEngine-move-list .move-item');
+		    const moves = document.querySelectorAll('.uciEngine-move-list .uci-move-item');
 		    if (moves.length > 0) {
 		        moves.forEach(move => {
 		            move.style.backgroundColor = ''; 
@@ -926,7 +1026,7 @@
 
 		// Event Listener für Hover auf Zug-Elemente in der Liste
 		document.querySelectorAll('.move-item').forEach((moveItem) => {
-		    const index = moveItem.getAttribute('data-move-index'); // Index aus Attribut lesen
+		    const index = moveItem.getAttribute('data-move-index');
 
 		    moveItem.addEventListener('mouseenter', function () {
 		        hoverTimeout = setTimeout(() => {
@@ -944,7 +1044,7 @@
 		                hoveringChessboard.style.left = `${e.pageX + 20}px`;
 		                hoveringChessboard.style.top = `${e.pageY + 20}px`;
 		            });
-		        }, 1000); // 1 Sekunde Verzögerung vor dem Anzeigen
+		        }, 250); // 1 Sekunde Verzögerung vor dem Anzeigen
 		    });
 
 		    // Hover-Schachbrett ausblenden, wenn die Maus das Zug-Element verlässt

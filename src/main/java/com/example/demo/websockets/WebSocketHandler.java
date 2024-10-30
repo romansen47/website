@@ -111,22 +111,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
         } else {
             logger.info("WebSocket session is not open or null.");
         }
-    }
-    
-    /**
-     * Sends the board position as a 64-character string representation to the client.
-     *
-     * @param positionString A 64-character string representing the current board state.
-     * @throws Exception if sending the message fails
-     */
-    public void sendPositionString(String positionString) throws Exception {
-        if (session != null && session.isOpen()) {
-            logger.info("Sending position string to WebSocket session ID: " + session.getId());
-            session.sendMessage(new TextMessage(WS_MESSAGE.POSITION.toString() + positionString));
-        } else {
-            logger.info("WebSocket session is not open or null.");
-        }
-    }
+    } 
 
     /**
      * Enumeration representing the types of WebSocket messages used for
@@ -163,10 +148,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
         /**
          * Updates the move list displayed in the client UI.
          */
-        MOVELIST,
-
-        /** Sends a 64-character string representation of the current board position. */
-        POSITION;
+        MOVELIST;
     }
 
 }
