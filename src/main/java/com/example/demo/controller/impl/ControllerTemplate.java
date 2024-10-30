@@ -222,6 +222,7 @@ public abstract class ControllerTemplate implements ChessController {
 		}
 		chessGame = admin.chessGame(viewConfig.getTimeForEachPlayer());
 		put(KEY.CHESSGAME, chessGame);
+		put(KEY.POSITIONS_AS_STRINGS, new ArrayList<>());
 		return chessGame;
 	}
 

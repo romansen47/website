@@ -43,6 +43,7 @@ import com.example.demo.model.DisplayedPiece;
 
 import demo.chess.definitions.Color;
 import demo.chess.definitions.PieceType;
+import demo.chess.definitions.board.Board;
 import demo.chess.definitions.engines.EngineConfig;
 import demo.chess.definitions.engines.PlayerEngine;
 import demo.chess.definitions.engines.impl.EvaluationUciEngine;
@@ -56,6 +57,7 @@ import demo.chess.definitions.moves.Promotion;
 import demo.chess.definitions.pieces.Piece;
 import demo.chess.definitions.pieces.impl.Rook;
 import demo.chess.game.Game;
+import demo.chess.definitions.fields.*;
 import demo.chess.save.GameSaver;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletResponse;
@@ -572,57 +574,10 @@ public class ChessApiController extends ControllerTemplate {
 	 */
 	@GetMapping("/moveList")
 	@ResponseBody
-	public ChessApiResponse<String> getMoveList() throws NoMoveFoundException, IOException {
-		Game chessGame = (Game) get(KEY.CHESSGAME);
-		List<Move> moves = chessGame.getMoveList();
-		StringBuilder moveListHtml = new StringBuilder();
-
-		String prefixWhite = viewConfig.getUciEngineDepthForWhite() == 0
-				? " (time " + viewConfig.getMoveOverheadForWhite() + "s)"
-				: " (depth " + viewConfig.getUciEngineDepthForWhite() + ")";
-		String prefixBlack = viewConfig.getUciEngineDepthForBlack() == 0
-				? " (time " + viewConfig.getMoveOverheadForBlack() + "s)"
-				: " (depth " + viewConfig.getUciEngineDepthForBlack() + ")";
-
-		if ((boolean) get(KEY.ENGINE_MATCH)) {
-			moveListHtml.append("<div><b>" + get(KEY.PLAYER_ENGINE_FOR_WHITE) + prefixWhite + "     vs     ")
-					.append(get(KEY.PLAYER_ENGINE_FOR_BLACK) + prefixBlack + "</b></div>");
-		} else if (!viewConfig.getIsFlipped()) {
-			moveListHtml.append("<div><b>Player    vs    " + get(KEY.PLAYER_ENGINE_FOR_BLACK) + prefixBlack + "</b></div>");
-		} else {
-			moveListHtml.append("<div><b>" + get(KEY.PLAYER_ENGINE_FOR_BLACK) + prefixWhite + "    vs   Player</b></div>");
-		}
-		moveListHtml.append("<hr/>");
-
-		for (int i = 0; i < moves.size(); i += 2) {
-			moveListHtml.append("<div style='display: flex;'>");
-
-			moveListHtml.append("<span style='width: 1px; display: inline-block; margin-left: 20px;'>")
-					.append(i / 2 + 1).append("</span>")
-					.append("<span style='width: 40px; display: inline-block; margin-left: 20px;'>").append(" : 	")
-					.append("</span>").append("<span style='width: 60px; display: inline-block;'>");
-			if (!viewConfig.isShortAlgebraicNotation()) {
-				moveListHtml.append(helper.getUnicodeSymbol(moves.get(i).getPiece())).append(" ");
-				moveListHtml.append(moves.get(i).toString()).append("</span>");
-			} else {
-				moveListHtml.append(chessGame.getSanMoveList().get(i));
-				moveListHtml.append("</span>");
-			}
-			if (i + 1 < moves.size()) {
-				if (!viewConfig.isShortAlgebraicNotation()) {
-					moveListHtml.append("<span style='width: 60px; display: inline-block; margin-left: 20px;'>")
-							.append(helper.getUnicodeSymbol(moves.get(i + 1).getPiece())).append(" 		")
-							.append(moves.get(i + 1).toString()).append("</span>");
-				} else {
-					moveListHtml.append("<span style='width: 60px; display: inline-block; margin-left: 20px;'>")
-							.append(chessGame.getSanMoveList().get(i + 1).toString()).append("</span>");
-				}
-			}
-
-			moveListHtml.append("</div>");
-		}
-
-		return new ChessApiResponse<>(true, moveListHtml.toString());
+	public ChessApiResponse<List<String>> getMoveList() throws NoMoveFoundException, IOException {
+	    Game chessGame = (Game) get(KEY.CHESSGAME);
+	    List<String> moves = chessGame.getSanMoveList();
+	    return new ChessApiResponse<>(true, moves);
 	}
 
 	/**
@@ -870,6 +825,58 @@ public class ChessApiController extends ControllerTemplate {
 		}
 		this.webSocketService.updateClocks();
 		this.webSocketService.updateMoveList();
+		String positionAsString = createPositionAsString(chessGame);
+		((List<String>) get(KEY.POSITIONS_AS_STRINGS)).add(positionAsString);
+		this.webSocketService.sendPositionString(positionAsString);
+	}
+	
+	/**
+	 * Creates a 64-character string representing the current state of the chessboard.
+	 * Each character corresponds to a square on the board, with pieces represented
+	 * by standard abbreviations (e.g., 'P' for white pawn, 'p' for black pawn).
+	 * Empty squares are represented by a placeholder character.
+	 *
+	 * @param chessGame The current chess game from which the board state is extracted.
+	 * @return A 64-character string representing the board state.
+	 */
+	private String createPositionAsString(Game chessGame) {
+	    StringBuilder boardString = new StringBuilder(64);
+	    Board board = chessGame.getChessBoard(); // Retrieve the board object
+
+	    for (int rank = 8; rank > 0; rank--) {  // Iterate over ranks from top (8) to bottom (1)
+	        for (int file = 1; file <= 8; file++) { // Iterate over files from left (a) to right (h)
+	            Field field = board.getField(file, rank); // Retrieve the field at (file, rank)
+	            Piece piece = field.getPiece();
+
+	            if (piece == null) {
+	                boardString.append('.'); // Placeholder for empty squares
+	            } else {
+	                boardString.append(getPieceRepresentation(piece));
+	            }
+	        }
+	    }
+	    return boardString.toString();
+	}
+
+	/**
+	 * Returns a single character representing the specified chess piece.
+	 * Uppercase letters denote white pieces, and lowercase letters denote black pieces.
+	 *
+	 * @param piece The piece to represent.
+	 * @return A single character representing the piece.
+	 */
+	private char getPieceRepresentation(Piece piece) {
+	    char representation;
+	    switch (piece.getType()) {
+	        case PAWN:   representation = 'P'; break;
+	        case KNIGHT: representation = 'N'; break;
+	        case BISHOP: representation = 'B'; break;
+	        case ROOK:   representation = 'R'; break;
+	        case QUEEN:  representation = 'Q'; break;
+	        case KING:   representation = 'K'; break;
+	        default:     representation = '.'; break;
+	    }
+	    return piece.getColor() == Color.BLACK ? Character.toLowerCase(representation) : representation;
 	}
 
 	/**

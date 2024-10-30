@@ -22,7 +22,8 @@
         <div class="whiteEval" th:if="${showEvaluation}" th:style="'height:' + ${heightOfWhiteEval} + 'px;top:' + ${chessboardOffsetY} + 'px;'"></div>
         <div class="blackEval" th:if="${showEvaluation}" th:style="'height:' + ${heightOfBlackEval} + 'px;top:' + ${chessboardOffsetY} + 'px;'"></div>
     </div>
-	
+    
+	<div id="hoveringChessboard" class="hovering_chessboard"></div>
 	<audio id="captureSound" src="/sounds/capture.mp3" preload="auto"></audio>
 	<audio id="moveSound" src="/sounds/move-self.mp3" preload="auto"></audio>
 	<audio id="notify" src="/sounds/notify.mp3" preload="auto"></audio>

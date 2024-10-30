@@ -88,4 +88,18 @@ public class WebSocketService {
             e.printStackTrace();
         }
     }
+    
+    /**
+     * Sends the current board position as a 64-character string to the client,
+     * allowing the client to render the specific chessboard state.
+     *
+     * @param positionString the 64-character string representing the board state
+     */
+    public void sendPositionString(String positionString) {
+        try {
+            webSocketHandler.sendPositionString(positionString);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }

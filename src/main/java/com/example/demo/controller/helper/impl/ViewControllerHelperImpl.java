@@ -104,45 +104,10 @@ public class ViewControllerHelperImpl extends ChessHelper  implements ViewContro
 		model.addAttribute("clockHeight", viewConfig.getClockSize());
 		model.addAttribute("clockFontSize", viewConfig.getClockSize() / 2);
 
+		model.addAttribute("positionsAsStrings", get(KEY.POSITIONS_AS_STRINGS));
+		
 		setupEngineConfigurations();
 
-	}
-
-	/**
-	 * Calculates the ratio for the evaluation bars based on the evaluation score.
-	 *
-	 * @param eval the evaluation score
-	 * @return the ratio for the evaluation bars
-	 */
-	public double getRatioEvalBars(double eval) {
-		double ans = 0.5 + Math.atan(Math.tan(Math.PI / 10d) * eval) / Math.PI;
-		return ans;
-	}
-
-	@Override
-	@SuppressWarnings("unchecked")
-	public void createNewFields() {
-		if ((boolean) get(KEY.REGULAR)) {
-			for (int file = 0; file < 8; file++) {
-				for (int row = 0; row < 8; row++) {
-					Color color = (row + file) % 2 == 0 ? Color.WHITE : Color.BLACK;
-					((List<DisplayedField>) get(KEY.FIELDS))
-							.add(new DisplayedChessField(color, viewConfig.getSquareSize(), viewConfig.getSquareSize(),
-									viewConfig.getSquareSize() * row, viewConfig.getSquareSize() * file,
-									((Game) get(KEY.CHESSGAME)).getChessBoard().getField(file + 1, 8 - row)));
-				}
-			}
-		} else {
-			for (int file = 0; file < 8; file++) {
-				for (int row = 0; row < 8; row++) {
-					Color color = (row + file) % 2 == 0 ? Color.WHITE : Color.BLACK;
-					((List<DisplayedField>) get(KEY.FIELDS))
-							.add(new DisplayedChessField(color, viewConfig.getSquareSize(), viewConfig.getSquareSize(),
-									viewConfig.getSquareSize() * (7 - row), viewConfig.getSquareSize() * (7 - file),
-									((Game) get(KEY.CHESSGAME)).getChessBoard().getField(file + 1, 8 - row)));
-				}
-			}
-		}
 	}
 
 	@Override
@@ -199,6 +164,43 @@ public class ViewControllerHelperImpl extends ChessHelper  implements ViewContro
 
 		((EngineConfig) get(KEY.ENGINE_CONFIG_EVAL)).setMultiPV(viewConfig.getMultiPVForEvaluationEngine());
 		((EngineConfig) get(KEY.ENGINE_CONFIG_EVAL)).setDepth(viewConfig.getUciEngineDepthForEvaluationEngine());
+	}
+	
+	/**
+	 * Calculates the ratio for the evaluation bars based on the evaluation score.
+	 *
+	 * @param eval the evaluation score
+	 * @return the ratio for the evaluation bars
+	 */
+	public double getRatioEvalBars(double eval) {
+		double ans = 0.5 + Math.atan(Math.tan(Math.PI / 10d) * eval) / Math.PI;
+		return ans;
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public void createNewFields() {
+		if ((boolean) get(KEY.REGULAR)) {
+			for (int file = 0; file < 8; file++) {
+				for (int row = 0; row < 8; row++) {
+					Color color = (row + file) % 2 == 0 ? Color.WHITE : Color.BLACK;
+					((List<DisplayedField>) get(KEY.FIELDS))
+							.add(new DisplayedChessField(color, viewConfig.getSquareSize(), viewConfig.getSquareSize(),
+									viewConfig.getSquareSize() * row, viewConfig.getSquareSize() * file,
+									((Game) get(KEY.CHESSGAME)).getChessBoard().getField(file + 1, 8 - row)));
+				}
+			}
+		} else {
+			for (int file = 0; file < 8; file++) {
+				for (int row = 0; row < 8; row++) {
+					Color color = (row + file) % 2 == 0 ? Color.WHITE : Color.BLACK;
+					((List<DisplayedField>) get(KEY.FIELDS))
+							.add(new DisplayedChessField(color, viewConfig.getSquareSize(), viewConfig.getSquareSize(),
+									viewConfig.getSquareSize() * (7 - row), viewConfig.getSquareSize() * (7 - file),
+									((Game) get(KEY.CHESSGAME)).getChessBoard().getField(file + 1, 8 - row)));
+				}
+			}
+		}
 	}
 
 	@SuppressWarnings("unchecked")

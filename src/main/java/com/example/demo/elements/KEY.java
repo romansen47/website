@@ -87,6 +87,11 @@ public enum KEY {
      * Stores a list of moves suggested by the UCI engine, useful for displaying potential
      * lines of play or best moves based on the engine's analysis.
      */
-    UCI_ENGINE_MOVELIST;
+    UCI_ENGINE_MOVELIST, 
+    
+    /**
+     * Stores a list of Strings used in frontend.
+     */
+    POSITIONS_AS_STRINGS;
 
 }

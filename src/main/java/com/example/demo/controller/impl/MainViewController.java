@@ -105,7 +105,6 @@ public class MainViewController extends ControllerTemplate {
 	 * @throws Exception if s.t. goes wrong
 	 */
 	@Override
-	@SuppressWarnings("unchecked")
 	public void setup() throws Exception {
 		super.setup();
 		final Game chessGame = getChessGame();
