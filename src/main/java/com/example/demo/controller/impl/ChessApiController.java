@@ -634,8 +634,52 @@ public class ChessApiController extends ControllerTemplate {
 	 */
 	@GetMapping("/uciEngineMoveList")
 	@ResponseBody
-	protected ChessApiResponse<List<String>> getStockFishMoveList() throws Exception {
-		return new ChessApiResponse<>(true, helper.getEvaluationEngineMoveList(this.getEvaluationEngine()));
+	protected synchronized ChessApiResponse<List<String>> getStockFishMoveList() throws Exception {
+		List<String> evalMoveList = helper.getEvaluationEngineMoveList(this.getEvaluationEngine());
+		List<String> evalSanMoveList = convertToSan(evalMoveList);
+		return new ChessApiResponse<>(true, evalSanMoveList);
+	}
+
+	private List<String> convertToSan(List<String> evalMoveList) throws Exception {
+		List<Move> chessGameMoveList = ((Game) get(KEY.CHESSGAME)).getMoveList(); 
+		List<String> sanMoveList = new ArrayList<>();
+		Game tmpGame;
+		Move moveToExecute;
+		try {
+			for (String moves:evalMoveList) {
+				String[] movesAsArray = moves.split(" ");
+				String prefix = movesAsArray[0] + " " + movesAsArray[1];
+				tmpGame = admin.chessGame(100000);
+				for (Move move:chessGameMoveList) {
+					moveToExecute = null;
+					for (Move tmpMove: tmpGame.getPlayer().getValidMoves(tmpGame)) {
+						if (tmpMove.toString().equals(move.toString())) {
+							moveToExecute = tmpMove;
+							break;
+						}
+					}
+					tmpGame.apply(moveToExecute);
+				}
+				for (int i = 2; i< movesAsArray.length; i++) {
+					moveToExecute = null;
+					for (Move tmpMove: tmpGame.getPlayer().getValidMoves(tmpGame)) {
+						if (tmpMove.toString().equals(movesAsArray[i])) {
+							moveToExecute = tmpMove;
+							break;
+						}
+					}
+					tmpGame.apply(moveToExecute);
+				}
+				String answer = "";
+				for (int i=chessGameMoveList.size(); i<tmpGame.getSanMoveList().size(); i++) {
+					answer += tmpGame.getSanMoveList().get(i) + " ";
+				}
+				sanMoveList.add(prefix + answer);
+			}
+		} catch(java.util.ConcurrentModificationException e) {
+			logger.debug("Abortet movelist transformation due to comodification");
+		}
+		return sanMoveList;
 	}
 
 	/**

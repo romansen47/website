@@ -35,20 +35,19 @@
         }
 
 		.info-popup-overlay {
-		    display: none; /* Standardmäßig ausgeblendet */
+		    display: none;
 		    position: fixed;
 		    top: 0;
 		    left: 0;
 		    width: 100%;
 		    height: 100%;
-		    background-color: rgba(0, 0, 0, 0.5); /* Halbtransparenter Hintergrund */
-		    z-index: 999; /* Hohe Priorität für das Popup */
+		    background-color: rgba(0, 0, 0, 0.5);
+		    z-index: 999;
 		    justify-content: center;
 		    align-items: center;
-		    display: flex; /* Zentriert den Inhalt */
+		    display: flex;
 		}
 		
-		/* Inhalt des Info Popups */
 		.info-popup-content {
 		    background-color: white;
 		    padding: 20px;
@@ -57,7 +56,6 @@
 		    text-align: center;
 		}
 		
-		/* OK-Button im Info Popup */
 		#infoOkButton {
 		    margin-top: 20px;
 		    padding: 10px 20px;
@@ -84,19 +82,19 @@
 		    align-items: center;
 		    z-index: 1000;
 		    height: [[${topBarHeight}]]px;
-		    gap: 2px; /* Fügt Abstand zwischen den Dropdown-Menüs hinzu */
+		    gap: 2px;
 		}
 
 		.dropbtn {
-		    background-color: #a3a3a3; /* Hintergrundfarbe der Schaltfläche */
+		    background-color: #a3a3a3;
 		    color: white;
 		    padding: 10px 16px;
 		    font-size: 16px;
 		    border: none;
 		    cursor: pointer;
-		    width: 150px; /* Feste Breite für die Schaltflächen */
+		    width: 150px;
 			height: [[${topBarHeight}]]px;
-		    text-align: center; /* Zentriert den Text */
+		    text-align: center;
 		}
 
 		.dropdown {
@@ -124,7 +122,7 @@
             text-decoration: none;
             display: block;
             text-align: center;
-            width: 100%; /* Volle Breite */
+            width: 100%;
             background: none;
             border: none;
             cursor: pointer;
@@ -146,7 +144,7 @@
         button {
             outline: none;
             border: none;
-            width: 100%; /* Nimmt die gesamte verfügbare Breite ein */
+            width: 100%;
         }
 
         button:focus {
@@ -172,7 +170,7 @@
         }
 
         .chessboard div.black {
-            background-color: [[${color}]]; /* Default color for black squares */
+            background-color: [[${color}]];
         }
 
         .chessboard div.highlight-white {
@@ -194,23 +192,23 @@
         .move-circle {
             position: absolute;
             border-radius: 50%;
-            background-color: rgba(160, 160, 180); /* Hellgraue Farbe */
+            background-color: rgba(160, 160, 180);
             z-index: 2;
-            pointer-events: none; /* Damit die Kreise keine Mausklicks abfangen */
-            transform: translate(-50%, -50%); /* Zentriert den Kreis */
+            pointer-events: none; 
+            transform: translate(-50%, -50%); 
         }
 
         .draggable {
             position: absolute;
             cursor: grab;
             z-index: 1;
-            transition: top 1s, left 1s; /* Transition-Eigenschaften für sanfte Bewegung */
+            transition: top 1s, left 1s; 
         }
 
         .captured {
-            pointer-events: none; /* Deaktiviert Klick-Ereignisse */
-            cursor: default; /* Zeigt den Standard-Cursor an */
-            opacity: 1; /* Sicherstellen, dass die Figur sichtbar bleibt */
+            pointer-events: none; 
+            cursor: default; 
+            opacity: 1; 
         }
 
         .settings {
@@ -230,7 +228,7 @@
             max-height: [[${chessboardSize}]]px;
             overflow-y: auto;
             box-shadow: 4px 8px 12px rgba(0, 0, 0, 0.7);
-            border: 2px solid #000; /* Schwarzer Rahmen */
+            border: 2px solid #000; 
             cursor: move;
             z-index: 5;
         }
@@ -244,7 +242,7 @@
             box-shadow: 4px 8px 12px rgba(0, 0, 0, 0.7);
             background-color: #faf8b4;
             border-radius: 5px;
-            border: 2px solid #000; /* Schwarzer Rahmen */
+            border: 2px solid #000; 
             cursor: move;
             width: [[${uciEngineMoveListWidth}]]px;
             z-index: 5;
@@ -253,30 +251,29 @@
         .uciEngine-move-list .uci-move-item {
             display: flex;
             justify-content: flex-start;
-            font-family: 'Courier New', Courier, monospace; /* Monospaced Schriftart */
+            font-family: 'Courier New', Courier, monospace; 
             margin-bottom: 5px;
         } 
 
         .uciEngine-move-list .evaluation {
-            font-weight: bold; /* Bewertung fett */
-            width: 50px; /* Feste Breite, damit alle Bewertungen gleich breit sind */
-            text-align: right; /* Rechtsbündige Ausrichtung für Bewertung */
+            font-weight: bold; 
+            width: 50px; 
+            text-align: right;
         }
 
         .uciEngine-move-list .colon {
-            width: 10px; /* Feste Breite für den Doppelpunkt */
-            text-align: center; /* Zentrierung des Doppelpunkts */
+            width: 10px;
+            text-align: center; 
         }
 
         .uciEngine-move-list .move {
-            margin-left: 5px; /* Abstand zwischen Doppelpunkt und Zug */
+            margin-left: 5px; 
         }
 
-        /* Strich nur nach der Überschrift */
         .uciEngine-move-list .uciEngine-header {
-            font-weight: bold; /* Bewertung fett */
-            padding-bottom: 10px; /* Innenabstand nach unten */
-            margin-bottom: 10px; /* Außenabstand nach unten */
+            font-weight: bold; 
+            padding-bottom: 10px;
+            margin-bottom: 10px; 
             border-bottom: 1px solid rgba(0, 0, 0, 0.2);
         }
 
@@ -333,7 +330,7 @@
             height: [[${heightOfBlackEval}]]px;
             top: [[${chessboardOffsetY}]]px;
             left: [[${evalLeft}]]px;
-            transition: height 1000ms ease-in-out; /* Transition auf die height-Eigenschaft */
+            transition: height 1000ms ease-in-out; 
         }
         
         .draggable-evaluation-window {
@@ -348,21 +345,19 @@
 		    cursor: move;
 		}
 		
-		/* Overlay für das new-game-popup */ 
 		.new-game-popup-overlay {
-		    display: none; /* Standardmäßig ausgeblendet */
+		    display: none; 
 		    position: fixed;
 		    top: 0;
 		    left: 0;
 		    width: 100%;
 		    height: 100%;
-		    background-color: rgba(0, 0, 0, 0.5); /* Halbtransparenter Hintergrund */
-		    z-index: 9999; /* Hohe Priorität für das Popup */
+		    background-color: rgba(0, 0, 0, 0.5);
+		    z-index: 9999;
 		    justify-content: center;
 		    align-items: center;
 		}
 		
-		/* Popup-Inhalt */
 		.new-game-popup-content {
 		    background-color: white;
 		    padding: 20px;
@@ -378,7 +373,6 @@
 		    margin-bottom: 45px;
 		}
 		
-		/* Flexbox für horizontale Anordnung von Label und Eingabefeld */
 		.new-game-popup-body {
 		    display: flex;
 		    flex-direction: column;
@@ -391,14 +385,12 @@
 		    align-items: center;
 		}
 		
-		/* Style für die Label, die in einer Zeile mit den Eingabefeldern stehen */
 		.new-game-popup-body label {
 		    flex: 1;
 		    text-align: left;
 		    margin-right: 30px;
 		}
 		
-		/* Eingabefelder und Dropdown */
 		.new-game-popup-body input,
 		.new-game-popup-body select {
 		    flex: 1;
@@ -406,7 +398,7 @@
 		    border-radius: 5px;
 		    border: 1px solid #ccc;
 		    box-sizing: border-box;
-		    text-align: center; /* Zentriert den Inhalt im Feld */
+		    text-align: center;
 		}
 		
 		.new-game-popup-footer {
@@ -426,21 +418,19 @@
 		    background-color: #0056b3;
 		}
 
-		/* Hovering chessboard style for preview */
 		.hovering_chessboard {
-		    display: none; /* Hidden by default */
+		    display: none; 
 		    position: absolute;
-		    width: 200px; /* Smaller size for preview */
-		    height: 200px;
+		    width: 300px;
+		    height: 300px;
 		    background-color: #f5f5f5;
 		    border: 2px solid #333;
 		    z-index: 1100;
 		    box-shadow: 4px 8px 12px rgba(0, 0, 0, 0.7);
-		    grid-template-columns: repeat(8, 1fr); /* 8x8 grid structure */
+		    grid-template-columns: repeat(8, 1fr);
 		    grid-template-rows: repeat(8, 1fr);
 		}
 		
-		/* Styling for squares in the hovering board */
 		.hovering_chessboard .square {
 		    width: 100%;
 		    height: 100%;
@@ -454,11 +444,10 @@
 		    background-color: #a0a0a0;
 		}
 		
-		/* Styling for pieces in the hovering board */
 		.hovering_chessboard .piece {
 		    width: 100%;
 		    height: 100%;
-		    background-size: cover; /* Ensure piece images fit square size */
+		    background-size: cover;
 		    background-position: center;
 		}
 

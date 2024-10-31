@@ -388,47 +388,74 @@
                     const uciEngineMoveList = document.getElementById('uciEngineMoveList');
                     uciEngineMoveList.innerHTML = ''; 
 
+                    // Header für die UCI-Engine-Zugliste
                     const header = document.createElement('div');
                     header.classList.add('uciEngine-header');
                     header.textContent = '[[${evaluationEngine}]] infinite evaluation (depth [[${uciEngineDepthForEvaluation}]] and higher):';
                     uciEngineMoveList.appendChild(header);
 
-                    data.data.forEach((move, index) => {
-                        const moveItem = document.createElement('div');
-                        moveItem.classList.add('uci-move-item');
+                    // Schleife über die Zeilen der UCI-Engine-Zugliste
+                    data.data.forEach((line) => {
+                        const lineItem = document.createElement('div');
+                        lineItem.classList.add('uci-line-item');
 
-                        moveItem.style.display = 'grid';
-                        moveItem.style.gridTemplateColumns = '50px 10px auto';
-                        moveItem.style.alignItems = 'center';
+                        lineItem.style.display = 'grid';
+                        lineItem.style.gridTemplateColumns = '60px 10px 1fr';
+                        lineItem.style.alignItems = 'center';
+                        lineItem.style.gap = '10px';
 
-                        const evaluationSpan = document.createElement('div');
+                        const [evaluation, moves] = line.split(':');
+                        const moveSequence = moves.trim().split(' '); // Teilt die Züge auf
+
+                        // Bewertung anzeigen
+                        const evaluationSpan = document.createElement('span');
                         evaluationSpan.classList.add('evaluation');
-                        evaluationSpan.textContent = move.split(':')[0].trim();
+                        evaluationSpan.textContent = evaluation.trim();
+                        lineItem.appendChild(evaluationSpan);
 
-                        const colonSpan = document.createElement('div');
+                        // Doppelpunkt als Trennzeichen
+                        const colonSpan = document.createElement('span');
                         colonSpan.classList.add('colon');
                         colonSpan.textContent = ':';
+                        lineItem.appendChild(colonSpan);
 
-                        const moveSpan = document.createElement('div');
-                        moveSpan.classList.add('move');
-                        moveSpan.textContent = move.split(':')[1].trim();
+                        // Container für die Zugfolge, jetzt als flexibler Container
+                        const moveContainer = document.createElement('div');
+                        moveContainer.classList.add('move-container');
+                        moveContainer.style.display = 'flex';
+                        moveContainer.style.gap = '8px';
+                        moveContainer.style.flexWrap = 'nowrap'; // Keine Zeilenumbrüche für Züge
+                        moveContainer.style.overflow = 'hidden'; // Überlauf verhindern
 
-                        moveItem.appendChild(evaluationSpan);
-                        moveItem.appendChild(colonSpan);
-                        moveItem.appendChild(moveSpan);
+                        // Schleife über die einzelnen Züge in der Zugfolge
+                        moveSequence.forEach((move, index) => {
+                            const moveElement = document.createElement('span');
+                            moveElement.classList.add('move');
+                            moveElement.textContent = move;
+                            moveElement.style.whiteSpace = 'nowrap'; // Keine Umbrüche innerhalb des Zuges
+                            moveElement.style.flexShrink = '0'; // Verhindert Verkleinerung
 
-                        moveItem.style.cursor = 'pointer';
-                        moveItem.onclick = function () {
-                            handleMoveClick(index);
-                        };
+                            // Optional: Mouseover-Effekt für zukünftige Position-Anzeige
+                            moveElement.addEventListener('mouseenter', function () {
+                                showPositionPreview(index); // Funktion für zukünftige Vorschau
+                            });
+                            moveElement.addEventListener('mouseleave', function () {
+                                hidePositionPreview();
+                            });
 
-                        uciEngineMoveList.appendChild(moveItem);
+                            moveContainer.appendChild(moveElement);
+                        });
+
+                        lineItem.appendChild(moveContainer);
+                        uciEngineMoveList.appendChild(lineItem);
                     });
 
+                    // Besten Zug hervorheben
                     highlightBestMove();
                 })
                 .catch(error => console.error('Error loading UciEngine Move List:', error));
         }
+
 
         document.querySelectorAll('.draggable').forEach((element, index) => {
             element.addEventListener('click', () => {
