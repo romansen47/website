@@ -6,6 +6,9 @@ import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Component;
 
+import com.example.demo.AppAdmin;
+
+import demo.chess.admin.Admin;
 import demo.chess.definitions.engines.EngineConfig;
 import demo.chess.definitions.engines.EvaluationEngine;
 import demo.chess.definitions.engines.impl.NoMoveFoundException;
@@ -159,4 +162,6 @@ public interface ApiControllerHelper {
     boolean isHumanAlowedToInteract(Game chessGame, boolean uciEngineActive);
 
 	String createToolTipForConfig(EngineConfig config);
+
+	List<String> convertToSan(List<String> evalMoveList, Admin admin) throws Exception ;
 }

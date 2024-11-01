@@ -393,7 +393,7 @@
                     header.classList.add('uciEngine-header');
                     header.textContent = '[[${evaluationEngine}]] infinite evaluation (depth [[${uciEngineDepthForEvaluation}]] and higher):';
                     uciEngineMoveList.appendChild(header);
-
+                    
                     // Schleife über die Zeilen der UCI-Engine-Zugliste
                     data.data.forEach((line) => {
                         const lineItem = document.createElement('div');
@@ -432,8 +432,8 @@
                             const moveElement = document.createElement('span');
                             moveElement.classList.add('move');
                             moveElement.textContent = move;
-                            moveElement.style.whiteSpace = 'nowrap'; // Keine Umbrüche innerhalb des Zuges
-                            moveElement.style.flexShrink = '0'; // Verhindert Verkleinerung
+                            moveElement.style.whiteSpace = 'nowrap'; 
+                            moveElement.style.flexShrink = '0'; 
 
                             // Optional: Mouseover-Effekt für zukünftige Position-Anzeige
                             moveElement.addEventListener('mouseenter', function () {
@@ -450,7 +450,6 @@
                         uciEngineMoveList.appendChild(lineItem);
                     });
 
-                    // Besten Zug hervorheben
                     highlightBestMove();
                 })
                 .catch(error => console.error('Error loading UciEngine Move List:', error));
@@ -754,8 +753,6 @@
     	    .catch(error => console.error('Error in loadMoveList:', error));
     	}
 
-
-
         const pieceImagePaths = {
         	    'P': '/white_pawn.png',
         	    'R': '/white_rook.png',
@@ -775,18 +772,38 @@
             return positionStringsList[index];
         }
 
-		function highlightBestMove() {
-		    const moves = document.querySelectorAll('.uciEngine-move-list .uci-move-item');
-		    if (moves.length > 0) {
-		        moves.forEach(move => {
-		            move.style.backgroundColor = ''; 
-		            move.querySelector('.evaluation').style.fontWeight = ''; 
-		        });
+        function highlightBestMove() {
+            const moves = document.querySelectorAll('.uci-line-item');
+            if (moves.length > 0) {
 
-		        moves[0].style.backgroundColor = '#d4edda'; 
-		        moves[0].querySelector('.evaluation').style.fontWeight = 'bold'; 
-		    }
-		}
+                moves.forEach(move => {
+                    move.style.backgroundColor = '';
+                    const moveElements = move.querySelectorAll('.move');
+                    moveElements.forEach(moveElement => {
+                        moveElement.style.fontWeight = '';
+                        moveElement.style.fontStyle = '';
+                    });
+                });
+
+                const highlightedMoves = new Set();
+
+                moves.forEach(move => {
+                    const moveElements = move.querySelectorAll('.move');
+                    if (moveElements.length > 0) {
+                        const firstMoveText = moveElements[0].innerText;
+
+                        if (!highlightedMoves.has(firstMoveText)) {
+                            highlightedMoves.add(firstMoveText);
+                            
+                            move.style.backgroundColor = '#d4edda';
+                            
+                            moveElements[0].style.fontWeight = 'bold';
+                            moveElements[0].style.fontStyle = 'italic';
+                        }
+                    }
+                });
+            }
+        } 
 
         function updateClocks() {
             fetch('/api/game/currentTime')
@@ -993,7 +1010,7 @@
 	        const uciEngineMoveList = document.getElementById('uciEngineMoveList');
 	        uciEngineMoveList.style.top = [[${uciEngineMoveListTop}]]+'px';
 	        uciEngineMoveList.style.left = [[${uciEngineMoveListLeft}]]+'px';
-	        uciEngineMoveList.style.width = [[${uciEngineMoveListWidth}]]+'px';
+	        //uciEngineMoveList.style.width = [[${uciEngineMoveListWidth}]]+'px';
 	        makeElementDraggable(uciEngineMoveList, '/updateUciEngineMoveListPosition');
 		}
 		

@@ -13,10 +13,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
+import com.example.demo.AppAdmin;
 import com.example.demo.controller.helper.ApiControllerHelper;
 import com.example.demo.controller.impl.ChessApiController;
 import com.example.demo.elements.KEY;
 
+import demo.chess.admin.Admin;
 import demo.chess.definitions.engines.EngineConfig;
 import demo.chess.definitions.engines.EvaluationEngine;
 import demo.chess.definitions.engines.impl.NoMoveFoundException;
@@ -273,5 +275,48 @@ public class ApiControllerHelperImpl extends ChessHelper implements ApiControlle
 			return false;
 		}
 		return true;
+	}
+
+	@Override
+	public List<String> convertToSan(List<String> evalMoveList, Admin admin) throws Exception {
+		List<Move> chessGameMoveList = ((Game) get(KEY.CHESSGAME)).getMoveList(); 
+		List<String> sanMoveList = new ArrayList<>();
+		Game tmpGame;
+		Move moveToExecute;
+		try {
+			for (String moves:evalMoveList) {
+				String[] movesAsArray = moves.split(" ");
+				String prefix = movesAsArray[0] + " " + movesAsArray[1];
+				tmpGame = admin.chessGame(100000);
+				for (Move move:chessGameMoveList) {
+					moveToExecute = null;
+					for (Move tmpMove: tmpGame.getPlayer().getValidMoves(tmpGame)) {
+						if (tmpMove.toString().equals(move.toString())) {
+							moveToExecute = tmpMove;
+							break;
+						}
+					}
+					tmpGame.apply(moveToExecute);
+				}
+				for (int i = 2; i< movesAsArray.length; i++) {
+					moveToExecute = null;
+					for (Move tmpMove: tmpGame.getPlayer().getValidMoves(tmpGame)) {
+						if (tmpMove.toString().equals(movesAsArray[i])) {
+							moveToExecute = tmpMove;
+							break;
+						}
+					}
+					tmpGame.apply(moveToExecute);
+				}
+				String answer = "";
+				for (int i=chessGameMoveList.size(); i<tmpGame.getSanMoveList().size(); i++) {
+					answer += tmpGame.getSanMoveList().get(i) + " ";
+				}
+				sanMoveList.add(prefix + answer);
+			}
+		} catch(java.util.ConcurrentModificationException e) {
+			logger.debug("Abortet movelist transformation due to comodification");
+		}
+		return sanMoveList;
 	}
 }

@@ -45,7 +45,7 @@ public class ViewConfig implements Config {
     private int additionalTime = 0;
 
     /** Interval in seconds at which the UCI engine updates its evaluation. */
-    private int updateIntervall = 1;
+    private int updateIntervall = 2;
 
     /** Duration in milliseconds for animations, such as piece movements. */
     private int animationDuration = 100;
@@ -102,10 +102,10 @@ public class ViewConfig implements Config {
     private int uciEloForBlack = 0;
 
     /** Left offset in pixels for positioning the chessboard on the screen. */
-    private int leftOffset = 450;
+    private int leftOffset = 275;
 
     /** Size of each square on the chessboard in pixels. */
-    private int squareSize = 65;
+    private int squareSize = 90;
 
     /** Height of the top bar in pixels. */
     private int topBarHeight = 40;

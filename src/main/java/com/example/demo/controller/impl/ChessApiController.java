@@ -41,6 +41,7 @@ import com.example.demo.elements.KEY;
 import com.example.demo.model.DisplayedField;
 import com.example.demo.model.DisplayedPiece;
 
+import demo.chess.admin.Admin;
 import demo.chess.definitions.Color;
 import demo.chess.definitions.PieceType;
 import demo.chess.definitions.board.Board;
@@ -624,6 +625,14 @@ public class ChessApiController extends ControllerTemplate {
 	    List<String> moves = chessGame.getSanMoveList();
 	    return new ChessApiResponse<>(true, moves);
 	}
+	
+	@GetMapping("/positionsStringsForEvaluationEngine")
+	@ResponseBody
+	public ChessApiResponse<List<String>> positionsStringsForEvaluationEngine() throws NoMoveFoundException, IOException {
+	    Game chessGame = (Game) get(KEY.CHESSGAME);
+	    List<String> moves = chessGame.getSanMoveList();
+	    return new ChessApiResponse<>(true, moves);
+	}
 
 	/**
 	 * Handles GET requests to retrieve the list of moves suggested by the UciEngine
@@ -636,50 +645,8 @@ public class ChessApiController extends ControllerTemplate {
 	@ResponseBody
 	protected synchronized ChessApiResponse<List<String>> getStockFishMoveList() throws Exception {
 		List<String> evalMoveList = helper.getEvaluationEngineMoveList(this.getEvaluationEngine());
-		List<String> evalSanMoveList = convertToSan(evalMoveList);
+		List<String> evalSanMoveList = helper.convertToSan(evalMoveList, admin);
 		return new ChessApiResponse<>(true, evalSanMoveList);
-	}
-
-	private List<String> convertToSan(List<String> evalMoveList) throws Exception {
-		List<Move> chessGameMoveList = ((Game) get(KEY.CHESSGAME)).getMoveList(); 
-		List<String> sanMoveList = new ArrayList<>();
-		Game tmpGame;
-		Move moveToExecute;
-		try {
-			for (String moves:evalMoveList) {
-				String[] movesAsArray = moves.split(" ");
-				String prefix = movesAsArray[0] + " " + movesAsArray[1];
-				tmpGame = admin.chessGame(100000);
-				for (Move move:chessGameMoveList) {
-					moveToExecute = null;
-					for (Move tmpMove: tmpGame.getPlayer().getValidMoves(tmpGame)) {
-						if (tmpMove.toString().equals(move.toString())) {
-							moveToExecute = tmpMove;
-							break;
-						}
-					}
-					tmpGame.apply(moveToExecute);
-				}
-				for (int i = 2; i< movesAsArray.length; i++) {
-					moveToExecute = null;
-					for (Move tmpMove: tmpGame.getPlayer().getValidMoves(tmpGame)) {
-						if (tmpMove.toString().equals(movesAsArray[i])) {
-							moveToExecute = tmpMove;
-							break;
-						}
-					}
-					tmpGame.apply(moveToExecute);
-				}
-				String answer = "";
-				for (int i=chessGameMoveList.size(); i<tmpGame.getSanMoveList().size(); i++) {
-					answer += tmpGame.getSanMoveList().get(i) + " ";
-				}
-				sanMoveList.add(prefix + answer);
-			}
-		} catch(java.util.ConcurrentModificationException e) {
-			logger.debug("Abortet movelist transformation due to comodification");
-		}
-		return sanMoveList;
 	}
 
 	/**

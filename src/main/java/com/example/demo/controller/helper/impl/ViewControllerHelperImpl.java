@@ -120,7 +120,7 @@ public class ViewControllerHelperImpl extends ChessHelper  implements ViewContro
 		int leftOffset = viewConfig.getLeftOffset();
 		int squareSize = viewConfig.getSquareSize();
 		int topBarHeight = viewConfig.getTopBarHeight();
-		int moveListWidth = viewConfig.getMoveListWidth();
+//		int moveListWidth = viewConfig.getMoveListWidth();
 
 		int chessBoardOffset = topBarHeight;
 		viewConfig.setChessBoardOffset(chessBoardOffset);
@@ -128,10 +128,10 @@ public class ViewControllerHelperImpl extends ChessHelper  implements ViewContro
 		int clockSize = squareSize / 2;
 		viewConfig.setClockSize(clockSize);
 
-		int evalWidth = squareSize / 2;
+		int evalWidth = 20;
 		viewConfig.setEvalWidth(evalWidth);
 
-		int moveListLeft = leftOffset - moveListWidth - chessBoardOffset;
+		int moveListLeft = 0; //leftOffset - moveListWidth - chessBoardOffset;
 		viewConfig.setMoveListLeft(moveListLeft);
 
 		int moveListTop = topBarHeight;
