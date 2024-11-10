@@ -648,8 +648,6 @@
             };
         }
 
-    	
-    	
     	function loadMoveList() {
     		var positionStrings;
     		var whitePlayer = "Player";
@@ -684,7 +682,6 @@
     	    })
     	    .then(positionData => {
     	        positionStrings = positionData.data;
-
     	        return fetch('/api/game/moveList');
     	    })
     	    .then(response => response.json())
@@ -694,32 +691,32 @@
     	            moveList.innerHTML = '';
 
     	            // Spieler-Header erstellen
-    	            const headerRow = document.createElement('div');
-    	            headerRow.classList.add('move-list-header');
-    	            headerRow.style.display = 'flex';
-    	            headerRow.style.justifyContent = 'space-between';
-    	            headerRow.style.marginBottom = '10px';
+    	            //const headerRow = document.createElement('div');
+    	            //headerRow.classList.add('move-list-header');
+    	            //headerRow.style.display = 'flex';
+    	            //headerRow.style.justifyContent = 'space-between';
+    	            //headerRow.style.marginBottom = '10px';
 
-    	            const whitePlayerName = document.createElement('div');
-    	            whitePlayerName.classList.add('player-name', 'white-player');
-    	            whitePlayerName.style.fontWeight = 'bold';
-    	            whitePlayerName.textContent = whitePlayer;
-    	            whitePlayerName.title = whitePlayerToolTip;
-    	            headerRow.appendChild(whitePlayerName);
+    	            //const whitePlayerName = document.createElement('div');
+    	            //whitePlayerName.classList.add('player-name', 'white-player');
+    	            //whitePlayerName.style.fontWeight = 'bold';
+    	            //whitePlayerName.textContent = whitePlayer;
+    	            //whitePlayerName.title = whitePlayerToolTip;
+    	            //headerRow.appendChild(whitePlayerName);
 
-    	            const blackPlayerName = document.createElement('div');
-    	            blackPlayerName.classList.add('player-name', 'black-player');
-    	            blackPlayerName.style.fontWeight = 'bold';
-    	            blackPlayerName.textContent = blackPlayer;
-    	            blackPlayerName.title = blackPlayerToolTip;
-    	            headerRow.appendChild(blackPlayerName);
+    	            //const blackPlayerName = document.createElement('div');
+    	            //blackPlayerName.classList.add('player-name', 'black-player');
+    	            //blackPlayerName.style.fontWeight = 'bold';
+    	            //blackPlayerName.textContent = blackPlayer;
+    	            //blackPlayerName.title = blackPlayerToolTip;
+    	            //headerRow.appendChild(blackPlayerName);
 
-    	            moveList.appendChild(headerRow);
+    	            //moveList.appendChild(headerRow);
 
-    	            const divider = document.createElement('hr');
-    	            divider.style.border = '1px solid #ccc';
-    	            divider.style.margin = '5px 0 10px';
-    	            moveList.appendChild(divider);
+    	            //const divider = document.createElement('hr');
+    	            //divider.style.border = '1px solid #ccc';
+    	            //divider.style.margin = '5px 0 10px';
+    	            //moveList.appendChild(divider);
 
     	            // Zugliste erstellen
     	            moveData.data.forEach((move, index) => {
@@ -744,7 +741,11 @@
     	                    const showPreview = (event, positionString) => {
     	                        const hoveringChessboard = document.getElementById('hoveringChessboard');
     	                        hoveringChessboard.style.left = `${event.pageX + 20}px`;
-    	                        hoveringChessboard.style.top = `${event.pageY + 20}px`;
+								if (index >= 40) {
+								    hoveringChessboard.style.top = `${event.pageY - 300}px`; // Oberhalb anzeigen
+								} else {
+								    hoveringChessboard.style.top = `${event.pageY + 20}px`; // Unterhalb anzeigen
+								}
     	                        displayHoveringChessboard(positionString);
     	                    };
 
@@ -1044,14 +1045,14 @@
         const moveList = document.getElementById('moveList');
         moveList.style.top = [[${moveListTop}]]+'px';
         moveList.style.left = [[${moveListLeft}]]+'px';
-        makeElementDraggable(moveList, '/updateMoveListPosition');
+       //makeElementDraggable(moveList, '/updateMoveListPosition');
 
 		if ([[${showUciEngineLines}]]){
 	        const uciEngineMoveList = document.getElementById('uciEngineMoveList');
 	        uciEngineMoveList.style.top = [[${uciEngineMoveListTop}]]+'px';
 	        uciEngineMoveList.style.left = [[${uciEngineMoveListLeft}]]+'px';
 	        //uciEngineMoveList.style.width = [[${uciEngineMoveListWidth}]]+'px';
-	        makeElementDraggable(uciEngineMoveList, '/updateUciEngineMoveListPosition');
+	        //makeElementDraggable(uciEngineMoveList, '/updateUciEngineMoveListPosition');
 		}
 		
 	    function initializePopups() {

@@ -1,6 +1,13 @@
 <div th:fragment="sidebar">
 		<div id="sidebar" class="sidebar">
-		    <h2>Optionen</h2>
+		    
+			<div class="sidebar-chessboard">
+			            <!-- 8x8-Schachbrettmuster -->
+			            <div th:each="row: ${#numbers.sequence(0, 7)}">
+			                <div th:each="col: ${#numbers.sequence(0, 7)}"
+			                     th:class="${(row + col) % 2 == 0 ? 'square white' : 'square brown'}"></div>
+			            </div>
+			        </div>
 
 		    <!-- Game Menü -->
 		    <div class="menu-section">

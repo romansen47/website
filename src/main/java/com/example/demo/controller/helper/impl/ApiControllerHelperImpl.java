@@ -13,7 +13,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
-import com.example.demo.AppAdmin;
 import com.example.demo.controller.helper.ApiControllerHelper;
 import com.example.demo.controller.impl.ChessApiController;
 import com.example.demo.elements.KEY;
@@ -30,27 +29,28 @@ import demo.chess.definitions.states.State;
 import demo.chess.game.Game;
 
 /**
- * The `ApiControllerHelperImpl` class implements the `ApiControllerHelper` interface,
- * providing utility methods to facilitate interaction with the chess game logic
- * in the `ChessApiController`. This implementation enables controller operations
- * for handling moves, board state, evaluation results, and user interface interactions.
+ * The `ApiControllerHelperImpl` class implements the `ApiControllerHelper`
+ * interface, providing utility methods to facilitate interaction with the chess
+ * game logic in the `ChessApiController`. This implementation enables
+ * controller operations for handling moves, board state, evaluation results,
+ * and user interface interactions.
  *
- * Core functionalities include:
- * - Retrieving possible moves and fields for a selected piece.
- * - Managing promotion move options for pawns.
- * - Converting chess moves into symbolic representation for display.
- * - Providing calculations for evaluation bars based on engine evaluations.
- * - Communicating game state updates and reset signals through WebSocket messages.
- * - Filtering duplicate engine suggestions and preparing move lists for evaluation.
- * - Checking game states (e.g., checkmate, stalemate) and sending corresponding messages.
- * - Verifying if human interaction is allowed based on current player status.
+ * Core functionalities include: - Retrieving possible moves and fields for a
+ * selected piece. - Managing promotion move options for pawns. - Converting
+ * chess moves into symbolic representation for display. - Providing
+ * calculations for evaluation bars based on engine evaluations. - Communicating
+ * game state updates and reset signals through WebSocket messages. - Filtering
+ * duplicate engine suggestions and preparing move lists for evaluation. -
+ * Checking game states (e.g., checkmate, stalemate) and sending corresponding
+ * messages. - Verifying if human interaction is allowed based on current player
+ * status.
  *
- * This helper class operates as a Spring component, allowing it to be injected where needed
- * and providing easy access to shared game configuration and helper methods from the
- * `ChessHelper` superclass.
+ * This helper class operates as a Spring component, allowing it to be injected
+ * where needed and providing easy access to shared game configuration and
+ * helper methods from the `ChessHelper` superclass.
  */
 @Component
-public class ApiControllerHelperImpl extends ChessHelper implements ApiControllerHelper{
+public class ApiControllerHelperImpl extends ChessHelper implements ApiControllerHelper {
 
 	@SuppressWarnings("unused")
 	private static final Logger logger = LogManager.getLogger(ChessApiController.class);
@@ -192,8 +192,8 @@ public class ApiControllerHelperImpl extends ChessHelper implements ApiControlle
 	public List<String> getEvaluationEngineMoveList(EvaluationEngine evaluationEngine) throws Exception {
 
 		List<Pair<Double, String>> uniqueList = new ArrayList<>();
-		uniqueList
-				.addAll(evaluationEngine.getBestLines((Game) get(KEY.CHESSGAME), (EngineConfig) get(KEY.ENGINE_CONFIG_EVAL)));
+		uniqueList.addAll(
+				evaluationEngine.getBestLines((Game) get(KEY.CHESSGAME), (EngineConfig) get(KEY.ENGINE_CONFIG_EVAL)));
 		List<Pair<Double, String>> copyOfUciEngineMoveList = removeDuplicatesByString(uniqueList);
 
 		List<String> answer = new ArrayList<>();
@@ -256,12 +256,9 @@ public class ApiControllerHelperImpl extends ChessHelper implements ApiControlle
 
 	@Override
 	public String createToolTipForConfig(EngineConfig config) {
-		String tooltip = 	"Depth: " + config.getDepth() + "\n" +
-							"Contempt: " + config.getContempt() + "\n" + 
-							"Hashsize: " + config.getHashSize() + "\n" + 
-							"Threads: " + config.getThreads() + "\n" +
-							"UCI Elo: " + config.getUciElo() + "\n" +
-							"MultiPV: " + config.getMultiPV();
+		String tooltip = "Depth: " + config.getDepth() + "\n" + "Contempt: " + config.getContempt() + "\n"
+				+ "Hashsize: " + config.getHashSize() + "\n" + "Threads: " + config.getThreads() + "\n" + "UCI Elo: "
+				+ config.getUciElo() + "\n" + "MultiPV: " + config.getMultiPV();
 		return tooltip;
 	}
 
@@ -273,7 +270,8 @@ public class ApiControllerHelperImpl extends ChessHelper implements ApiControlle
 	@Override
 	public boolean isHumanAlowedToInteract(Game chessGame, boolean uciEngineActive) {
 		boolean humanPlaysWhite = !viewConfig.getIsFlipped() ? true : false;
-		if (uciEngineActive && (humanPlaysWhite && chessGame.getMoveList().size() % 2 == 1 || !humanPlaysWhite && chessGame.getMoveList().size() % 2 == 0 )) {
+		if (uciEngineActive && (humanPlaysWhite && chessGame.getMoveList().size() % 2 == 1
+				|| !humanPlaysWhite && chessGame.getMoveList().size() % 2 == 0)) {
 			return false;
 		}
 		return true;
@@ -281,18 +279,18 @@ public class ApiControllerHelperImpl extends ChessHelper implements ApiControlle
 
 	@Override
 	public List<String> convertToSan(List<String> evalMoveList, Admin admin) throws Exception {
-		List<Move> chessGameMoveList = ((Game) get(KEY.CHESSGAME)).getMoveList(); 
+		List<Move> chessGameMoveList = ((Game) get(KEY.CHESSGAME)).getMoveList();
 		List<String> sanMoveList = new ArrayList<>();
 		Game tmpGame;
 		Move moveToExecute;
 		try {
-			for (String moves:evalMoveList) {
+			for (String moves : evalMoveList) {
 				String[] movesAsArray = moves.split(" ");
 				String prefix = movesAsArray[0] + " " + movesAsArray[1];
 				tmpGame = admin.chessGame(100000);
-				for (Move move:chessGameMoveList) {
+				for (Move move : chessGameMoveList) {
 					moveToExecute = null;
-					for (Move tmpMove: tmpGame.getPlayer().getValidMoves(tmpGame)) {
+					for (Move tmpMove : tmpGame.getPlayer().getValidMoves(tmpGame)) {
 						if (tmpMove.toString().equals(move.toString())) {
 							moveToExecute = tmpMove;
 							break;
@@ -300,9 +298,9 @@ public class ApiControllerHelperImpl extends ChessHelper implements ApiControlle
 					}
 					tmpGame.apply(moveToExecute);
 				}
-				for (int i = 2; i< movesAsArray.length; i++) {
+				for (int i = 2; i < movesAsArray.length; i++) {
 					moveToExecute = null;
-					for (Move tmpMove: tmpGame.getPlayer().getValidMoves(tmpGame)) {
+					for (Move tmpMove : tmpGame.getPlayer().getValidMoves(tmpGame)) {
 						if (tmpMove.toString().equals(movesAsArray[i])) {
 							moveToExecute = tmpMove;
 							break;
@@ -311,12 +309,12 @@ public class ApiControllerHelperImpl extends ChessHelper implements ApiControlle
 					tmpGame.apply(moveToExecute);
 				}
 				String answer = "";
-				for (int i=chessGameMoveList.size(); i<tmpGame.getSanMoveList().size(); i++) {
+				for (int i = chessGameMoveList.size(); i < tmpGame.getSanMoveList().size(); i++) {
 					answer += tmpGame.getSanMoveList().get(i) + " ";
 				}
 				sanMoveList.add(prefix + answer);
 			}
-		} catch(java.util.ConcurrentModificationException e) {
+		} catch (java.util.ConcurrentModificationException e) {
 			logger.debug("Abortet movelist transformation due to comodification");
 		}
 		return sanMoveList;

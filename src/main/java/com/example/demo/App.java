@@ -58,10 +58,11 @@ public class App extends ChessAdmin implements AppAdmin {
 	private static final Logger logger = LogManager.getLogger(App.class);
 
 	/**
-	 * Bean for the view configuration, providing display and layout settings
-	 * for the application's views.
+	 * Bean for the view configuration, providing display and layout settings for
+	 * the application's views.
 	 *
-	 * @return a new instance of {@link ViewConfig} that holds view configuration data
+	 * @return a new instance of {@link ViewConfig} that holds view configuration
+	 *         data
 	 */
 	@Bean
 	public Config viewConfig() {
@@ -69,8 +70,8 @@ public class App extends ChessAdmin implements AppAdmin {
 	}
 
 	/**
-	 * Bean to resolve templates for Thymeleaf. Configures the template resolver with
-	 * the template path, suffix, mode, and caching settings.
+	 * Bean to resolve templates for Thymeleaf. Configures the template resolver
+	 * with the template path, suffix, mode, and caching settings.
 	 *
 	 * @return a {@link SpringResourceTemplateResolver} for Thymeleaf templates
 	 */
@@ -85,8 +86,8 @@ public class App extends ChessAdmin implements AppAdmin {
 	}
 
 	/**
-	 * Bean for the Thymeleaf template engine. Sets the previously defined
-	 * template resolver and enables Spring EL compiler support.
+	 * Bean for the Thymeleaf template engine. Sets the previously defined template
+	 * resolver and enables Spring EL compiler support.
 	 *
 	 * @return a configured {@link SpringTemplateEngine} instance
 	 */
@@ -99,9 +100,8 @@ public class App extends ChessAdmin implements AppAdmin {
 	}
 
 	/**
-	 * Bean for configuring the Thymeleaf view resolver. It binds the
-	 * Thymeleaf template engine to the view resolver and sets its order
-	 * of execution.
+	 * Bean for configuring the Thymeleaf view resolver. It binds the Thymeleaf
+	 * template engine to the view resolver and sets its order of execution.
 	 *
 	 * @return a {@link ThymeleafViewResolver} for rendering views
 	 */
@@ -161,7 +161,8 @@ public class App extends ChessAdmin implements AppAdmin {
 	 * {@link Engine} is instantiated and added to a map, allowing the application
 	 * to retrieve and use different evaluation engines for move analysis.
 	 *
-	 * @return a map of engine names to their respective {@link EvaluationEngine} instances
+	 * @return a map of engine names to their respective {@link EvaluationEngine}
+	 *         instances
 	 */
 	@Bean
 	@Override
@@ -187,7 +188,8 @@ public class App extends ChessAdmin implements AppAdmin {
 	 * {@link Engine} is instantiated and added to a map, allowing the application
 	 * to retrieve and use different player engines for simulating AI moves.
 	 *
-	 * @return a map of engine names to their respective {@link PlayerEngine} instances
+	 * @return a map of engine names to their respective {@link PlayerEngine}
+	 *         instances
 	 */
 	@Bean
 	@Override

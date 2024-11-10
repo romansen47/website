@@ -9,50 +9,62 @@ import demo.chess.definitions.engines.EvaluationEngine;
 import demo.chess.definitions.engines.PlayerEngine;
 
 /**
- * The `AppAdmin` interface extends the base `Admin` interface, adding additional
- * administrative functionalities specific to the chess application.
+ * The `AppAdmin` interface extends the base `Admin` interface, adding
+ * additional administrative functionalities specific to the chess application.
  *
- * <p>This interface is designed to manage chess game instances, game configurations,
- * and chess engines within the application, providing an organized structure for
- * handling game state, player interactions, and evaluations.</p>
+ * <p>
+ * This interface is designed to manage chess game instances, game
+ * configurations, and chess engines within the application, providing an
+ * organized structure for handling game state, player interactions, and
+ * evaluations.
+ * </p>
  *
- * <p>It defines methods to retrieve and configure chess engines, access attributes
+ * <p>
+ * It defines methods to retrieve and configure chess engines, access attributes
  * used across the application, and provide necessary instances of chess games
- * either for play or for simulation purposes.</p>
+ * either for play or for simulation purposes.
+ * </p>
  */
 public interface AppAdmin extends Admin {
 
-    /**
-     * Retrieves a map of all available player engines. Each entry in the map
-     * associates an engine name (as the key) with a specific instance of a
-     * {@link PlayerEngine} implementation.
-     *
-     * <p>This allows for dynamic selection and configuration of chess engines
-     * available to players.</p>
-     *
-     * @return a map of player engine names to their respective {@link PlayerEngine} instances
-     */
-    Map<String, PlayerEngine> playerEngines();
+	/**
+	 * Retrieves a map of all available player engines. Each entry in the map
+	 * associates an engine name (as the key) with a specific instance of a
+	 * {@link PlayerEngine} implementation.
+	 *
+	 * <p>
+	 * This allows for dynamic selection and configuration of chess engines
+	 * available to players.
+	 * </p>
+	 *
+	 * @return a map of player engine names to their respective {@link PlayerEngine}
+	 *         instances
+	 */
+	Map<String, PlayerEngine> playerEngines();
 
-    /**
-     * Provides an instance of {@link Attributes}, which serves as a centralized
-     * store for application-wide attributes and settings. This attribute map
-     * allows key-value pairs to be dynamically managed across the application.
-     *
-     * @return the {@link Attributes} instance containing application settings and values
-     */
-    Attributes attributes();
+	/**
+	 * Provides an instance of {@link Attributes}, which serves as a centralized
+	 * store for application-wide attributes and settings. This attribute map allows
+	 * key-value pairs to be dynamically managed across the application.
+	 *
+	 * @return the {@link Attributes} instance containing application settings and
+	 *         values
+	 */
+	Attributes attributes();
 
-    /**
-     * Retrieves a map of all available evaluation engines used to analyze and
-     * evaluate chess positions. Each entry in the map associates an engine name
-     * (as the key) with a specific instance of an {@link EvaluationEngine}.
-     *
-     * <p>Evaluation engines are utilized to provide feedback on game states,
-     * suggesting optimal moves or evaluating positions based on various criteria.</p>
-     *
-     * @return a map of evaluation engine names to their respective {@link EvaluationEngine} instances
-     * @throws Exception if an error occurs while retrieving evaluation engines
-     */
-    Map<String, EvaluationEngine> evaluationEngines() throws Exception;
+	/**
+	 * Retrieves a map of all available evaluation engines used to analyze and
+	 * evaluate chess positions. Each entry in the map associates an engine name (as
+	 * the key) with a specific instance of an {@link EvaluationEngine}.
+	 *
+	 * <p>
+	 * Evaluation engines are utilized to provide feedback on game states,
+	 * suggesting optimal moves or evaluating positions based on various criteria.
+	 * </p>
+	 *
+	 * @return a map of evaluation engine names to their respective
+	 *         {@link EvaluationEngine} instances
+	 * @throws Exception if an error occurs while retrieving evaluation engines
+	 */
+	Map<String, EvaluationEngine> evaluationEngines() throws Exception;
 }

@@ -88,7 +88,7 @@
         }
 
         .chessboard div.black {
-            background-color: [[${color}]];
+            background-color: #769656; /*[[${color}]];*/
         }
 
         .chessboard div.highlight-white {
@@ -136,37 +136,40 @@
             left: 410px;
             width: 200px;
         }
-        .move-list {
-            position: absolute;
-            width: [[${moveListWidth}]]px;
-            padding: 10px;
-            font-size: 13px;
-            background-color: #faf8b4;
-            border-radius: 5px;
-            max-height: [[${chessboardSize}]]px;
-            overflow-y: auto;
-            box-shadow: 4px 8px 12px rgba(0, 0, 0, 0.7);
-            border: 2px solid #000; 
-            cursor: move;
-            z-index: 5;
-        }
+       
+		.move-list {
+		    position: absolute;
+		    width: [[${moveListWidth}]]px;
+		    padding: 10px;
+		    font-size: 13px;
+		    background-color: #4A4A4A; /* Hintergrund in dunklem Grau */
+		    color: #d3d3d3; /* Textfarbe in hellem Grau */
+		    max-height: [[${chessboardSize}]]px;
+		    overflow-y: auto;
+		    box-shadow: none; /* Kein Schatten */
+		    border: none; /* Kein Rand */
+		    cursor: default; /* Nicht verschiebbar */
+		    border-radius: 0; /* Keine abgerundeten Ecken */
+		    z-index: 5;
+		}
 
-        .uciEngine-move-list {
-            position: absolute;
-            padding: 10px;
-            font-size: 14px;
-            max-height: [[${chessboardSize}]]px;
-            overflow-y: auto;
-            box-shadow: 4px 8px 12px rgba(0, 0, 0, 0.7);
-            background-color: #faf8b4;
-            border-radius: 5px;
-            border: 2px solid #000; 
-            cursor: move;
-            z-index: 5;
-        }
+		.uciEngine-move-list {
+		    position: absolute;
+		    padding: 10px;
+		    font-size: 14px;
+		    background-color: ##4A4A4A; /* Hintergrund in dunklem Grau */
+		    color: #d3d3d3; /* Textfarbe in hellem Grau */
+		    max-height: [[${chessboardSize}]]px;
+		    overflow-y: auto;
+		    box-shadow: none; /* Kein Schatten */
+		    border: none; /* Kein Rand */
+		    cursor: default; /* Nicht verschiebbar */
+		    border-radius: 0; /* Keine abgerundeten Ecken */
+		    z-index: 5;
+		}
 
         .uciEngine-move-list .uci-move-item {
-            display: flex;
+            display: absolute;
             justify-content: flex-start;
             font-family: 'Courier New', Courier, monospace; 
             margin-bottom: 5px;
@@ -358,7 +361,7 @@
 		}
 		
 		.hovering_chessboard .square.black {
-		    background-color: #a0a0a0;
+		    background-color: #d2b48c;
 		}
 		
 		.hovering_chessboard .piece {
@@ -403,7 +406,6 @@
 		    border-radius: 5px;
 		}
 
-		/* Hauptmenü-Titel */
 		.menu-title {
 		    font-size: 16px;
 		    padding: 10px;
@@ -414,13 +416,12 @@
 		    border-radius: 5px;
 		}
 
-		/* Untermenüs */
 		.submenu {
 		    list-style-type: none;
 		    padding-left: 15px;
 		    display: none; /* Versteckt das Untermenü standardmäßig */
 		}
-
+		
 		.submenu li {
 		    margin: 5px 0;
 		}
@@ -430,7 +431,7 @@
 		    width: 100%;
 		    padding: 6px;
 		    font-size: 14px;
-		    background-color: #555;
+		    background-color: #333;
 		    color: white;
 		    border: none;
 		    border-radius: 3px;
@@ -452,5 +453,27 @@
 		    cursor: pointer;
 		    color: white;
 		}
+		
+		.sidebar-chessboard {
+		    display: grid;
+		    grid-template-columns: repeat(8, 1fr);
+		    width: 50%; /* Kleinere Breite */
+		    aspect-ratio: 1 / 1; /* Quadratische Form */
+		    margin: 60px auto; /* Zentrieren und Abstand nach außen */
+		}
+
+		.sidebar-chessboard .square {
+		    width: 100%;
+		    padding-top: 100%; /* Quadratische Felder */
+		}
+
+		.sidebar-chessboard .square.white {
+		    background-color: #f0f0f0;
+		}
+
+		.sidebar-chessboard .square.brown {
+		    background-color: #d2b48c; /* Helles Braun */
+		}		
+
     </style>
 </head>

@@ -159,8 +159,8 @@ public class MainViewController extends ControllerTemplate {
 		helper.createNewFields();
 		helper.createNewPiecesFromExistingPieces((Game) get(KEY.CHESSGAME));
 		webSocketService.updateClocks();
-		webSocketService.updateMoveList();
-
+		webSocketService.updateMoveList();	
+		
 		return "mainView";
 	}
 
@@ -424,7 +424,7 @@ public class MainViewController extends ControllerTemplate {
 			@RequestParam(defaultValue = "false") boolean showUciEngineLines,
 			@RequestParam(defaultValue = "false") boolean uciEngineActive, @RequestParam int updateIntervall,
 			@RequestParam int multiPVForEvaluationEngine, @RequestParam int uciEngineDepthForEvaluationEngine,
-			@RequestParam String selectedEngine) throws Exception {
+			@RequestParam(required=false) String selectedEngine) throws Exception {
 
 		EvaluationEngine selected = evaluationEngines.get(selectedEngine);
 		put(KEY.EVALUATION_ENGINE, selected);
@@ -495,7 +495,7 @@ public class MainViewController extends ControllerTemplate {
 			@RequestParam int uciEngineDepthForBlack, @RequestParam int threadsForBlack,
 			@RequestParam int hashSizeForBlack, @RequestParam int contemptForBlack,
 			@RequestParam int moveOverheadForBlack, @RequestParam int uciEloForBlack,
-			@RequestParam String selectedEngineForWhite, @RequestParam String selectedEngineForBlack) throws Exception {
+			@RequestParam(required=false) String selectedEngineForWhite, @RequestParam(required=false) String selectedEngineForBlack) throws Exception {
 
 		helper.updateUciEngineSettings(uciEngineDepthForWhite, threadsForWhite, hashSizeForWhite, contemptForWhite,
 				moveOverheadForWhite, uciEloForWhite, uciEngineDepthForBlack, threadsForBlack, hashSizeForBlack,

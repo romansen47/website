@@ -29,25 +29,27 @@ import demo.chess.game.Game;
 import demo.chess.save.GameSaver;
 
 /**
- * The `ViewControllerHelperImpl` class implements the `ViewControllerHelper` interface,
- * offering methods to set up and manage the visual representation and configuration
- * of a chess game within the application. This component is responsible for synchronizing
- * the frontend model with backend game data, allowing efficient updates to the user interface.
+ * The `ViewControllerHelperImpl` class implements the `ViewControllerHelper`
+ * interface, offering methods to set up and manage the visual representation
+ * and configuration of a chess game within the application. This component is
+ * responsible for synchronizing the frontend model with backend game data,
+ * allowing efficient updates to the user interface.
  *
- * Key functionalities provided by this helper class include:
- * - Configuring the chessboard and related UI elements (like evaluation bars, clocks, and move lists).
- * - Managing engine configurations for players and evaluation engines.
- * - Creating and displaying pieces and fields based on the game state and user settings.
- * - Setting up shutdown hooks for engines to ensure proper resource management.
- * - Implementing and managing clocks with increment options and game-over messages.
- * - Saving and loading games to/from external storage.
+ * Key functionalities provided by this helper class include: - Configuring the
+ * chessboard and related UI elements (like evaluation bars, clocks, and move
+ * lists). - Managing engine configurations for players and evaluation engines.
+ * - Creating and displaying pieces and fields based on the game state and user
+ * settings. - Setting up shutdown hooks for engines to ensure proper resource
+ * management. - Implementing and managing clocks with increment options and
+ * game-over messages. - Saving and loading games to/from external storage.
  *
- * This helper utilizes the `ChessHelper` superclass for common chess operations,
- * and integrates settings from the `viewConfig` to control various UI parameters.
- * It also interacts with the WebSocket service for real-time UI updates.
+ * This helper utilizes the `ChessHelper` superclass for common chess
+ * operations, and integrates settings from the `viewConfig` to control various
+ * UI parameters. It also interacts with the WebSocket service for real-time UI
+ * updates.
  */
 @Component
-public class ViewControllerHelperImpl extends ChessHelper  implements ViewControllerHelper {
+public class ViewControllerHelperImpl extends ChessHelper implements ViewControllerHelper {
 
 	/** Logger instance for capturing error details related to this exception. */
 	protected static final Logger logger = LogManager.getLogger();
@@ -103,7 +105,7 @@ public class ViewControllerHelperImpl extends ChessHelper  implements ViewContro
 
 		model.addAttribute("clockHeight", viewConfig.getClockSize());
 		model.addAttribute("clockFontSize", viewConfig.getClockSize() / 2);
-		
+
 		setupEngineConfigurations();
 
 	}
@@ -131,12 +133,12 @@ public class ViewControllerHelperImpl extends ChessHelper  implements ViewContro
 		int evalWidth = 20;
 		viewConfig.setEvalWidth(evalWidth);
 
-		int moveListLeft = 0; //leftOffset - moveListWidth - chessBoardOffset;
+		int moveListLeft = 0; // leftOffset - moveListWidth - chessBoardOffset;
 		viewConfig.setMoveListLeft(moveListLeft);
 
 		int moveListTop = topBarHeight;
 		viewConfig.setMoveListTop(moveListTop);
-		
+
 		viewConfig.setUciEngineMoveListTop(moveListTop);
 
 		int uciEngineMoveListLeft = 8 * squareSize + leftOffset + evalWidth + chessBoardOffset;
@@ -165,7 +167,7 @@ public class ViewControllerHelperImpl extends ChessHelper  implements ViewContro
 		((EngineConfig) get(KEY.ENGINE_CONFIG_EVAL)).setMultiPV(viewConfig.getMultiPVForEvaluationEngine());
 		((EngineConfig) get(KEY.ENGINE_CONFIG_EVAL)).setDepth(viewConfig.getUciEngineDepthForEvaluationEngine());
 	}
-	
+
 	/**
 	 * Calculates the ratio for the evaluation bars based on the evaluation score.
 	 *
@@ -292,8 +294,8 @@ public class ViewControllerHelperImpl extends ChessHelper  implements ViewContro
 	public void updateUciEngineSettings(int uciEngineDepthForWhite, int threadsForWhite, int hashSizeForWhite,
 			int contemptForWhite, int moveOverheadForWhite, int uciEloForWhite, int uciEngineDepthForBlack,
 			int threadsForBlack, int hashSizeForBlack, int contemptForBlack, int moveOverheadForBlack,
-			int uciEloForBlack, String selectedEngineForWhite, String selectedEngineForBlack, Map<String, PlayerEngine> playerEngines) {
-
+			int uciEloForBlack, String selectedEngineForWhite, String selectedEngineForBlack,
+			Map<String, PlayerEngine> playerEngines) {
 
 		put(KEY.PLAYER_ENGINE_FOR_WHITE, playerEngines.get(selectedEngineForWhite));
 		viewConfig.setPlayerEngineForWhite(selectedEngineForWhite);
@@ -315,7 +317,6 @@ public class ViewControllerHelperImpl extends ChessHelper  implements ViewContro
 
 		viewConfig.setUciEngineDepthForWhite(uciEngineDepthForWhite);
 		((EngineConfig) get(KEY.ENGINE_CONFIG_FOR_WHITE)).setDepth(uciEngineDepthForWhite);
-
 
 		put(KEY.PLAYER_ENGINE_FOR_BLACK, playerEngines.get(selectedEngineForBlack));
 		viewConfig.setPlayerEngineForBlack(selectedEngineForBlack);
