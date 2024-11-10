@@ -10,6 +10,46 @@
 		    console.error('WebSocket error:', error);
 		};
 		
+		const sidebar = document.getElementById('sidebar');
+		console.log(sidebar);
+
+		       function openSidebar() {
+		           sidebar.classList.add('visible');
+		       }
+
+		       function closeSidebar() {
+		           sidebar.classList.remove('visible');
+		       }
+
+		       // Event-Listener, um die Sidebar zu öffnen, wenn die Maus an den linken Rand bewegt wird
+		       document.addEventListener('mousemove', (e) => {
+		           if (e.clientX < 10) { // Öffnet, wenn Maus an linken Rand kommt
+		               openSidebar();
+		           }
+		       });
+
+		       // Klick außerhalb der Sidebar zum Schließen
+		       document.addEventListener('click', function (event) {
+		           const isClickInsideSidebar = sidebar.contains(event.target);
+
+		           if (!isClickInsideSidebar) {
+		               closeSidebar();
+		           }
+		       });
+			   
+			   // Toggle für die Untermenüs
+			          document.querySelectorAll('.menu-title').forEach(title => {
+			              title.addEventListener('click', () => {
+			                  const submenu = title.nextElementSibling;
+			                  if (submenu.style.display === 'block') {
+			                      submenu.style.display = 'none';
+			                  } else {
+			                      submenu.style.display = 'block';
+			                  }
+			              });
+			          });
+
+			   
 		socket.onmessage = function (event) {
 		    console.log('Received WebSocket message:', event.data);
 		    if (event.data === 'RELOAD') {

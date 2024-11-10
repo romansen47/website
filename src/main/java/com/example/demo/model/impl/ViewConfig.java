@@ -105,7 +105,7 @@ public class ViewConfig implements Config {
     private int leftOffset = 275;
 
     /** Size of each square on the chessboard in pixels. */
-    private int squareSize = 90;
+    private int squareSize = 75;
 
     /** Height of the top bar in pixels. */
     private int topBarHeight = 40;

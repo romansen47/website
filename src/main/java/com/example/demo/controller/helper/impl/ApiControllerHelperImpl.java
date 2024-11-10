@@ -212,7 +212,9 @@ public class ApiControllerHelperImpl extends ChessHelper implements ApiControlle
 	@Override
 	public boolean checkForGameState(Game chessGame, EvaluationEngine evaluationEngine) throws Exception {
 		if (chessGame.getState() != null) {
-			evaluationEngine.stopEvaluation();
+			if (evaluationEngine != null) {
+				evaluationEngine.stopEvaluation();
+			}
 			String message = "";
 			long white;
 			long black;
