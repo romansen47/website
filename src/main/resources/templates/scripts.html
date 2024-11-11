@@ -813,38 +813,37 @@
             return positionStringsList[index];
         }
 
-        function highlightBestMove() {
-            const moves = document.querySelectorAll('.uci-line-item');
-            if (moves.length > 0) {
+		function highlightBestMove() {
+		    const moves = document.querySelectorAll('.uci-line-item');
+		    if (moves.length > 0) {
+		        moves.forEach(move => {
+		            move.classList.remove('highlighted');  // Entfernt alte Hervorhebung
+		            const moveElements = move.querySelectorAll('.move');
+		            moveElements.forEach(moveElement => {
+		                moveElement.style.fontWeight = '';
+		                moveElement.style.fontStyle = '';
+		            });
+		        });
 
-                moves.forEach(move => {
-                    move.style.backgroundColor = '';
-                    const moveElements = move.querySelectorAll('.move');
-                    moveElements.forEach(moveElement => {
-                        moveElement.style.fontWeight = '';
-                        moveElement.style.fontStyle = '';
-                    });
-                });
+		        const highlightedMoves = new Set();
 
-                const highlightedMoves = new Set();
+		        moves.forEach(move => {
+		            const moveElements = move.querySelectorAll('.move');
+		            if (moveElements.length > 0) {
+		                const firstMoveText = moveElements[0].innerText;
 
-                moves.forEach(move => {
-                    const moveElements = move.querySelectorAll('.move');
-                    if (moveElements.length > 0) {
-                        const firstMoveText = moveElements[0].innerText;
-
-                        if (!highlightedMoves.has(firstMoveText)) {
-                            highlightedMoves.add(firstMoveText);
-                            
-                            move.style.backgroundColor = '#d4edda';
-                            
-                            moveElements[0].style.fontWeight = 'bold';
-                            moveElements[0].style.fontStyle = 'italic';
-                        }
-                    }
-                });
-            }
-        } 
+		                if (!highlightedMoves.has(firstMoveText)) {
+		                    highlightedMoves.add(firstMoveText);
+		                    
+		                    move.classList.add('highlighted'); // Fügt die CSS-Klasse hinzu
+		                    moveElements[0].style.fontWeight = 'bold';
+		                    moveElements[0].style.fontStyle = 'italic';
+		                }
+		            }
+		        });
+		    }
+		}
+ 
 
         function updateClocks() {
             fetch('/api/game/currentTime')

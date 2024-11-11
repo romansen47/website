@@ -31,9 +31,13 @@ import demo.chess.definitions.engines.impl.PlayerUciEngine;
 import demo.chess.definitions.moves.MoveList;
 import demo.chess.definitions.moves.impl.MoveListImpl;
 import demo.chess.definitions.players.impl.BlackPlayerImpl;
+import demo.chess.definitions.players.impl.DummyBlackPlayer;
+import demo.chess.definitions.players.impl.DummyWhitePlayer;
 import demo.chess.definitions.players.impl.WhitePlayerImpl;
+import demo.chess.game.DummyGame;
 import demo.chess.game.Game;
 import demo.chess.game.impl.ChessGame;
+import demo.chess.game.impl.DummyChessGame;
 
 /**
  * Main application class for the Chess application.
@@ -208,6 +212,15 @@ public class App extends ChessAdmin implements AppAdmin {
 			}
 		}
 		return engines;
+	}
+	
+	@Override
+	@Bean
+	@Scope("prototype")
+	public DummyGame dummyChessGame() throws Exception {
+		MoveList moveList = new MoveListImpl();
+		return new DummyChessGame(new ChessBoard(), new DummyWhitePlayer(moveList),
+				new DummyBlackPlayer(moveList), moveList, this);
 	}
 
 }

@@ -196,6 +196,11 @@
             margin-bottom: 10px; 
             border-bottom: 1px solid rgba(0, 0, 0, 0.2);
         }
+		
+		.uciEngine-move-list .uci-line-item.highlighted {
+		    background-color: #3a3a3a; /* Dunkleres Grau für Kontrast */
+		    color: #f0f0f0; /* Hellerer Text */
+		}
 
         .chess-clocks {
             position: relative;
@@ -457,7 +462,7 @@
 		.sidebar-chessboard {
 		    display: grid;
 		    grid-template-columns: repeat(8, 1fr);
-		    width: 50%; /* Kleinere Breite */
+		    width: 65%; /* Kleinere Breite */
 		    aspect-ratio: 1 / 1; /* Quadratische Form */
 		    margin: 60px auto; /* Zentrieren und Abstand nach außen */
 		}
@@ -473,6 +478,12 @@
 
 		.sidebar-chessboard .square.brown {
 		    background-color: #d2b48c; /* Helles Braun */
+		}
+		.sidebar-icon {
+		    width: 24px; /* Einheitliche Breite */
+		    height: auto; /* Höhe automatisch skalieren */
+		    margin-right: 8px;
+		    vertical-align: middle;
 		}		
 
     </style>

@@ -7,6 +7,7 @@ import com.example.demo.elements.Attributes;
 import demo.chess.admin.Admin;
 import demo.chess.definitions.engines.EvaluationEngine;
 import demo.chess.definitions.engines.PlayerEngine;
+import demo.chess.game.DummyGame;
 
 /**
  * The `AppAdmin` interface extends the base `Admin` interface, adding
@@ -67,4 +68,6 @@ public interface AppAdmin extends Admin {
 	 * @throws Exception if an error occurs while retrieving evaluation engines
 	 */
 	Map<String, EvaluationEngine> evaluationEngines() throws Exception;
+
+	DummyGame dummyChessGame() throws Exception;
 }

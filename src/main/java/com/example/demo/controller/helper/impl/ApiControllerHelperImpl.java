@@ -13,6 +13,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
+import com.example.demo.AppAdmin;
 import com.example.demo.controller.helper.ApiControllerHelper;
 import com.example.demo.controller.impl.ChessApiController;
 import com.example.demo.elements.KEY;
@@ -287,7 +288,7 @@ public class ApiControllerHelperImpl extends ChessHelper implements ApiControlle
 			for (String moves : evalMoveList) {
 				String[] movesAsArray = moves.split(" ");
 				String prefix = movesAsArray[0] + " " + movesAsArray[1];
-				tmpGame = admin.chessGame(100000);
+				tmpGame = ((AppAdmin)admin).dummyChessGame();
 				for (Move move : chessGameMoveList) {
 					moveToExecute = null;
 					for (Move tmpMove : tmpGame.getPlayer().getValidMoves(tmpGame)) {

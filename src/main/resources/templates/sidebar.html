@@ -1,6 +1,5 @@
 <div th:fragment="sidebar">
 		<div id="sidebar" class="sidebar">
-		    
 			<div class="sidebar-chessboard">
 			            <!-- 8x8-Schachbrettmuster -->
 			            <div th:each="row: ${#numbers.sequence(0, 7)}">
@@ -11,7 +10,10 @@
 
 		    <!-- Game Menü -->
 		    <div class="menu-section">
-		        <h3 class="menu-title">Game</h3>
+		        <h3 class="menu-title">
+					<img src="/white_rook.png" alt="Game Icon" class="sidebar-icon">
+					Game
+				</h3>
 		        <ul class="submenu">
 		            <li><button id="newGame">Start new Game</button></li>
 		            <li th:if="${uciEngineActive}"><button id="engineClash">Let engines play position</button></li>
@@ -22,7 +24,10 @@
 
 		    <!-- Settings Menü -->
 		    <div class="menu-section">
-		        <h3 class="menu-title">Settings</h3>
+		        <h3 class="menu-title">
+					<img src="/settings.png" alt="Game Icon" class="sidebar-icon">
+					Settings
+				</h3>
 		        <ul class="submenu">
 		            <li><a href='/settings'>General settings</a></li>
 		            <li><a href='/presentation-settings'>Presentation settings</a></li>
@@ -32,7 +37,10 @@
 
 		    <!-- File Menü -->
 		    <div class="menu-section">
-		        <h3 class="menu-title">File</h3>
+		        <h3 class="menu-title">
+					<img src="/files.png" alt="Game Icon" class="sidebar-icon">
+					File
+				</h3>
 		        <ul class="submenu">
 		            <li><button id="saveGameButton">Download game</button></li>
 		            <li><button id="loadGameButton">Upload game</button></li>
@@ -42,7 +50,10 @@
 
 		    <!-- Clipboard Menü -->
 		    <div class="menu-section">
-		        <h3 class="menu-title">Clipboard</h3>
+		        <h3 class="menu-title">
+					<img src="/clipboard.png" alt="Game Icon" class="sidebar-icon">
+					Clipboard
+				</h3>
 		        <ul class="submenu">
 		            <li><button id="saveGameButtonServer">Save game to clipboard</button></li>
 		            <li><button id="loadGameButtonServer">Load game from clipboard</button></li>
