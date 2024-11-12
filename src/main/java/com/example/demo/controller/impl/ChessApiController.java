@@ -395,6 +395,7 @@ public class ChessApiController extends ControllerTemplate {
 		}
 		if (promotionTmp != null) {
 			final Promotion finalProm = promotionTmp;
+			@SuppressWarnings("unchecked")
 			Optional<DisplayedPiece> element = ((List<DisplayedPiece>) get(KEY.ELEMENTS)).stream()
 					.filter(el -> el.getPiece().equals(finalProm.getPiece())).findFirst();
 			if (element.isPresent()) {
@@ -613,6 +614,7 @@ public class ChessApiController extends ControllerTemplate {
 	 * @throws IOException          if s.t. goes wrong
 	 * @throws NoMoveFoundException if no move is found
 	 */
+	@SuppressWarnings("unchecked")
 	@GetMapping("/getPositionStrings")
 	@ResponseBody
 	public ChessApiResponse<List<String>> getPositionStrings() throws NoMoveFoundException, IOException {

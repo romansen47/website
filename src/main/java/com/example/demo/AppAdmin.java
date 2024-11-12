@@ -69,5 +69,10 @@ public interface AppAdmin extends Admin {
 	 */
 	Map<String, EvaluationEngine> evaluationEngines() throws Exception;
 
-	DummyGame dummyChessGame() throws Exception;
+	/**
+	 * Returns dummy game with no validation.
+	 *
+	 * @return the dummy game instance
+	 */
+	DummyGame dummyGame();
 }

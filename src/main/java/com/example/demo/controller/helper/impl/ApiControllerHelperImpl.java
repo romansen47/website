@@ -288,7 +288,7 @@ public class ApiControllerHelperImpl extends ChessHelper implements ApiControlle
 			for (String moves : evalMoveList) {
 				String[] movesAsArray = moves.split(" ");
 				String prefix = movesAsArray[0] + " " + movesAsArray[1];
-				tmpGame = ((AppAdmin)admin).dummyChessGame();
+				tmpGame = ((AppAdmin)admin).dummyGame();
 				for (Move move : chessGameMoveList) {
 					moveToExecute = null;
 					for (Move tmpMove : tmpGame.getPlayer().getValidMoves(tmpGame)) {

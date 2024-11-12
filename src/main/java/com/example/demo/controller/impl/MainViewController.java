@@ -159,8 +159,8 @@ public class MainViewController extends ControllerTemplate {
 		helper.createNewFields();
 		helper.createNewPiecesFromExistingPieces((Game) get(KEY.CHESSGAME));
 		webSocketService.updateClocks();
-		webSocketService.updateMoveList();	
-		
+		webSocketService.updateMoveList();
+
 		return "mainView";
 	}
 
@@ -273,7 +273,9 @@ public class MainViewController extends ControllerTemplate {
 		setup();
 		this.helper.setUnsetViewVariables(this.getEvaluationEngine());
 		helper.createNewPiecesFromExistingPieces(chessGame);
-		webSocketService.sendReloadSignal();
+		String blackPlayer = get(KEY.PLAYER_ENGINE_FOR_BLACK).toString();
+		String whitePlayer = get(KEY.PLAYER_ENGINE_FOR_WHITE).toString();
+		webSocketService.sendMessage(whitePlayer + "  vs. " + blackPlayer );
 		Thread.sleep(200l);
 		webSocketService.triggerUciEngineMove();
 	}

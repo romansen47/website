@@ -138,10 +138,19 @@ public class App extends ChessAdmin implements AppAdmin {
 	@Override
 	@Bean
 	@Scope("prototype")
-	public Game chessGame(int time) throws Exception {
+	public Game chessGame(int time){
 		MoveList moveList = new MoveListImpl();
 		return new ChessGame(new ChessBoard(), new WhitePlayerImpl(moveList, "ChessGame"),
 				new BlackPlayerImpl(moveList, "ChessGame"), moveList, this, time);
+	}
+
+	@Override
+	@Bean
+	@Scope("prototype")
+	public DummyGame dummyGame(){
+		MoveList moveList = new MoveListImpl();
+		return new DummyChessGame(new ChessBoard(), new DummyWhitePlayer(moveList),
+				new DummyBlackPlayer(moveList), moveList, this);
 	}
 
 	/**
@@ -212,15 +221,6 @@ public class App extends ChessAdmin implements AppAdmin {
 			}
 		}
 		return engines;
-	}
-	
-	@Override
-	@Bean
-	@Scope("prototype")
-	public DummyGame dummyChessGame() throws Exception {
-		MoveList moveList = new MoveListImpl();
-		return new DummyChessGame(new ChessBoard(), new DummyWhitePlayer(moveList),
-				new DummyBlackPlayer(moveList), moveList, this);
 	}
 
 }
