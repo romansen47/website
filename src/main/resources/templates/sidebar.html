@@ -15,14 +15,13 @@
 					Game
 				</h3>
 		        <ul class="submenu">
-		            <li><button id="newGame">Start new Game</button></li>
+		            <li><button id="newGame">New Game</button></li>
 		            <li th:if="${uciEngineActive}"><button id="engineClash">Let engines play position</button></li>
-		            <li><a href='/resign'>Resign!</a></li>
+		            <li><a href='/resign'>Resign the game</a></li>
 		            <li><button id="shutDown">Shutdown Application</button></li>
 		        </ul>
 		    </div>
-
-		    <!-- Settings Menü -->
+ 
 		    <div class="menu-section">
 		        <h3 class="menu-title">
 					<img src="/settings.png" alt="Game Icon" class="sidebar-icon">

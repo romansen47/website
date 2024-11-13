@@ -50,7 +50,7 @@ public class ViewConfig implements Config {
 	private int updateIntervall = 2;
 
 	/** Duration in milliseconds for animations, such as piece movements. */
-	private int animationDuration = 100;
+	private int animationDuration = 500;
 
 	/** Specifies the name of the engine used for evaluation purposes. */
 	private String evaluationEngine = Engine.STOCKFISH_16.toString();
