@@ -17,7 +17,8 @@
 		        <ul class="submenu">
 		            <li><button id="newGame">New Game</button></li>
 		            <li th:if="${uciEngineActive}"><button id="engineClash">Let engines play position</button></li>
-		            <li><a href='/resign'>Resign the game</a></li>
+					<li><a href='/startGameAnalysis'>Analize current game</a></li>
+					<li><a href='/resign'>Resign the game</a></li>
 		            <li><button id="shutDown">Shutdown Application</button></li>
 		        </ul>
 		    </div>

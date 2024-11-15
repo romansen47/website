@@ -210,7 +210,7 @@ public abstract class ControllerTemplate implements ChessController {
 	 * @return the newly created `Game` instance
 	 * @throws Exception if game creation fails
 	 */
-	protected Game createNewGame() throws Exception {
+	protected Game createNewGame() {
 		Game chessGame = (Game) get(KEY.CHESSGAME);
 		if (chessGame != null) {
 			evaluationEngines.entrySet().stream().forEach(entry -> entry.getValue().stopEvaluation());
@@ -235,7 +235,7 @@ public abstract class ControllerTemplate implements ChessController {
 	 * @return the current `Game` instance
 	 * @throws Exception if game retrieval or creation fails
 	 */
-	protected Game getChessGame() throws Exception {
+	protected Game getChessGame() {
 		Game chessGame = ((Game) get(KEY.CHESSGAME));
 		if (chessGame == null) {
 			chessGame = createNewGame();

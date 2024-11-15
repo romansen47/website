@@ -1,8 +1,10 @@
 package com.example.demo.controller.impl;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.logging.log4j.LogManager;
@@ -23,6 +25,9 @@ import com.example.demo.model.DisplayedField;
 import demo.chess.definitions.Color;
 import demo.chess.definitions.engines.EngineConfig;
 import demo.chess.definitions.engines.EvaluationEngine;
+import demo.chess.definitions.engines.impl.NoMoveFoundException;
+import demo.chess.definitions.moves.Move;
+import demo.chess.definitions.moves.MoveList;
 import demo.chess.definitions.states.State;
 import demo.chess.game.Game;
 import jakarta.annotation.PostConstruct;
@@ -316,6 +321,52 @@ public class MainViewController extends ControllerTemplate {
 		return "redirect:/";
 	}
 
+	/**
+	 * Allows the current player to resign the game, setting the game state to
+	 * indicate resignation and stopping the player's clock.
+	 *
+	 * @return A redirect to the main view after the resignation.
+	 * @throws ExecutionException if sth strange happens
+	 * @throws InterruptedException  when trying to read engine output
+	 * @throws IOException when trying to read engine output
+	 * @throws NoMoveFoundException if no move is found for some reason
+	 * @throws Exception if resignation processing fails
+	 */
+	@GetMapping("/startGameAnalysis")
+	protected String startGameAnalysis() throws IOException, InterruptedException, ExecutionException, NoMoveFoundException {
+		MoveList moveList = getChessGame().getMoveList();
+		long time = 1000l;
+		EvaluationEngine engine = (EvaluationEngine) get(KEY.EVALUATION_ENGINE);
+		engine.stopEvaluation();
+		engine.clearChachedLines();
+		EngineConfig config = (EngineConfig) get(KEY.ENGINE_CONFIG_EVAL);
+		Game tmpGame = admin.dummyGame();
+		for (Move move : moveList) {
+			this.webSocketService.sendMessage("Analizing move " + move.toString());
+			engine.getBestLines(tmpGame, config);
+			Thread.sleep(time);
+			List<Move> moves = tmpGame.getPlayer().getValidMoves(tmpGame);
+			Move simMove = null;
+			for (Move exchangeMove : moves) {
+				if(exchangeMove.toString().equals(move.toString())) {
+					simMove = exchangeMove;
+					continue;
+				}
+			}
+			if (simMove == null) {
+				throw new NoMoveFoundException(move.toString());
+			}
+			if (engine.getCachedBestLines().get(tmpGame.getMoveList().toString()).size() < 5) {
+				this.webSocketService.sendMessage("Analizing move " + move.toString());
+				Thread.sleep(time);
+			}
+			String key = tmpGame.getMoveList().toString();
+			tmpGame.apply(simMove);
+			engine.stopEvaluation();
+			logger.info("Move {} - {} evaluated lines", move, engine.getCachedBestLines().get(key).size());
+		}
+		return "redirect:/";
+	}
 	/**
 	 * Handles the GET request for the settings page. Populates the model with
 	 * configuration options.
