@@ -1144,5 +1144,65 @@
 		}
 		
 		loadMoveList();
+		
+		if ([[${showChart}]]){
+			const ctx = document.getElementById('evaluationChart').getContext('2d');
+			
+			fetch('/api/game/getEvaluationProfile', {
+			    method: 'GET',
+			    headers: {
+			        'Content-Type': 'application/json'
+			    }
+			})
+			.then(response => response.json())
+			.then(data => {
+
+						const evaluationData = data.data;
+
+						new Chart(ctx, {
+						    type: 'bar',
+						    data: {
+						        labels: evaluationData.map(() => ''), // Leere Labels für die X-Achse
+						        datasets: [{
+						            data: evaluationData,
+						            backgroundColor: evaluationData.map((_, index) =>
+						                index % 2 === 0 ? 'white' : 'black' // Weiß für gerade, Schwarz für ungerade
+						            ),
+						            borderWidth: 0 // Kein Rand
+						        }]
+						    },
+						    options: {
+						        responsive: false,
+						        maintainAspectRatio: false,
+						        plugins: {
+						            legend: {
+						                display: false // Keine Legende anzeigen
+						            },
+						            tooltip: {
+						                enabled: false // Tooltips deaktivieren
+						            },
+						            title: {
+						                display: false // Kein Titel anzeigen
+						            }
+						        },
+						        scales: {
+						            x: {
+						                display: false // X-Achse komplett ausblenden
+						            },
+						            y: {
+						                display: false, // Y-Achse komplett ausblenden
+						                min: -10,
+						                max: 10
+						            }
+						        },
+						        layout: {
+						            padding: 0 // Keine Innenabstände
+						        },
+						        animation: false // Animationen deaktivieren (optional für schnellere Darstellung)
+						    }
+						});
+			})
+			.catch(error => console.error('Error:', error));
+		};
     });
 </script>

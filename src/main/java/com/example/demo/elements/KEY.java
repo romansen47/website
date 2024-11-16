@@ -100,6 +100,8 @@ public enum KEY {
 	/**
 	 * Stores a list of Strings used in frontend.
 	 */
-	POSITIONS_AS_STRINGS;
+	POSITIONS_AS_STRINGS, 
+	
+	SHOW_CHART, ENGINE_ANALYSIS;
 
 }

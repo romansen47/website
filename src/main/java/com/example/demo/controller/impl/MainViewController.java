@@ -23,6 +23,7 @@ import com.example.demo.elements.KEY;
 import com.example.demo.model.DisplayedField;
 
 import demo.chess.definitions.Color;
+import demo.chess.definitions.engines.Engine;
 import demo.chess.definitions.engines.EngineConfig;
 import demo.chess.definitions.engines.EvaluationEngine;
 import demo.chess.definitions.engines.impl.NoMoveFoundException;
@@ -100,6 +101,7 @@ public class MainViewController extends ControllerTemplate {
 		helper.createShutdownHooks(playerEngines);
 		helper.setupEngineConfigurations();
 		helper.createNewPiecesFromExistingPieces((Game) get(KEY.CHESSGAME));
+		put(KEY.SHOW_CHART, false);
 	}
 
 	/**
@@ -116,7 +118,6 @@ public class MainViewController extends ControllerTemplate {
 		helper.seupClocks(chessGame);
 		helper.setUnsetViewVariables(this.getEvaluationEngine());
 		helper.createNewFields();
-
 	}
 
 	/**
@@ -178,6 +179,7 @@ public class MainViewController extends ControllerTemplate {
 	protected void reloadGame() throws Exception {
 		helper.saveGame("local.txt", getChessGame());
 		setup();
+		put(KEY.SHOW_CHART, false);
 		loadGame("local.txt");
 	}
 
@@ -209,6 +211,7 @@ public class MainViewController extends ControllerTemplate {
 	@ResponseBody
 	protected String startNewGame(@RequestBody Map<String, Object> params) throws Exception {
 
+		put(KEY.SHOW_CHART, false);
 		Game chessGame = (Game) get(KEY.CHESSGAME);
 		put(KEY.ENGINE_MATCH, false);
 
@@ -333,10 +336,16 @@ public class MainViewController extends ControllerTemplate {
 	 * @throws Exception if resignation processing fails
 	 */
 	@GetMapping("/startGameAnalysis")
-	protected String startGameAnalysis() throws IOException, InterruptedException, ExecutionException, NoMoveFoundException {
+	protected String startGameAnalysis() throws IOException, InterruptedException, ExecutionException, NoMoveFoundException, Exception {
 		MoveList moveList = getChessGame().getMoveList();
 		long time = 1000l;
 		EvaluationEngine engine = (EvaluationEngine) get(KEY.EVALUATION_ENGINE);
+		if (engine == null) {
+			if (this.evaluationEngines.isEmpty()) {
+				throw new Exception("No engines configured");
+			}
+			else engine = evaluationEngines.get("STOCKFISH_16");
+		}
 		engine.stopEvaluation();
 		engine.clearChachedLines();
 		EngineConfig config = (EngineConfig) get(KEY.ENGINE_CONFIG_EVAL);
@@ -363,6 +372,8 @@ public class MainViewController extends ControllerTemplate {
 			String key = tmpGame.getMoveList().toString();
 			tmpGame.apply(simMove);
 			engine.stopEvaluation();
+			put(KEY.SHOW_CHART, true);
+			put(KEY.ENGINE_ANALYSIS, engine.getCachedBestLines());
 			logger.info("Move {} - {} evaluated lines", move, engine.getCachedBestLines().get(key).size());
 		}
 		return "redirect:/";

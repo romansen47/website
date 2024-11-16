@@ -10,6 +10,8 @@
 	<div class="move-list" id="moveList"></div>	
 	<div id="uciEngineMoveList" class="uciEngine-move-list" th:if="${showUciEngineLines}">
 		<div class="uciEngine-header">UciEngine lines:</div>
-	</div>
+	</div> 
+	<script src="https://cdn.jsdelivr.net/npm/chart.js" th:if="${showChart}"></script>
+	<canvas id="evaluationChart" width="500" height="150"></canvas>
 </body>
 </html>

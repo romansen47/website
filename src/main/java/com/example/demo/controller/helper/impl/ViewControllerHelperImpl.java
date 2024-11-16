@@ -57,6 +57,7 @@ public class ViewControllerHelperImpl extends ChessHelper implements ViewControl
 	@Override
 	public void addModelAttributes(String color, String whiteTimeString, String blackTimeString, Model model) {
 
+		model.addAttribute("showChart", get(KEY.SHOW_CHART));
 		model.addAttribute("whiteTime", whiteTimeString);
 		model.addAttribute("blackTime", blackTimeString);
 

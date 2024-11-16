@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -620,6 +621,24 @@ public class ChessApiController extends ControllerTemplate {
 	public ChessApiResponse<List<String>> getPositionStrings() throws NoMoveFoundException, IOException {
 		return new ChessApiResponse<>(true, (List<String>) get(KEY.POSITIONS_AS_STRINGS));
 	}
+	 
+	@SuppressWarnings("unchecked")
+	@GetMapping("/getEvaluationProfile")
+	@ResponseBody
+	public ChessApiResponse<List<Double>> getEvaluationProfile() throws NoMoveFoundException, IOException {
+		Map<String, List<Pair<Double, String>>> engineLines = (Map<String, List<Pair<Double, String>>>) get(KEY.ENGINE_ANALYSIS);
+		List<Double> profile = new ArrayList<>(); 
+		for (int i = 0; i < engineLines.size(); i++) {
+			double val = 0.5;
+			for (Entry<String, List<Pair<Double, String>>> entry:engineLines.entrySet()) {
+				if (entry.getKey().split(" ").length == i) {
+					val = -entry.getValue().get(0).getKey();
+				}				
+			}
+			profile.add(Math.max(Math.min(val, 10), -10));
+		}
+		return new ChessApiResponse<>(true, profile);
+	}
 
 	/**
 	 * Handles GET requests to retrieve the list of moves made during the game.
@@ -970,7 +989,10 @@ public class ChessApiController extends ControllerTemplate {
 	 * @throws Exception If any error occurs during the reset operation.
 	 */
 	@Override
-	protected String reset() throws Exception {
+	protected String reset() throws Exception { 
+		put(KEY.ENGINE_MATCH, false);
+		createNewGame();
+		setup(); 
 		return helper.reset();
 	}
 
