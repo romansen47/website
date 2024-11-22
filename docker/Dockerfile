@@ -55,5 +55,5 @@ RUN a2ensite default-ssl.conf
 EXPOSE 80 443
 
 # Start Apache and run the Spring Boot application
-CMD service apache2 start && java -jar /app/website/target/website-0.0.1-SNAPSHOT.jar
+CMD service apache2 start && java -Xmx4g -Xms512m -jar /app/website/target/website-0.0.1-SNAPSHOT.jar
 

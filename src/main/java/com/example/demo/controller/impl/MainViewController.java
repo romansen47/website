@@ -338,7 +338,7 @@ public class MainViewController extends ControllerTemplate {
 	@GetMapping("/startGameAnalysis")
 	protected String startGameAnalysis() throws IOException, InterruptedException, ExecutionException, NoMoveFoundException, Exception {
 		MoveList moveList = getChessGame().getMoveList();
-		long time = 1000l;
+		long time = 3000l;
 		EvaluationEngine engine = (EvaluationEngine) get(KEY.EVALUATION_ENGINE);
 		if (engine == null) {
 			if (this.evaluationEngines.isEmpty()) {

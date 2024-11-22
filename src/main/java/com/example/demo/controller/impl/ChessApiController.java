@@ -635,7 +635,16 @@ public class ChessApiController extends ControllerTemplate {
 					val = -entry.getValue().get(0).getKey();
 				}				
 			}
-			profile.add(Math.max(Math.min(val, 10), -10));
+			if (Math.abs(Math.abs(val) - 99) < 1) {
+				val = -val;
+			}
+			if (val > 10) {
+				profile.add(10d);
+			} else if (val < -10) {
+				profile.add(-10d);
+			} else {
+				profile.add(val);	
+			}
 		}
 		return new ChessApiResponse<>(true, profile);
 	}
