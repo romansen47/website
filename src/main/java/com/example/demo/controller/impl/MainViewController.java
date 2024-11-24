@@ -338,7 +338,7 @@ public class MainViewController extends ControllerTemplate {
 	@GetMapping("/startGameAnalysis")
 	protected String startGameAnalysis() throws IOException, InterruptedException, ExecutionException, NoMoveFoundException, Exception {
 		MoveList moveList = getChessGame().getMoveList();
-		long time = 3000l;
+		long time = 5000l;
 		EvaluationEngine engine = (EvaluationEngine) get(KEY.EVALUATION_ENGINE);
 		if (engine == null) {
 			if (this.evaluationEngines.isEmpty()) {
@@ -369,13 +369,13 @@ public class MainViewController extends ControllerTemplate {
 				this.webSocketService.sendMessage("Analizing move " + move.toString());
 				Thread.sleep(time);
 			}
+			engine.stopEvaluation();
 			String key = tmpGame.getMoveList().toString();
 			tmpGame.apply(simMove);
-			engine.stopEvaluation();
-			put(KEY.SHOW_CHART, true);
-			put(KEY.ENGINE_ANALYSIS, engine.getCachedBestLines());
 			logger.info("Move {} - {} evaluated lines", move, engine.getCachedBestLines().get(key).size());
 		}
+		put(KEY.SHOW_CHART, true);
+		put(KEY.ENGINE_ANALYSIS, engine.getCachedBestLines());
 		return "redirect:/";
 	}
 	/**

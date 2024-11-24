@@ -46,6 +46,7 @@ import demo.chess.definitions.Color;
 import demo.chess.definitions.PieceType;
 import demo.chess.definitions.board.Board;
 import demo.chess.definitions.engines.EngineConfig;
+import demo.chess.definitions.engines.EvaluationEngine;
 import demo.chess.definitions.engines.PlayerEngine;
 import demo.chess.definitions.engines.impl.EvaluationUciEngine;
 import demo.chess.definitions.engines.impl.NoMoveFoundException;
@@ -55,10 +56,12 @@ import demo.chess.definitions.moves.Castling;
 import demo.chess.definitions.moves.EnPassant;
 import demo.chess.definitions.moves.Move;
 import demo.chess.definitions.moves.Promotion;
+import demo.chess.definitions.moves.impl.MoveListImpl;
 import demo.chess.definitions.pieces.Piece;
 import demo.chess.definitions.pieces.impl.Rook;
 import demo.chess.game.Game;
 import demo.chess.save.GameSaver;
+import demo.chess.definitions.moves.MoveList;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -628,24 +631,17 @@ public class ChessApiController extends ControllerTemplate {
 	public ChessApiResponse<List<Double>> getEvaluationProfile() throws NoMoveFoundException, IOException {
 		Map<String, List<Pair<Double, String>>> engineLines = (Map<String, List<Pair<Double, String>>>) get(KEY.ENGINE_ANALYSIS);
 		List<Double> profile = new ArrayList<>(); 
-		for (int i = 0; i < engineLines.size(); i++) {
-			double val = 0.5;
-			for (Entry<String, List<Pair<Double, String>>> entry:engineLines.entrySet()) {
-				if (entry.getKey().split(" ").length == i) {
-					val = -entry.getValue().get(0).getKey();
-				}				
+		Game chessGame = getChessGame();
+		MoveList tmpMoveList = new MoveListImpl();
+		for (Move move:chessGame.getMoveList()) {
+			tmpMoveList.add(move);
+			double val = 0d;
+			if (engineLines.get(tmpMoveList.toString()) != null && !engineLines.get(tmpMoveList.toString()).isEmpty()) {
+				val = engineLines.get(tmpMoveList.toString()).get(0).getKey();
 			}
-			if (Math.abs(Math.abs(val) - 99) < 1) {
-				val = -val;
-			}
-			if (val > 10) {
-				profile.add(10d);
-			} else if (val < -10) {
-				profile.add(-10d);
-			} else {
-				profile.add(val);	
-			}
+			profile.add(val);
 		}
+		((EvaluationEngine) get(KEY.EVALUATION_ENGINE)).stopEvaluation();
 		return new ChessApiResponse<>(true, profile);
 	}
 
