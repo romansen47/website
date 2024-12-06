@@ -12,7 +12,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -529,6 +528,38 @@ public class ChessApiController extends ControllerTemplate {
 		} catch (IOException e) {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error loading game");
 		}
+		
+		
+	}
+	
+	/**
+	 * Uploads a saved pgn game file from the client to the server, which is then loaded
+	 * into the game for resuming or reviewing previous moves.
+	 *
+	 * @param file The file containing the saved game state.
+	 * @return A `ResponseEntity` confirming successful load or detailing any error.
+	 * @throws Exception If an error occurs during the file upload or load process.
+	 */
+	@PostMapping("/upload-pgn-game")
+	public ResponseEntity<String> uploadPgnGame(@RequestParam("file") MultipartFile file) throws Exception {
+		if (file.isEmpty()) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No file selected.");
+		}
+
+		try {
+			FileWriter fw = new FileWriter("save-game.txt");
+			BufferedWriter bw = new BufferedWriter(fw);
+			List<Move> moveList = helper.convertToCoordinateRepresentation(file, admin);
+			bw.write(moveList.toString());
+			bw.flush();
+			bw.close();
+			fw.close();
+
+			loadGame();
+			return ResponseEntity.ok("Game loaded successfully");
+		} catch (IOException e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error loading game");
+		}
 	}
 
 	/**
@@ -622,6 +653,7 @@ public class ChessApiController extends ControllerTemplate {
 	@GetMapping("/getPositionStrings")
 	@ResponseBody
 	public ChessApiResponse<List<String>> getPositionStrings() throws NoMoveFoundException, IOException {
+		helper.createPositionsAsString((Game) get(KEY.CHESSGAME),admin);
 		return new ChessApiResponse<>(true, (List<String>) get(KEY.POSITIONS_AS_STRINGS));
 	}
 	 
@@ -630,19 +662,23 @@ public class ChessApiController extends ControllerTemplate {
 	@ResponseBody
 	public ChessApiResponse<List<Double>> getEvaluationProfile() throws NoMoveFoundException, IOException {
 		Map<String, List<Pair<Double, String>>> engineLines = (Map<String, List<Pair<Double, String>>>) get(KEY.ENGINE_ANALYSIS);
-		List<Double> profile = new ArrayList<>(); 
+		List<Double> tmpProfile = new ArrayList<>();
 		Game chessGame = getChessGame();
 		MoveList tmpMoveList = new MoveListImpl();
+		double max = 0;
 		for (Move move:chessGame.getMoveList()) {
 			tmpMoveList.add(move);
 			double val = 0d;
 			if (engineLines.get(tmpMoveList.toString()) != null && !engineLines.get(tmpMoveList.toString()).isEmpty()) {
 				val = engineLines.get(tmpMoveList.toString()).get(0).getKey();
+				max = Math.max(max, Math.min(10, Math.abs(val)));
 			}
-			profile.add(val);
+			tmpProfile.add(val);
 		}
-		((EvaluationEngine) get(KEY.EVALUATION_ENGINE)).stopEvaluation();
-		return new ChessApiResponse<>(true, profile);
+		if ((EvaluationEngine) get(KEY.EVALUATION_ENGINE)!= null){
+			((EvaluationEngine) get(KEY.EVALUATION_ENGINE)).stopEvaluation();
+		}
+		return new ChessApiResponse<>(true, tmpProfile);
 	}
 
 	/**
@@ -917,74 +953,10 @@ public class ChessApiController extends ControllerTemplate {
 		}
 		this.webSocketService.updateClocks();
 		this.webSocketService.updateMoveList();
-		String positionAsString = createPositionAsString(chessGame);
+		String positionAsString = helper.createPositionAsString(chessGame);
 		((List<String>) get(KEY.POSITIONS_AS_STRINGS)).add(positionAsString);
 	}
-
-	/**
-	 * Creates a 64-character string representing the current state of the
-	 * chessboard. Each character corresponds to a square on the board, with pieces
-	 * represented by standard abbreviations (e.g., 'P' for white pawn, 'p' for
-	 * black pawn). Empty squares are represented by a placeholder character.
-	 *
-	 * @param chessGame The current chess game from which the board state is
-	 *                  extracted.
-	 * @return A 64-character string representing the board state.
-	 */
-	private String createPositionAsString(Game chessGame) {
-		StringBuilder boardString = new StringBuilder(64);
-		Board board = chessGame.getChessBoard(); // Retrieve the board object
-
-		for (int rank = 8; rank > 0; rank--) { // Iterate over ranks from top (8) to bottom (1)
-			for (int file = 1; file <= 8; file++) { // Iterate over files from left (a) to right (h)
-				Field field = board.getField(file, rank); // Retrieve the field at (file, rank)
-				Piece piece = field.getPiece();
-
-				if (piece == null) {
-					boardString.append('.'); // Placeholder for empty squares
-				} else {
-					boardString.append(getPieceRepresentation(piece));
-				}
-			}
-		}
-		return boardString.toString();
-	}
-
-	/**
-	 * Returns a single character representing the specified chess piece. Uppercase
-	 * letters denote white pieces, and lowercase letters denote black pieces.
-	 *
-	 * @param piece The piece to represent.
-	 * @return A single character representing the piece.
-	 */
-	private char getPieceRepresentation(Piece piece) {
-		char representation;
-		switch (piece.getType()) {
-		case PAWN:
-			representation = 'P';
-			break;
-		case KNIGHT:
-			representation = 'N';
-			break;
-		case BISHOP:
-			representation = 'B';
-			break;
-		case ROOK:
-			representation = 'R';
-			break;
-		case QUEEN:
-			representation = 'Q';
-			break;
-		case KING:
-			representation = 'K';
-			break;
-		default:
-			representation = '.';
-			break;
-		}
-		return piece.getColor() == Color.BLACK ? Character.toLowerCase(representation) : representation;
-	}
-
+	
 	/**
 	 * Resets the game state to its initial configuration. This method invokes the
 	 * helper’s reset logic, ensuring that all relevant game components and

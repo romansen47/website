@@ -1,10 +1,14 @@
 package com.example.demo.controller.helper;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.example.demo.AppAdmin;
 
 import demo.chess.admin.Admin;
 import demo.chess.definitions.engines.EngineConfig;
@@ -171,4 +175,29 @@ public interface ApiControllerHelper {
 	String createToolTipForConfig(EngineConfig config);
 
 	List<String> convertToSan(List<String> evalMoveList, Admin admin) throws Exception;
+
+	List<Move> convertToCoordinateRepresentation(MultipartFile file, AppAdmin admin) throws FileNotFoundException, IOException, NoMoveFoundException;
+
+	/**
+	 * Returns a single character representing the specified chess piece. Uppercase
+	 * letters denote white pieces, and lowercase letters denote black pieces.
+	 *
+	 * @param piece The piece to represent.
+	 * @return A single character representing the piece.
+	 */
+	char getPieceRepresentation(Piece piece);
+
+	/**
+	 * Creates a 64-character string representing the current state of the
+	 * chessboard. Each character corresponds to a square on the board, with pieces
+	 * represented by standard abbreviations (e.g., 'P' for white pawn, 'p' for
+	 * black pawn). Empty squares are represented by a placeholder character.
+	 *
+	 * @param chessGame The current chess game from which the board state is
+	 *                  extracted.
+	 * @return A 64-character string representing the board state.
+	 */
+	String createPositionAsString(Game chessGame);
+
+	void createPositionsAsString(Game chessGame, AppAdmin admin) throws NoMoveFoundException, IOException;
 }

@@ -138,6 +138,30 @@
 	        input.click();
 	    });
 		
+		document.getElementById('loadPGNButton').addEventListener('click', function () {
+			const input = document.createElement('input');
+			input.type = 'file';
+			input.accept = '.txt';
+			input.onchange = function (event) {
+			    const file = event.target.files[0];
+			    if (file) {
+			        const formData = new FormData();
+			        formData.append('file', file);
+	                fetch('/api/game/upload-pgn-game', {
+	                    method: 'POST',
+			            body: formData
+			        })
+			        .then(response => response.json())
+			        .then(data => {
+			            console.log('Game loaded successfully:', data);
+			            window.location.reload();
+			        })
+			        .catch(error => console.error('Error loading game:', error));
+			    }
+			};
+			input.click();
+		});
+			
 	    document.getElementById('importEngine').addEventListener('click', function () {
 	        const input = document.createElement('input');
 	        input.type = 'file';
@@ -186,9 +210,9 @@
             .then(data => console.log(data))
             .catch(error => console.error('Error:', error));
         });
-	    
-	    const newGamePopup = document.getElementById('newGamePopup');
-	    const okBtn = document.getElementById('newGameOkButton');
+
+		const newGamePopup = document.getElementById('newGamePopup');
+		const okBtn = document.getElementById('newGameOkButton');
 
 	    function openNewGamePopup() {
 	        document.getElementById('newGamePopup').style.display = 'flex'; 
@@ -235,7 +259,54 @@
 	    document.getElementById('newGame').addEventListener('click', function () {
 	        openNewGamePopup(); 
 	    });
-	    
+		
+		const gameAnalysisPopup = document.getElementById('gameAnalysisPopup');
+		const gameAnalysisOkBtn = document.getElementById('gameAnalysisOkButton');
+
+		function openGameANalysisPopup() {
+		    document.getElementById('gameAnalysisPopup').style.display = 'flex'; 
+		}
+
+		function closeGameAnalysisPopup() {
+		    document.getElementById('gameAnalysisPopup').style.display = 'none'; 
+		}
+
+		document.getElementById('gameAnalysisOkButton').addEventListener('click', function() {
+		    const analysisTimePerMove = document.getElementById('analysisTimePerMove').value;
+		    const threadsForGameEvaluation = document.getElementById('threadsForGameEvaluation').value;
+		    const multiPvForGameEvaluation = document.getElementById('multiPvForGameEvaluation').value;
+			const minimalEvaluationDepth = document.getElementById('minimalEvaluationDepth').value;
+       		
+			fetch('/startGameAnalysis', {
+          		method: 'POST',
+          		headers: {
+             		'Content-Type': 'application/json'
+          		},
+          		body: JSON.stringify({
+              		analysisTimePerMove: analysisTimePerMove,
+              		threadsForGameEvaluation: threadsForGameEvaluation,
+              		multiPvForGameEvaluation: multiPvForGameEvaluation,
+					minimalEvaluationDepth: minimalEvaluationDepth
+          		})
+      		})
+      		.then(response => response.json())
+      		.then(data => {
+        		closeGameAnalysisPopup();
+      		})
+      		.catch(error => console.error('error:', error));
+  		});
+
+	  	window.addEventListener('click', function(event) {
+	    	const popup = document.getElementById('gameAnalysisPopup');
+			if (event.target === popup) {
+		    	closeNewGamePopup(); 
+		 	}
+	  	});
+
+	  	document.getElementById('gameAnalysis').addEventListener('click', function () {
+	    	openGameANalysisPopup(); 
+	  	});
+    
         function getFieldFromPiece(element) {
             const fieldId = element.getAttribute('data-piece-field');
             var field = document.getElementById(fieldId);
@@ -690,35 +761,33 @@
     	            const moveList = document.getElementById('moveList');
     	            moveList.innerHTML = '';
 
-    	            // Spieler-Header erstellen
-    	            //const headerRow = document.createElement('div');
-    	            //headerRow.classList.add('move-list-header');
-    	            //headerRow.style.display = 'flex';
-    	            //headerRow.style.justifyContent = 'space-between';
-    	            //headerRow.style.marginBottom = '10px';
+    	            const headerRow = document.createElement('div');
+    	            headerRow.classList.add('move-list-header');
+    	            headerRow.style.display = 'flex';
+    	            headerRow.style.justifyContent = 'space-between';
+    	            headerRow.style.marginBottom = '10px';
 
-    	            //const whitePlayerName = document.createElement('div');
-    	            //whitePlayerName.classList.add('player-name', 'white-player');
-    	            //whitePlayerName.style.fontWeight = 'bold';
-    	            //whitePlayerName.textContent = whitePlayer;
-    	            //whitePlayerName.title = whitePlayerToolTip;
-    	            //headerRow.appendChild(whitePlayerName);
+    	            const whitePlayerName = document.createElement('div');
+    	            whitePlayerName.classList.add('player-name', 'white-player');
+    	            whitePlayerName.style.fontWeight = 'bold';
+    	            whitePlayerName.textContent = whitePlayer;
+    	            whitePlayerName.title = whitePlayerToolTip;
+    	            headerRow.appendChild(whitePlayerName);
 
-    	            //const blackPlayerName = document.createElement('div');
-    	            //blackPlayerName.classList.add('player-name', 'black-player');
-    	            //blackPlayerName.style.fontWeight = 'bold';
-    	            //blackPlayerName.textContent = blackPlayer;
-    	            //blackPlayerName.title = blackPlayerToolTip;
-    	            //headerRow.appendChild(blackPlayerName);
+    	            const blackPlayerName = document.createElement('div');
+    	            blackPlayerName.classList.add('player-name', 'black-player');
+    	            blackPlayerName.style.fontWeight = 'bold';
+    	            blackPlayerName.textContent = blackPlayer;
+    	            blackPlayerName.title = blackPlayerToolTip;
+    	            headerRow.appendChild(blackPlayerName);
 
-    	            //moveList.appendChild(headerRow);
+    	            moveList.appendChild(headerRow);
 
-    	            //const divider = document.createElement('hr');
-    	            //divider.style.border = '1px solid #ccc';
-    	            //divider.style.margin = '5px 0 10px';
-    	            //moveList.appendChild(divider);
+    	            const divider = document.createElement('hr');
+    	            divider.style.border = '1px solid #ccc';
+    	            divider.style.margin = '5px 0 10px';
+    	            moveList.appendChild(divider);
 
-    	            // Zugliste erstellen
     	            moveData.data.forEach((move, index) => {
     	                if (index % 2 === 0) {
     	                    const moveRow = document.createElement('div');
@@ -742,9 +811,9 @@
     	                        const hoveringChessboard = document.getElementById('hoveringChessboard');
     	                        hoveringChessboard.style.left = `${event.pageX + 20}px`;
 								if (index >= 40) {
-								    hoveringChessboard.style.top = `${event.pageY - 300}px`; // Oberhalb anzeigen
+								    hoveringChessboard.style.top = `${event.pageY - 300}px`;
 								} else {
-								    hoveringChessboard.style.top = `${event.pageY + 20}px`; // Unterhalb anzeigen
+								    hoveringChessboard.style.top = `${event.pageY + 20}px`;
 								}
     	                        displayHoveringChessboard(positionString);
     	                    };
@@ -954,18 +1023,13 @@
         }
 
         function movePieceByFieldNames(startFieldName, endFieldName) {
-            // Find the element corresponding to the starting field
             const startField = document.querySelector(`div[data-field="${startFieldName}"]`);
             const endField = document.querySelector(`div[data-field="${endFieldName}"]`);
             const pieceElement = document.querySelector(`img[data-piece-field="${startFieldName}"]`);
             
             if (startField && endField && pieceElement) {
-                // Unhighlight the start field if needed
                 unhighlightField(startField);
-                // Move the piece element to the new position
                 moveElement(startFieldName, endField);
-
-                // Update the piece element's data attribute to reflect its new position
                 pieceElement.setAttribute('data-piece-field', endFieldName);
             } else {
                 console.error('Start field, end field, or piece element not found');
@@ -1080,18 +1144,17 @@
 		    };
 		}
 
-		// Funktion, die ein Hover-Schachbrett basierend auf einem positionString anzeigt
 		function displayHoveringChessboard(positionString) {
 		    const hoveringChessboard = document.getElementById('hoveringChessboard');
-		    hoveringChessboard.innerHTML = ''; // Vorherige Inhalte entfernen
+		    hoveringChessboard.innerHTML = '';
 
 		    for (let i = 0; i < 64; i++) {
 		        const square = document.createElement('div');
 		        square.classList.add('square');
 
-		        const rank = 7 - Math.floor(i / 8);  // Umrechnen von String in Reihenfolge
+		        const rank = 7 - Math.floor(i / 8);
 		        const file = i % 8;
-		        const isWhite = (rank + file) % 2 === 0;
+		        const isWhite = (rank + file) % 2 === 1;
 		        square.classList.add(isWhite ? 'white' : 'black');
 
 		        const piece = positionString[i];
@@ -1108,7 +1171,6 @@
 		    hoveringChessboard.style.display = 'grid';
 		}
 
-		// Event Listener für Hover auf Zug-Elemente in der Liste
 		document.querySelectorAll('.move-item').forEach((moveItem) => {
 		    const index = moveItem.getAttribute('data-move-index');
 
@@ -1128,7 +1190,7 @@
 		                hoveringChessboard.style.left = `${e.pageX + 20}px`;
 		                hoveringChessboard.style.top = `${e.pageY + 20}px`;
 		            });
-		        }, 250); // 1 Sekunde Verzögerung vor dem Anzeigen
+		        }, 250);
 		    });
 
 		    // Hover-Schachbrett ausblenden, wenn die Maus das Zug-Element verlässt
@@ -1145,64 +1207,92 @@
 		
 		loadMoveList();
 		
-		if ([[${showChart}]]){
-			const ctx = document.getElementById('evaluationChart').getContext('2d');
-			
-			fetch('/api/game/getEvaluationProfile', {
-			    method: 'GET',
-			    headers: {
-			        'Content-Type': 'application/json'
-			    }
-			})
-			.then(response => response.json())
-			.then(data => {
+		if ([[${showChart}]]) {
+		    const ctx = document.getElementById('evaluationChart').getContext('2d');
 
-						const evaluationData = data.data;
+		    // Beide Datenquellen parallel laden
+		    Promise.all([
+		        fetch('/api/game/getEvaluationProfile', {
+		            method: 'GET',
+		            headers: {
+		                'Content-Type': 'application/json'
+		            }
+		        }).then(response => response.json()),
 
-						new Chart(ctx, {
-						    type: 'bar',
-						    data: {
-						        labels: evaluationData.map(() => ''), // Leere Labels für die X-Achse
-						        datasets: [{
-						            data: evaluationData,
-						            backgroundColor: evaluationData.map((_, index) =>
-						                index % 2 === 0 ? 'white' : 'black' // Weiß für gerade, Schwarz für ungerade
-						            ),
-						            borderWidth: 0 // Kein Rand
-						        }]
-						    },
-						    options: {
-						        responsive: false,
-						        maintainAspectRatio: false,
-						        plugins: {
-						            legend: {
-						                display: false // Keine Legende anzeigen
-						            },
-						            tooltip: {
-						                enabled: false // Tooltips deaktivieren
-						            },
-						            title: {
-						                display: false // Kein Titel anzeigen
-						            }
-						        },
-						        scales: {
-						            x: {
-						                display: false // X-Achse komplett ausblenden
-						            },
-						            y: {
-						                display: false, // Y-Achse komplett ausblenden
-						                min: -10,
-						                max: 10
-						            }
-						        },
-						        layout: {
-						            padding: 0 // Keine Innenabstände
-						        },
-						        animation: false // Animationen deaktivieren (optional für schnellere Darstellung)
-						    }
-						});
-			})
-			.catch(error => console.error('Error:', error));
+		        fetch('/api/game/moveList', {
+		            method: 'GET',
+		            headers: {
+		                'Content-Type': 'application/json'
+		            }
+		        }).then(response => response.json())
+		    ])
+		    .then(([evaluationResponse, positionResponse]) => {
+		        const evaluationData = evaluationResponse.data;
+		        const positionStrings = positionResponse.data;
+
+		        // Schritt 1: Maximalen absoluten Wert finden
+		        const maxAbsValue = Math.max(...evaluationData.map(Math.abs));
+
+		        // Schritt 2: Skalierungsfaktor berechnen (höchster Balken wird 10 Pixel hoch)
+		        const scaleFactor = 10 / maxAbsValue;
+
+		        // Schritt 3: Daten skalieren
+		        const scaledData = evaluationData.map(value => value * scaleFactor);
+
+		        // Chart erstellen
+		        new Chart(ctx, {
+		            type: 'bar',
+		            data: {
+		                labels: evaluationData.map(() => ''), // Leere Labels für die X-Achse
+		                datasets: [{
+		                    data: scaledData, // Skalierte Werte für die Balkenhöhe
+		                    backgroundColor: evaluationData.map((_, index) =>
+		                        index % 2 === 0 ? 'white' : 'black' // Weiß für gerade, Schwarz für ungerade
+		                    ),
+		                    borderWidth: 0 // Kein Rand
+		                }]
+		            },
+		            options: {
+		                responsive: false,
+		                maintainAspectRatio: false,
+		                plugins: {
+		                    legend: {
+		                        display: false // Keine Legende anzeigen
+		                    },
+		                    tooltip: {
+		                        enabled: true, // Tooltips aktivieren
+		                        callbacks: {
+		                            label: function(context) {
+		                                const originalMove = positionStrings[context.dataIndex];
+		                                const originalValue = evaluationData[context.dataIndex];
+		                                return `Evaluation of ${originalMove}: ${originalValue}`;
+		                            }
+		                        }
+		                    },
+		                    title: {
+		                        display: false // Kein Titel anzeigen
+		                    }
+		                },
+		                scales: {
+		                    x: {
+		                        display: false // X-Achse komplett ausblenden
+		                    },
+		                    y: {
+		                        display: false, // Y-Achse komplett ausblenden
+		                        min: -10, // Sichtbereich der Skala anpassen
+		                        max: 10
+		                    }
+		                },
+		                layout: {
+		                    padding: 0 // Keine Innenabstände
+		                },
+		                animation: false // Animationen deaktivieren (optional für schnellere Darstellung)
+		            }
+		        });
+		    })
+		    .catch(error => {
+		        console.error('Error:', error);
+		    });
 		};
     });
 </script>

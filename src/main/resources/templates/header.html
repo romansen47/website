@@ -343,6 +343,88 @@
 		    background-color: #0056b3;
 		}
 
+		
+		
+		
+		
+		.game-analysis-popup-overlay {
+				    display: none; 
+				    position: fixed;
+				    top: 0;
+				    left: 0;
+				    width: 100%;
+				    height: 100%;
+				    background-color: rgba(0, 0, 0, 0.5);
+				    z-index: 9999;
+				    justify-content: center;
+				    align-items: center;
+				}
+				
+				.game-analysis-popup-content {
+				    background-color: white;
+				    padding: 20px;
+				    border-radius: 10px;
+				    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
+				    text-align: center;
+				    width: 600px; /* Breite des Popups */
+				}
+				
+				.game-analysis-popup-header {
+				    font-size: 20px;
+				    font-weight: bold;
+				    margin-bottom: 45px;
+				}
+				
+				.game-analysis-popup-body {
+				    display: flex;
+				    flex-direction: column;
+				    gap: 15px;
+				}
+				
+				.game-analysis-popup-body .form-group {
+				    display: flex;
+				    justify-content: space-between;
+				    align-items: center;
+				}
+				
+				.game-analysis-popup-body label {
+				    flex: 1;
+				    text-align: left;
+				    margin-right: 30px;
+				}
+				
+				.game-analysis-popup-body input,
+				.game-analysis-popup-body select {
+				    flex: 1;
+				    padding: 10px;
+				    border-radius: 5px;
+				    border: 1px solid #ccc;
+				    box-sizing: border-box;
+				    text-align: center;
+				}
+				
+				.game-analysis-popup-footer {
+				    margin-top: 20px;
+				}
+				
+				.game-analysis-popup-footer button {
+				    padding: 10px 20px;
+				    background-color: #007BFF;
+				    color: white;
+				    border: none;
+				    border-radius: 5px;
+				    cursor: pointer;
+				}
+				
+				.game-analysis-popup-footer button:hover {
+				    background-color: #0056b3;
+				}
+		
+		
+		
+		
+		
+		
 		.hovering_chessboard {
 		    display: none; 
 		    position: absolute;
@@ -375,42 +457,7 @@
 		    background-size: cover;
 		    background-position: center;
 		}
-
-		.sidebar {
-		    width: 250px;
-		    background-color: #333;
-		    color: white;
-		    padding: 20px;
-		    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
-		    height: 100vh; /* Füllt die gesamte Höhe des Bildschirms */
-		    position: fixed;
-		    top: 0;
-		    left: 0;
-			z-index: 2000;
-		    overflow-y: auto;
-		    border-radius: 0; /* Keine abgerundeten Ecken */
-			transform: translateX(-100%);
-			transition: transform 0.3s ease;
-		}
 		
-
-		/* Sidebar sichtbar */
-		.sidebar.visible {
-		    transform: translateX(0);
-		}
-
-
-		#closeSidebar {
-		    background-color: #444;
-		    color: white;
-		    border: none;
-		    padding: 10px;
-		    cursor: pointer;
-		    font-size: 16px;
-		    margin-bottom: 20px;
-		    border-radius: 5px;
-		}
-
 		.menu-title {
 		    font-size: 16px;
 		    padding: 10px;
@@ -426,7 +473,7 @@
 		    padding-left: 15px;
 		    display: none; /* Versteckt das Untermenü standardmäßig */
 		}
-		
+
 		.submenu li {
 		    margin: 5px 0;
 		}
@@ -450,21 +497,54 @@
 		    background-color: #666;
 		}
 		
-		.menu-title {
-		    font-size: 16px;
-		    padding: 10px;
-		    background-color: #444;
-		    margin-bottom: 5px;
-		    cursor: pointer;
+		.sidebar {
+			position: fixed;
+		    width: 250px;
+		    background-color: #333;
 		    color: white;
+		    padding: 20px;
+		    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
+		    height: 100vh; /* Füllt die gesamte Höhe des Bildschirms */
+		    position: fixed;
+		    top: 0;
+		    left: 0;
+			z-index: 2000;
+		    overflow-y: auto;
+		    border-radius: 0; /* Keine abgerundeten Ecken */
+			transform: translateX(-100%);
+			transition: transform 0.3s ease;
+		}
+		
+		
+		.sidebar-mainicon{
+			width: 150px; /* Einheitliche Breite */
+			height: auto; /* Höhe automatisch skalieren */
+			margin-right: 8px;
+			vertical-align: middle;
+		}
+		
+		.sidebar.visible {
+		    transform: translateX(0);
+		}
+		
+		#closeSidebar {
+		    background-color: #444;
+		    color: white;
+		    border: none;
+		    padding: 10px;
+		    cursor: pointer;
+		    font-size: 16px;
+		    margin-bottom: 20px;
+		    border-radius: 5px;
 		}
 		
 		.sidebar-chessboard {
-		    display: grid;
-		    grid-template-columns: repeat(8, 1fr);
-		    width: 65%; /* Kleinere Breite */
-		    aspect-ratio: 1 / 1; /* Quadratische Form */
-		    margin: 60px auto; /* Zentrieren und Abstand nach außen */
+		    display: flex; /* Flexbox für einfaches Zentrieren */
+		    justify-content: center; /* Zentriert Inhalte horizontal */
+		    align-items: center; /* Zentriert Inhalte vertikal */
+		    width: 100%; /* Füllt die Breite des Containers */
+		    margin: 20px 0; /* Abstände oben und unten */
+		    padding: 0; /* Entferne eventuelle Innenabstände */
 		}
 
 		.sidebar-chessboard .square {
@@ -490,10 +570,12 @@
 	<style th:if="${showChart}">
 	    #evaluationChart {
 	        position: absolute;
-	        z-index: 10000;
+	        z-index: 1;
 			background-color: transparent;
 	        top: 700px;
 	        left: 300px;
+			width: 500px;
+			height:300;
 	    }
 	</style>
 </head>

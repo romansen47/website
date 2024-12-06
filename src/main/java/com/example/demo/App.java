@@ -193,6 +193,11 @@ public class App extends ChessAdmin implements AppAdmin {
 				logger.info("Failed to create evaluation engine {}", engine);
 			}
 		}
+		try {
+			engines.put("Windows-Stockfish", new EvaluationUciEngine("C:\\Temp\\st.exe"));
+		} catch (Exception e) {
+			logger.info("Failed to create windows stockfish evaluation engine from C:\\Temp\\st.exe");
+		}
 		return engines;
 	}
 

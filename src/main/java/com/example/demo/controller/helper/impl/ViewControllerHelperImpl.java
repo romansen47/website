@@ -55,8 +55,9 @@ public class ViewControllerHelperImpl extends ChessHelper implements ViewControl
 	protected static final Logger logger = LogManager.getLogger();
 
 	@Override
-	public void addModelAttributes(String color, String whiteTimeString, String blackTimeString, Model model) {
+	public void addModelAttributes(String color, String whiteTimeString, String blackTimeString, Model model, Map<String, EvaluationEngine> evaluationEngines) {
 
+		model.addAttribute("evaluationEngines", evaluationEngines);
 		model.addAttribute("showChart", get(KEY.SHOW_CHART));
 		model.addAttribute("whiteTime", whiteTimeString);
 		model.addAttribute("blackTime", blackTimeString);
@@ -116,14 +117,19 @@ public class ViewControllerHelperImpl extends ChessHelper implements ViewControl
 
 		put(KEY.UCI_ENGINE_EVALUATION, 0.5d);
 		put(KEY.REGULAR, !viewConfig.getIsFlipped());
-		put(KEY.ENGINE_CONFIG_EVAL, new UciEngineConfig());
-		put(KEY.ENGINE_CONFIG_FOR_WHITE, new UciEngineConfig());
-		put(KEY.ENGINE_CONFIG_FOR_BLACK, new UciEngineConfig());
+		if (get(KEY.ENGINE_CONFIG_EVAL) == null) {
+			put(KEY.ENGINE_CONFIG_EVAL, new UciEngineConfig());
+		}
+		if (get(KEY.ENGINE_CONFIG_FOR_WHITE) == null) {
+			put(KEY.ENGINE_CONFIG_FOR_WHITE, new UciEngineConfig());
+		}
+		if (get(KEY.ENGINE_CONFIG_FOR_BLACK) == null) {
+			put(KEY.ENGINE_CONFIG_FOR_BLACK, new UciEngineConfig());
+		}
 
 		int leftOffset = viewConfig.getLeftOffset();
 		int squareSize = viewConfig.getSquareSize();
 		int topBarHeight = viewConfig.getTopBarHeight();
-//		int moveListWidth = viewConfig.getMoveListWidth();
 
 		int chessBoardOffset = topBarHeight;
 		viewConfig.setChessBoardOffset(chessBoardOffset);
@@ -151,21 +157,25 @@ public class ViewControllerHelperImpl extends ChessHelper implements ViewControl
 
 	@Override
 	public void setupEngineConfigurations() {
-		((EngineConfig) get(KEY.ENGINE_CONFIG_FOR_WHITE)).setThreads(viewConfig.getThreadsForWhite());
-		((EngineConfig) get(KEY.ENGINE_CONFIG_FOR_WHITE)).setContempt(viewConfig.getContemptForWhite());
-		((EngineConfig) get(KEY.ENGINE_CONFIG_FOR_WHITE)).setDepth(viewConfig.getUciEngineDepthForWhite());
-		((EngineConfig) get(KEY.ENGINE_CONFIG_FOR_WHITE)).setHashSize(viewConfig.getHashSizeForWhite());
-		((EngineConfig) get(KEY.ENGINE_CONFIG_FOR_WHITE)).setMoveOverhead(viewConfig.getMoveOverheadForWhite());
-		((EngineConfig) get(KEY.ENGINE_CONFIG_FOR_WHITE)).setUciElo(viewConfig.getUciEloForWhite());
+		
+		EngineConfig engineConfigForWhite = ((EngineConfig) get(KEY.ENGINE_CONFIG_FOR_WHITE));
+		engineConfigForWhite.setThreads(viewConfig.getThreadsForWhite());
+		engineConfigForWhite.setContempt(viewConfig.getContemptForWhite());
+		engineConfigForWhite.setDepth(viewConfig.getUciEngineDepthForWhite());
+		engineConfigForWhite.setHashSize(viewConfig.getHashSizeForWhite());
+		engineConfigForWhite.setMoveOverhead(viewConfig.getMoveOverheadForWhite());
+		engineConfigForWhite.setUciElo(viewConfig.getUciEloForWhite());
 
-		((EngineConfig) get(KEY.ENGINE_CONFIG_FOR_BLACK)).setThreads(viewConfig.getThreadsForBlack());
-		((EngineConfig) get(KEY.ENGINE_CONFIG_FOR_BLACK)).setContempt(viewConfig.getContemptForBlack());
-		((EngineConfig) get(KEY.ENGINE_CONFIG_FOR_BLACK)).setDepth(viewConfig.getUciEngineDepthForBlack());
-		((EngineConfig) get(KEY.ENGINE_CONFIG_FOR_BLACK)).setHashSize(viewConfig.getHashSizeForBlack());
-		((EngineConfig) get(KEY.ENGINE_CONFIG_FOR_BLACK)).setMoveOverhead(viewConfig.getMoveOverheadForBlack());
-		((EngineConfig) get(KEY.ENGINE_CONFIG_FOR_BLACK)).setUciElo(viewConfig.getUciEloForBlack());
+		EngineConfig engineConfigForBlack = ((EngineConfig) get(KEY.ENGINE_CONFIG_FOR_BLACK));
+		engineConfigForBlack.setThreads(viewConfig.getThreadsForBlack());
+		engineConfigForBlack.setContempt(viewConfig.getContemptForBlack());
+		engineConfigForBlack.setDepth(viewConfig.getUciEngineDepthForBlack());
+		engineConfigForBlack.setHashSize(viewConfig.getHashSizeForBlack());
+		engineConfigForBlack.setMoveOverhead(viewConfig.getMoveOverheadForBlack());
+		engineConfigForBlack.setUciElo(viewConfig.getUciEloForBlack());
 
 		((EngineConfig) get(KEY.ENGINE_CONFIG_EVAL)).setMultiPV(viewConfig.getMultiPVForEvaluationEngine());
+		((EngineConfig) get(KEY.ENGINE_CONFIG_EVAL)).setThreads(32);
 		((EngineConfig) get(KEY.ENGINE_CONFIG_EVAL)).setDepth(viewConfig.getUciEngineDepthForEvaluationEngine());
 	}
 
@@ -300,45 +310,51 @@ public class ViewControllerHelperImpl extends ChessHelper implements ViewControl
 
 		put(KEY.PLAYER_ENGINE_FOR_WHITE, playerEngines.get(selectedEngineForWhite));
 		viewConfig.setPlayerEngineForWhite(selectedEngineForWhite);
-
+		
+		EngineConfig configForWhite = (EngineConfig) get(KEY.ENGINE_CONFIG_FOR_WHITE);
+		EngineConfig configForBlack = (EngineConfig) get(KEY.ENGINE_CONFIG_FOR_BLACK);
+		
 		viewConfig.setThreadsForWhite(threadsForWhite);
-		((EngineConfig) get(KEY.ENGINE_CONFIG_FOR_WHITE)).setThreads(threadsForWhite);
+		configForWhite.setThreads(threadsForWhite);
 
 		viewConfig.setHashSizeForWhite(hashSizeForWhite);
-		((EngineConfig) get(KEY.ENGINE_CONFIG_FOR_WHITE)).setHashSize(hashSizeForWhite);
+		configForWhite.setHashSize(hashSizeForWhite);
 
 		viewConfig.setContemptForWhite(contemptForWhite);
-		((EngineConfig) get(KEY.ENGINE_CONFIG_FOR_WHITE)).setContempt(contemptForWhite);
+		configForWhite.setContempt(contemptForWhite);
 
 		viewConfig.setUciEloForWhite(uciEloForWhite);
-		((EngineConfig) get(KEY.ENGINE_CONFIG_FOR_WHITE)).setUciElo(uciEloForWhite);
+		configForWhite.setUciElo(uciEloForWhite);
 
 		viewConfig.setMoveOverheadForWhite(moveOverheadForWhite);
-		((EngineConfig) get(KEY.ENGINE_CONFIG_FOR_WHITE)).setMoveOverhead(moveOverheadForWhite);
+		configForWhite.setMoveOverhead(moveOverheadForWhite);
 
 		viewConfig.setUciEngineDepthForWhite(uciEngineDepthForWhite);
-		((EngineConfig) get(KEY.ENGINE_CONFIG_FOR_WHITE)).setDepth(uciEngineDepthForWhite);
+		configForWhite.setDepth(uciEngineDepthForWhite);
 
 		put(KEY.PLAYER_ENGINE_FOR_BLACK, playerEngines.get(selectedEngineForBlack));
 		viewConfig.setPlayerEngineForBlack(selectedEngineForBlack);
 
 		viewConfig.setThreadsForBlack(threadsForBlack);
-		((EngineConfig) get(KEY.ENGINE_CONFIG_FOR_BLACK)).setThreads(threadsForBlack);
+		configForBlack.setThreads(threadsForBlack);
 
 		viewConfig.setHashSizeForBlack(hashSizeForBlack);
-		((EngineConfig) get(KEY.ENGINE_CONFIG_FOR_BLACK)).setHashSize(hashSizeForBlack);
+		configForBlack.setHashSize(hashSizeForBlack);
 
 		viewConfig.setContemptForBlack(contemptForBlack);
-		((EngineConfig) get(KEY.ENGINE_CONFIG_FOR_BLACK)).setContempt(contemptForBlack);
+		configForBlack.setContempt(contemptForBlack);
 
 		viewConfig.setMoveOverheadForBlack(moveOverheadForBlack);
-		((EngineConfig) get(KEY.ENGINE_CONFIG_FOR_BLACK)).setMoveOverhead(moveOverheadForBlack);
+		configForBlack.setMoveOverhead(moveOverheadForBlack);
 
 		viewConfig.setUciEloForBlack(uciEloForBlack);
-		((EngineConfig) get(KEY.ENGINE_CONFIG_FOR_BLACK)).setUciElo(uciEloForBlack);
+		configForBlack.setUciElo(uciEloForBlack);
 
 		viewConfig.setUciEngineDepthForBlack(uciEngineDepthForBlack);
-		((EngineConfig) get(KEY.ENGINE_CONFIG_FOR_BLACK)).setDepth(uciEngineDepthForBlack);
+		configForBlack.setDepth(uciEngineDepthForBlack);
+
+		put(KEY.ENGINE_CONFIG_FOR_WHITE, configForWhite);
+		put(KEY.ENGINE_CONFIG_FOR_BLACK, configForBlack);
 
 	}
 }

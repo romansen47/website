@@ -1,5 +1,7 @@
 package com.example.demo.controller.helper.impl;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -12,6 +14,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.example.demo.AppAdmin;
 import com.example.demo.controller.helper.ApiControllerHelper;
@@ -19,6 +22,8 @@ import com.example.demo.controller.impl.ChessApiController;
 import com.example.demo.elements.KEY;
 
 import demo.chess.admin.Admin;
+import demo.chess.definitions.Color;
+import demo.chess.definitions.board.Board;
 import demo.chess.definitions.engines.EngineConfig;
 import demo.chess.definitions.engines.EvaluationEngine;
 import demo.chess.definitions.engines.impl.NoMoveFoundException;
@@ -320,4 +325,120 @@ public class ApiControllerHelperImpl extends ChessHelper implements ApiControlle
 		}
 		return sanMoveList;
 	}
+
+	// TODO
+	@Override
+	public List<Move> convertToCoordinateRepresentation(MultipartFile file, AppAdmin admin) throws IOException, NoMoveFoundException {
+		FileReader fr = new FileReader(file.getOriginalFilename());
+		BufferedReader br = new BufferedReader(fr);
+		List<String> sanMoveList = new ArrayList<>();
+		String line = br.readLine();
+		Game dummyGame = admin.dummyGame();
+		while (line != null && !line.isBlank()) {
+			sanMoveList.add(line);
+			line = br.readLine();
+		}
+		br.close();
+		fr.close();
+		for (String move:sanMoveList) {
+			String ending = move.substring(move.length()-2, move.length());
+			List<Move> currentValidMoves = dummyGame.getPlayer().getValidMoves(dummyGame);
+			List<Move> possibleMoves = new ArrayList<>();
+			for (Move validMove:currentValidMoves) {
+				if (move.toString().substring(3, 4).equals(ending)) {
+					possibleMoves.add(validMove);
+				}
+			}
+			if (possibleMoves.size()==1) {
+				return possibleMoves;
+			} else {
+				// What?
+			}
+		}
+		return null;
+	}
+	
+	/**
+	 * Creates a 64-character string representing the current state of the
+	 * chessboard. Each character corresponds to a square on the board, with pieces
+	 * represented by standard abbreviations (e.g., 'P' for white pawn, 'p' for
+	 * black pawn). Empty squares are represented by a placeholder character.
+	 *
+	 * @param chessGame The current chess game from which the board state is
+	 *                  extracted.
+	 * @return A 64-character string representing the board state.
+	 */
+	@Override
+	public String createPositionAsString(Game chessGame) {
+		StringBuilder boardString = new StringBuilder(64);
+		Board board = chessGame.getChessBoard(); // Retrieve the board object
+
+		for (int rank = 8; rank > 0; rank--) { // Iterate over ranks from top (8) to bottom (1)
+			for (int file = 1; file <= 8; file++) { // Iterate over files from left (a) to right (h)
+				Field field = board.getField(file, rank); // Retrieve the field at (file, rank)
+				Piece piece = field.getPiece();
+
+				if (piece == null) {
+					boardString.append('.'); // Placeholder for empty squares
+				} else {
+					boardString.append(getPieceRepresentation(piece));
+				}
+			}
+		}
+		return boardString.toString();
+	}
+
+	/**
+	 * Returns a single character representing the specified chess piece. Uppercase
+	 * letters denote white pieces, and lowercase letters denote black pieces.
+	 *
+	 * @param piece The piece to represent.
+	 * @return A single character representing the piece.
+	 */
+	@Override
+	public char getPieceRepresentation(Piece piece) {
+		char representation;
+		switch (piece.getType()) {
+		case PAWN:
+			representation = 'P';
+			break;
+		case KNIGHT:
+			representation = 'N';
+			break;
+		case BISHOP:
+			representation = 'B';
+			break;
+		case ROOK:
+			representation = 'R';
+			break;
+		case QUEEN:
+			representation = 'Q';
+			break;
+		case KING:
+			representation = 'K';
+			break;
+		default:
+			representation = '.';
+			break;
+		}
+		return piece.getColor() == Color.BLACK ? Character.toLowerCase(representation) : representation;
+	}
+
+	@Override
+	public void createPositionsAsString(Game chessGame, AppAdmin admin) throws NoMoveFoundException, IOException {
+		Game dummyGame = admin.dummyGame();
+		Move tmpMove = null;
+		for (Move move:chessGame.getMoveList()) {
+			for (Move dummyMove:dummyGame.getPlayer().getValidMoves(dummyGame)) {
+				if (dummyMove.toString().equals(move.toString())) {
+					tmpMove = dummyMove;
+					continue;
+				}
+			}
+			dummyGame.apply(tmpMove);
+			String positionAsString = createPositionAsString(dummyGame);
+			((List<String>) get(KEY.POSITIONS_AS_STRINGS)).add(positionAsString);
+		}
+	}
+
 }

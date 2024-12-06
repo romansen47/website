@@ -23,9 +23,9 @@ import com.example.demo.elements.KEY;
 import com.example.demo.model.DisplayedField;
 
 import demo.chess.definitions.Color;
-import demo.chess.definitions.engines.Engine;
 import demo.chess.definitions.engines.EngineConfig;
 import demo.chess.definitions.engines.EvaluationEngine;
+import demo.chess.definitions.engines.UciEngineConfig;
 import demo.chess.definitions.engines.impl.NoMoveFoundException;
 import demo.chess.definitions.moves.Move;
 import demo.chess.definitions.moves.MoveList;
@@ -159,7 +159,7 @@ public class MainViewController extends ControllerTemplate {
 		String blackTimeString = minutesBlack + ":" + secondsBlackAsString;
 
 		// Add attributes to the model (this must be done last)
-		helper.addModelAttributes(color, whiteTimeString, blackTimeString, model);
+		helper.addModelAttributes(color, whiteTimeString, blackTimeString, model, evaluationEngines);
 
 		((List<DisplayedField>) get(KEY.FIELDS)).clear();
 		helper.createNewFields();
@@ -283,7 +283,7 @@ public class MainViewController extends ControllerTemplate {
 		helper.createNewPiecesFromExistingPieces(chessGame);
 		String blackPlayer = get(KEY.PLAYER_ENGINE_FOR_BLACK).toString();
 		String whitePlayer = get(KEY.PLAYER_ENGINE_FOR_WHITE).toString();
-		webSocketService.sendMessage(whitePlayer + "  vs. " + blackPlayer );
+		webSocketService.sendMessage(whitePlayer + "  vs. " + blackPlayer);
 		Thread.sleep(200l);
 		webSocketService.triggerUciEngineMove();
 	}
@@ -329,55 +329,78 @@ public class MainViewController extends ControllerTemplate {
 	 * indicate resignation and stopping the player's clock.
 	 *
 	 * @return A redirect to the main view after the resignation.
-	 * @throws ExecutionException if sth strange happens
-	 * @throws InterruptedException  when trying to read engine output
-	 * @throws IOException when trying to read engine output
+	 * @throws ExecutionException   if sth strange happens
+	 * @throws InterruptedException when trying to read engine output
+	 * @throws IOException          when trying to read engine output
 	 * @throws NoMoveFoundException if no move is found for some reason
-	 * @throws Exception if resignation processing fails
+	 * @throws Exception            if resignation processing fails
 	 */
-	@GetMapping("/startGameAnalysis")
-	protected String startGameAnalysis() throws IOException, InterruptedException, ExecutionException, NoMoveFoundException, Exception {
-		MoveList moveList = getChessGame().getMoveList();
-		long time = 5000l;
-		EvaluationEngine engine = (EvaluationEngine) get(KEY.EVALUATION_ENGINE);
-		if (engine == null) {
-			if (this.evaluationEngines.isEmpty()) {
-				throw new Exception("No engines configured");
-			}
-			else engine = evaluationEngines.get("STOCKFISH_16");
-		}
-		engine.stopEvaluation();
-		engine.clearChachedLines();
-		EngineConfig config = (EngineConfig) get(KEY.ENGINE_CONFIG_EVAL);
-		Game tmpGame = admin.dummyGame();
-		for (Move move : moveList) {
-			this.webSocketService.sendMessage("Analizing move " + move.toString());
-			engine.getBestLines(tmpGame, config);
-			Thread.sleep(time);
-			List<Move> moves = tmpGame.getPlayer().getValidMoves(tmpGame);
-			Move simMove = null;
-			for (Move exchangeMove : moves) {
-				if(exchangeMove.toString().equals(move.toString())) {
-					simMove = exchangeMove;
-					continue;
+	@PostMapping("/startGameAnalysis")
+	@ResponseBody
+	protected void startGameAnalysis(@RequestBody Map<String, Object> params)
+			throws IOException, InterruptedException, ExecutionException, NoMoveFoundException, Exception {
+
+		Thread newThread = new Thread(() -> {
+			try {
+				MoveList moveList = getChessGame().getMoveList();
+				long time = Long.valueOf((String) params.get("analysisTimePerMove")) * 1000l;
+				long waitForShutdown = 100l;
+				EvaluationEngine engine = (EvaluationEngine) get(KEY.EVALUATION_ENGINE);
+				if (engine == null) {
+					if (this.evaluationEngines.isEmpty()) {
+						throw new Exception("No engines configured");
+					} else
+						engine = evaluationEngines.get("STOCKFISH_16");
 				}
+				engine.stopEvaluation();
+				engine.clearChachedLines();
+				EngineConfig config = new UciEngineConfig();
+				config.setThreads(Integer.parseInt((String) params.get("threadsForGameEvaluation")));
+				config.setMultiPV(Integer.parseInt((String) params.get("multiPvForGameEvaluation")));
+				config.setDepth(Integer.parseInt((String) params.get("minimalEvaluationDepth")));
+				Game tmpGame = admin.dummyGame();
+				for (Move move : moveList) {
+					this.webSocketService.sendMessage("Analizing move " + move.toString());
+					engine.getBestLines(tmpGame, config);
+					List<Move> moves = tmpGame.getPlayer().getValidMoves(tmpGame);
+					Move simMove = null;
+					for (Move exchangeMove : moves) {
+						if (exchangeMove.toString().equals(move.toString())) {
+							simMove = exchangeMove;
+							continue;
+						}
+					}
+					if (simMove == null) {
+						throw new NoMoveFoundException(move.toString());
+					}
+					Thread.sleep(time);
+					while (engine.getCachedBestLines().get(tmpGame.getMoveList().toString()).size() < 3) {
+						this.webSocketService.sendMessage("Prolonging analysis of move " + move.toString());
+						Thread.sleep(time);
+					}
+					engine.stopEvaluation();
+					Thread.sleep(waitForShutdown);
+					String key = tmpGame.getMoveList().toString();
+					tmpGame.apply(simMove);
+					logger.info("Move {} - {} evaluated lines", move, engine.getCachedBestLines().get(key).size());
+				}
+				put(KEY.SHOW_CHART, true);
+				put(KEY.ENGINE_ANALYSIS, engine.getCachedBestLines());
+				this.webSocketService.sendReloadSignal();
+			} catch (Exception e) {
+				logger.warn("Exception thrown: {}", e.getMessage());
 			}
-			if (simMove == null) {
-				throw new NoMoveFoundException(move.toString());
-			}
-			if (engine.getCachedBestLines().get(tmpGame.getMoveList().toString()).size() < 5) {
-				this.webSocketService.sendMessage("Analizing move " + move.toString());
-				Thread.sleep(time);
-			}
-			engine.stopEvaluation();
-			String key = tmpGame.getMoveList().toString();
-			tmpGame.apply(simMove);
-			logger.info("Move {} - {} evaluated lines", move, engine.getCachedBestLines().get(key).size());
+		});
+
+		try {
+			newThread.start();
+		} catch (NullPointerException np) {
+			logger.debug("Thread was cancelled...");
 		}
-		put(KEY.SHOW_CHART, true);
-		put(KEY.ENGINE_ANALYSIS, engine.getCachedBestLines());
-		return "redirect:/";
+
+		this.webSocketService.sendReloadSignal();
 	}
+
 	/**
 	 * Handles the GET request for the settings page. Populates the model with
 	 * configuration options.
@@ -488,7 +511,7 @@ public class MainViewController extends ControllerTemplate {
 			@RequestParam(defaultValue = "false") boolean showUciEngineLines,
 			@RequestParam(defaultValue = "false") boolean uciEngineActive, @RequestParam int updateIntervall,
 			@RequestParam int multiPVForEvaluationEngine, @RequestParam int uciEngineDepthForEvaluationEngine,
-			@RequestParam(required=false) String selectedEngine) throws Exception {
+			@RequestParam(required = false) String selectedEngine) throws Exception {
 
 		EvaluationEngine selected = evaluationEngines.get(selectedEngine);
 		put(KEY.EVALUATION_ENGINE, selected);
@@ -559,7 +582,8 @@ public class MainViewController extends ControllerTemplate {
 			@RequestParam int uciEngineDepthForBlack, @RequestParam int threadsForBlack,
 			@RequestParam int hashSizeForBlack, @RequestParam int contemptForBlack,
 			@RequestParam int moveOverheadForBlack, @RequestParam int uciEloForBlack,
-			@RequestParam(required=false) String selectedEngineForWhite, @RequestParam(required=false) String selectedEngineForBlack) throws Exception {
+			@RequestParam(required = false) String selectedEngineForWhite,
+			@RequestParam(required = false) String selectedEngineForBlack) throws Exception {
 
 		helper.updateUciEngineSettings(uciEngineDepthForWhite, threadsForWhite, hashSizeForWhite, contemptForWhite,
 				moveOverheadForWhite, uciEloForWhite, uciEngineDepthForBlack, threadsForBlack, hashSizeForBlack,
