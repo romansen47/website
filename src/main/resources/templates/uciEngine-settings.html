@@ -137,7 +137,7 @@
                     </div>
                     <div class="form-group">
                         <label for="threadsForWhite">Threads</label>
-                        <input type="number" name="threadsForWhite" th:value="${viewConfig.threadsForWhite}" min="0" max="5"/>
+                        <input type="number" name="threadsForWhite" th:value="${viewConfig.threadsForWhite}" min="0" max="64"/>
                         <span class="tooltip">Number of threads white UciEngine player uses</span>
                     </div>
                     <div class="form-group">
@@ -180,7 +180,7 @@
                     </div>
                     <div class="form-group">
                         <label for="threadsForBlack">Threads</label>
-                        <input type="number" name="threadsForBlack" th:value="${viewConfig.threadsForBlack}" min="0" max="5"/>
+                        <input type="number" name="threadsForBlack" th:value="${viewConfig.threadsForBlack}" min="0" max="64"/>
                         <span class="tooltip">Number of threads UciEngine uses</span>
                     </div>
                     <div class="form-group">

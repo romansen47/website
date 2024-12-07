@@ -273,19 +273,29 @@ public class MainViewController extends ControllerTemplate {
 	@PostMapping("/startEngineMatch")
 	@ResponseBody
 	protected void startEngineGame() throws Exception {
+		
 		put(KEY.ENGINE_MATCH, true);
+
+		evaluationEngines.values().forEach(engine -> engine.stopEvaluation());
+		viewConfig.setShowArrows(false);
+		viewConfig.setShowEvaluation(false);
+		viewConfig.setShowUciEngineLines(false);
+		
 		Game chessGame = getChessGame();
 		chessGame.getWhitePlayer().getChessClock().setIncrementMillis(viewConfig.getIncrementForWhite() * 1000l);
 		chessGame.getBlackPlayer().getChessClock().setIncrementMillis(viewConfig.getIncrementForBlack() * 1000l);
 		put(KEY.CHESSGAME, chessGame);
+	
 		setup();
 		this.helper.setUnsetViewVariables(this.getEvaluationEngine());
 		helper.createNewPiecesFromExistingPieces(chessGame);
+		
 		String blackPlayer = get(KEY.PLAYER_ENGINE_FOR_BLACK).toString();
 		String whitePlayer = get(KEY.PLAYER_ENGINE_FOR_WHITE).toString();
+		
 		webSocketService.sendMessage(whitePlayer + "  vs. " + blackPlayer);
-		Thread.sleep(200l);
 		webSocketService.triggerUciEngineMove();
+	
 	}
 
 	/**
@@ -296,6 +306,7 @@ public class MainViewController extends ControllerTemplate {
 	@PostMapping("/shutDown")
 	@ResponseBody
 	protected void shutDown() throws Exception {
+		evaluationEngines.values().forEach(engine -> engine.stopEvaluation());
 		Runtime.getRuntime().exit(0);
 	}
 
@@ -310,6 +321,7 @@ public class MainViewController extends ControllerTemplate {
 	protected String resign() throws Exception {
 		put(KEY.ENGINE_MATCH, false);
 		Game chessGame = this.getChessGame();
+		evaluationEngines.values().forEach(engine -> engine.stopEvaluation());
 		if (!chessGame.getWhitePlayer().getChessClock().isStopped()) {
 			chessGame.getWhitePlayer().getChessClock().stop();
 		}
@@ -340,11 +352,17 @@ public class MainViewController extends ControllerTemplate {
 	protected void startGameAnalysis(@RequestBody Map<String, Object> params)
 			throws IOException, InterruptedException, ExecutionException, NoMoveFoundException, Exception {
 
+		viewConfig.setShowEvaluation(false);
+		viewConfig.setShowUciEngineLines(false);
+		viewConfig.setShowArrows(false);
+
+		long waitForShutdown = 100l;
+		evaluationEngines.values().forEach(engine -> engine.stopEvaluation());
+
 		Thread newThread = new Thread(() -> {
 			try {
 				MoveList moveList = getChessGame().getMoveList();
 				long time = Long.valueOf((String) params.get("analysisTimePerMove")) * 1000l;
-				long waitForShutdown = 100l;
 				EvaluationEngine engine = (EvaluationEngine) get(KEY.EVALUATION_ENGINE);
 				if (engine == null) {
 					if (this.evaluationEngines.isEmpty()) {
@@ -352,15 +370,15 @@ public class MainViewController extends ControllerTemplate {
 					} else
 						engine = evaluationEngines.get("STOCKFISH_16");
 				}
-				engine.stopEvaluation();
 				engine.clearChachedLines();
 				EngineConfig config = new UciEngineConfig();
 				config.setThreads(Integer.parseInt((String) params.get("threadsForGameEvaluation")));
-				config.setMultiPV(Integer.parseInt((String) params.get("multiPvForGameEvaluation")));
-				config.setDepth(Integer.parseInt((String) params.get("minimalEvaluationDepth")));
+				config.setMultiPV(1);
+				config.setDepth(10);
 				Game tmpGame = admin.dummyGame();
 				for (Move move : moveList) {
-					this.webSocketService.sendMessage("Analizing move " + move.toString());
+					logger.info("Analizing move " + move.toString());
+					//this.webSocketService.sendMessage("Analizing move " + move.toString());
 					engine.getBestLines(tmpGame, config);
 					List<Move> moves = tmpGame.getPlayer().getValidMoves(tmpGame);
 					Move simMove = null;
@@ -374,15 +392,14 @@ public class MainViewController extends ControllerTemplate {
 						throw new NoMoveFoundException(move.toString());
 					}
 					Thread.sleep(time);
-					while (engine.getCachedBestLines().get(tmpGame.getMoveList().toString()).size() < 3) {
-						this.webSocketService.sendMessage("Prolonging analysis of move " + move.toString());
+					while (engine.getCachedBestLines().get(tmpGame.getMoveList().toString()).get(0).getLeft().getRight() < config.getDepth()) {
+						// this.webSocketService.sendMessage("Prolonging analysis of move " + move.toString());
 						Thread.sleep(time);
 					}
 					engine.stopEvaluation();
-					Thread.sleep(waitForShutdown);
-					String key = tmpGame.getMoveList().toString();
 					tmpGame.apply(simMove);
-					logger.info("Move {} - {} evaluated lines", move, engine.getCachedBestLines().get(key).size());
+					logger.info("Move {}", move);
+					Thread.sleep(waitForShutdown);
 				}
 				put(KEY.SHOW_CHART, true);
 				put(KEY.ENGINE_ANALYSIS, engine.getCachedBestLines());
@@ -509,22 +526,26 @@ public class MainViewController extends ControllerTemplate {
 	protected String updateSettings(@RequestParam(defaultValue = "false") boolean showArrows,
 			@RequestParam(defaultValue = "false") boolean showEvaluation,
 			@RequestParam(defaultValue = "false") boolean showUciEngineLines,
-			@RequestParam(defaultValue = "false") boolean uciEngineActive, @RequestParam int updateIntervall,
-			@RequestParam int multiPVForEvaluationEngine, @RequestParam int uciEngineDepthForEvaluationEngine,
+			@RequestParam(defaultValue = "false") boolean uciEngineActive,
+			@RequestParam int multiPVForEvaluationEngine,
 			@RequestParam(required = false) String selectedEngine) throws Exception {
 
 		EvaluationEngine selected = evaluationEngines.get(selectedEngine);
 		put(KEY.EVALUATION_ENGINE, selected);
 		viewConfig.setEvaluationEngine(selectedEngine);
-		viewConfig.setUpdateIntervall(updateIntervall);
+		viewConfig.setUpdateIntervall(1);
 
 		viewConfig.setShowArrows(showArrows);
 		viewConfig.setShowEvaluation(showEvaluation);
 		viewConfig.setShowUciEngineLines(showUciEngineLines);
 
+		if (!showArrows && !showEvaluation && !showUciEngineLines) {
+			this.evaluationEngines.values().forEach(engine -> engine.stopEvaluation());
+		}
+		
 		/////////////////////////////////////////
-		viewConfig.setUciEngineDepthForEvaluationEngine(uciEngineDepthForEvaluationEngine);
-		((EngineConfig) get(KEY.ENGINE_CONFIG_EVAL)).setDepth(uciEngineDepthForEvaluationEngine);
+		viewConfig.setUciEngineDepthForEvaluationEngine(1);
+		((EngineConfig) get(KEY.ENGINE_CONFIG_EVAL)).setDepth(1);
 
 		viewConfig.setMultiPVForEvaluationEngine(multiPVForEvaluationEngine);
 		((EngineConfig) get(KEY.ENGINE_CONFIG_EVAL)).setMultiPV(multiPVForEvaluationEngine);

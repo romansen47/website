@@ -131,7 +131,7 @@ public interface ApiControllerHelper {
 	 * @param list The list of moves with evaluations.
 	 * @return A list without duplicate moves.
 	 */
-	List<Pair<Double, String>> removeDuplicatesByString(List<Pair<Double, String>> list);
+	List<Pair<Pair<Double, Integer>, String>> removeDuplicatesByString(List<Pair<Pair<Double, Integer>, String>> list);
 
 	/**
 	 * Resets the application state, restoring it to its initial configuration.

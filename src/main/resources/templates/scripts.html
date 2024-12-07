@@ -274,8 +274,6 @@
 		document.getElementById('gameAnalysisOkButton').addEventListener('click', function() {
 		    const analysisTimePerMove = document.getElementById('analysisTimePerMove').value;
 		    const threadsForGameEvaluation = document.getElementById('threadsForGameEvaluation').value;
-		    const multiPvForGameEvaluation = document.getElementById('multiPvForGameEvaluation').value;
-			const minimalEvaluationDepth = document.getElementById('minimalEvaluationDepth').value;
        		
 			fetch('/startGameAnalysis', {
           		method: 'POST',
@@ -284,9 +282,7 @@
           		},
           		body: JSON.stringify({
               		analysisTimePerMove: analysisTimePerMove,
-              		threadsForGameEvaluation: threadsForGameEvaluation,
-              		multiPvForGameEvaluation: multiPvForGameEvaluation,
-					minimalEvaluationDepth: minimalEvaluationDepth
+              		threadsForGameEvaluation: threadsForGameEvaluation
           		})
       		})
       		.then(response => response.json())

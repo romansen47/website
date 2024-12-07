@@ -170,21 +170,21 @@ public class ApiControllerHelperImpl extends ChessHelper implements ApiControlle
 	}
 
 	@Override
-	public List<Pair<Double, String>> removeDuplicatesByString(List<Pair<Double, String>> list) {
+	public List<Pair<Pair<Double, Integer>, String>> removeDuplicatesByString(List<Pair<Pair<Double, Integer>, String>> list) {
 		Set<String> seenStrings = new LinkedHashSet<>();
-		List<Pair<Double, String>> uniqueList = new ArrayList<>();
+		List<Pair<Pair<Double, Integer>, String>> uniqueList = new ArrayList<>();
 
-		for (Pair<Double, String> pair : list) {
+		for (Pair<Pair<Double, Integer>, String> pair : list) {
 			if (seenStrings.add(pair.getValue())) {
 				uniqueList.add(pair);
-			}
+			} 
 		}
 
-		List<Pair<Double, String>> finalList = new ArrayList<>();
+		List<Pair<Pair<Double, Integer>, String>> finalList = new ArrayList<>();
 		finalList.addAll(uniqueList);
 
-		for (Pair<Double, String> pair : uniqueList) {
-			for (Pair<Double, String> otherPair : uniqueList) {
+		for (Pair<Pair<Double, Integer>, String> pair : uniqueList) {
+			for (Pair<Pair<Double, Integer>, String> otherPair : uniqueList) {
 				if (pair.getRight().contains(otherPair.getRight()) && !pair.getRight().equals(otherPair.getRight())) {
 					finalList.remove(otherPair);
 				}
@@ -197,18 +197,18 @@ public class ApiControllerHelperImpl extends ChessHelper implements ApiControlle
 	@Override
 	public List<String> getEvaluationEngineMoveList(EvaluationEngine evaluationEngine) throws Exception {
 
-		List<Pair<Double, String>> uniqueList = new ArrayList<>();
+		List<Pair<Pair<Double, Integer>, String>> uniqueList = new ArrayList<>();
 		uniqueList.addAll(
 				evaluationEngine.getBestLines((Game) get(KEY.CHESSGAME), (EngineConfig) get(KEY.ENGINE_CONFIG_EVAL)));
-		List<Pair<Double, String>> copyOfUciEngineMoveList = removeDuplicatesByString(uniqueList);
+		List<Pair<Pair<Double, Integer>, String>> copyOfUciEngineMoveList = removeDuplicatesByString(uniqueList);
 
 		List<String> answer = new ArrayList<>();
 
 		// Holen Sie sich die besten Züge von UciEngine
-		List<Pair<Double, String>> bestLines = new ArrayList<>(copyOfUciEngineMoveList);// engine.getBestLines(chessGame,
+		List<Pair<Pair<Double, Integer>, String>> bestLines = new ArrayList<>(copyOfUciEngineMoveList);// engine.getBestLines(chessGame,
 		// viewConfig.getUciEngineDepth());
 
-		for (Pair<Double, String> line : bestLines) {
+		for (Pair<Pair<Double, Integer>, String> line : bestLines) {
 			answer.add(line.getLeft() + " : " + line.getRight()); // Bewertung : Zugsequenz
 		}
 		attributes.put(KEY.UCI_ENGINE_MOVELIST, answer);

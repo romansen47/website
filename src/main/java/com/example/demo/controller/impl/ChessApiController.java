@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.LogManager;
@@ -661,7 +662,7 @@ public class ChessApiController extends ControllerTemplate {
 	@GetMapping("/getEvaluationProfile")
 	@ResponseBody
 	public ChessApiResponse<List<Double>> getEvaluationProfile() throws NoMoveFoundException, IOException {
-		Map<String, List<Pair<Double, String>>> engineLines = (Map<String, List<Pair<Double, String>>>) get(KEY.ENGINE_ANALYSIS);
+		Map<String, List<Pair<Pair<Double,Integer>, String>>> engineLines = (Map<String, List<Pair<Pair<Double, Integer>, String>>>) get(KEY.ENGINE_ANALYSIS);
 		List<Double> tmpProfile = new ArrayList<>();
 		Game chessGame = getChessGame();
 		MoveList tmpMoveList = new MoveListImpl();
@@ -670,7 +671,7 @@ public class ChessApiController extends ControllerTemplate {
 			tmpMoveList.add(move);
 			double val = 0d;
 			if (engineLines.get(tmpMoveList.toString()) != null && !engineLines.get(tmpMoveList.toString()).isEmpty()) {
-				val = engineLines.get(tmpMoveList.toString()).get(0).getKey();
+				val = engineLines.get(tmpMoveList.toString()).get(0).getKey().getLeft();
 				max = Math.max(max, Math.min(10, Math.abs(val)));
 			}
 			tmpProfile.add(val);
@@ -736,13 +737,13 @@ public class ChessApiController extends ControllerTemplate {
 		if (chessGame.getState() != null) {
 			new ChessApiResponse<>(false, 0.5d);
 		}
-		List<Pair<Double, String>> bestLines = getEvaluationEngine().getBestLines(chessGame,
+		List<Pair<Pair<Double, Integer>, String>> bestLines = getEvaluationEngine().getBestLines(chessGame,
 				(EngineConfig) get(KEY.ENGINE_CONFIG_EVAL));
 		double eval;
 		if (bestLines.isEmpty()) {
 			eval = (double) get(KEY.UCI_ENGINE_EVALUATION);
 		} else {
-			eval = bestLines.get(0).getLeft();
+			eval = bestLines.get(0).getLeft().getLeft();
 			put(KEY.UCI_ENGINE_EVALUATION, eval);
 		}
 		return new ChessApiResponse<>(true, helper.getRatioEvalBars(eval));
@@ -912,7 +913,7 @@ public class ChessApiController extends ControllerTemplate {
 		while (mv.isBlank() || mv.equals("[]")) {
 			if (!helper.getEvaluationEngineMoveList(this.getEvaluationEngine()).isEmpty()) {
 				String s = helper.getEvaluationEngineMoveList(this.getEvaluationEngine()).get(0);
-				double eval = Double.parseDouble(s.split(":")[0]);
+				double eval = Double.parseDouble(s.split(":")[0].split(Pattern.quote(","))[0].split(Pattern.quote("("))[1]);
 				put(KEY.UCI_ENGINE_EVALUATION, eval);
 				mv = s.split(":")[1].split(" ")[1];
 			} else {
@@ -941,9 +942,7 @@ public class ChessApiController extends ControllerTemplate {
 	public void applyMove(Move move) throws Exception {
 		Game chessGame = ((Game) get(KEY.CHESSGAME));
 		if (!helper.checkForGameState(chessGame, getEvaluationEngine())) {
-			if (evaluationEngines.get(get(KEY.EVALUATION_ENGINE)) != null) {
-				evaluationEngines.get(get(KEY.EVALUATION_ENGINE)).stopEvaluation();
-			}
+			evaluationEngines.values().forEach(engine -> engine.stopEvaluation());
 			return;
 		}
 		chessGame.apply(move);

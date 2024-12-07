@@ -62,7 +62,7 @@ public class ViewConfig implements Config {
 	private String playerEngineForBlack = Engine.STOCKFISH_16.toString();
 
 	/** Depth setting for the evaluation engine’s analysis. */
-	private int uciEngineDepthForEvaluationEngine = 10;
+	private int uciEngineDepthForEvaluationEngine = 1;
 
 	/**
 	 * MultiPV setting for the evaluation engine, determining how many top moves to
@@ -77,7 +77,7 @@ public class ViewConfig implements Config {
 	private int uciEngineDepthForBlack = 0;
 
 	/** Number of threads used by the white player's engine. */
-	private int threadsForWhite = 1;
+	private int threadsForWhite = 8;
 
 	/** Hash size in MB allocated for the white player's engine. */
 	private int hashSizeForWhite = 1024;
@@ -94,7 +94,7 @@ public class ViewConfig implements Config {
 	private int uciEloForWhite = 0;
 
 	/** Number of threads used by the black player's engine. */
-	private int threadsForBlack = 1;
+	private int threadsForBlack = 8;
 
 	/** Hash size in MB allocated for the black player's engine. */
 	private int hashSizeForBlack = 1024;

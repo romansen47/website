@@ -194,7 +194,9 @@ public class App extends ChessAdmin implements AppAdmin {
 			}
 		}
 		try {
-			engines.put("Windows-Stockfish", new EvaluationUciEngine("C:\\Temp\\st.exe"));
+			engines.put("WinFish8", new EvaluationUciEngine("C:\\Temp\\st.exe") {
+				@Override public String toString() { return "WinFish8";}
+			});
 		} catch (Exception e) {
 			logger.info("Failed to create windows stockfish evaluation engine from C:\\Temp\\st.exe");
 		}
@@ -224,6 +226,13 @@ public class App extends ChessAdmin implements AppAdmin {
 			} catch (Exception e) {
 				logger.info("Failed to create player engine {}", engine);
 			}
+		}
+		try {
+			engines.put("WinFish8", new PlayerUciEngine("C:\\Temp\\st.exe") {
+				@Override public String toString() {return "WinFish8";}
+			});
+		} catch (Exception e) {
+			logger.info("Failed to create windows stockfish player engine from C:\\Temp\\st.exe");
 		}
 		return engines;
 	}
