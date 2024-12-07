@@ -392,10 +392,10 @@ public class MainViewController extends ControllerTemplate {
 						throw new NoMoveFoundException(move.toString());
 					}
 					Thread.sleep(time);
-					while (engine.getCachedBestLines().get(tmpGame.getMoveList().toString()).isEmpty() || engine.getCachedBestLines().get(tmpGame.getMoveList().toString()).get(0).getLeft().getRight() < config.getDepth()) {
-						// this.webSocketService.sendMessage("Prolonging analysis of move " + move.toString());
-						Thread.sleep(time);
-					}
+//					while (engine.getCachedBestLines().get(tmpGame.getMoveList().toString()).isEmpty() || engine.getCachedBestLines().get(tmpGame.getMoveList().toString()).get(0).getLeft().getRight() < config.getDepth()) {
+//						// this.webSocketService.sendMessage("Prolonging analysis of move " + move.toString());
+//						Thread.sleep(time);
+//					}
 					engine.stopEvaluation();
 					tmpGame.apply(simMove);
 					logger.info("Move {}", move);
