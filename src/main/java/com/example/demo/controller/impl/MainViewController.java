@@ -374,11 +374,10 @@ public class MainViewController extends ControllerTemplate {
 				EngineConfig config = new UciEngineConfig();
 				config.setThreads(Integer.parseInt((String) params.get("threadsForGameEvaluation")));
 				config.setMultiPV(1);
-				config.setDepth(10);
+				config.setDepth(5);
 				Game tmpGame = admin.dummyGame();
 				for (Move move : moveList) {
 					logger.info("Analizing move " + move.toString());
-					//this.webSocketService.sendMessage("Analizing move " + move.toString());
 					engine.getBestLines(tmpGame, config);
 					List<Move> moves = tmpGame.getPlayer().getValidMoves(tmpGame);
 					Move simMove = null;
@@ -392,10 +391,6 @@ public class MainViewController extends ControllerTemplate {
 						throw new NoMoveFoundException(move.toString());
 					}
 					Thread.sleep(time);
-//					while (engine.getCachedBestLines().get(tmpGame.getMoveList().toString()).isEmpty() || engine.getCachedBestLines().get(tmpGame.getMoveList().toString()).get(0).getLeft().getRight() < config.getDepth()) {
-//						// this.webSocketService.sendMessage("Prolonging analysis of move " + move.toString());
-//						Thread.sleep(time);
-//					}
 					engine.stopEvaluation();
 					tmpGame.apply(simMove);
 					logger.info("Move {}", move);
