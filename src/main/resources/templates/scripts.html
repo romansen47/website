@@ -272,6 +272,7 @@
 		}
 
 		document.getElementById('gameAnalysisOkButton').addEventListener('click', function() {
+			const evaluationEngine = document.getElementById('evaluationEngine').value;
 		    const analysisTimePerMove = document.getElementById('analysisTimePerMove').value;
 		    const threadsForGameEvaluation = document.getElementById('threadsForGameEvaluation').value;
        		
@@ -281,6 +282,7 @@
              		'Content-Type': 'application/json'
           		},
           		body: JSON.stringify({
+					evaluationEngine: evaluationEngine,
               		analysisTimePerMove: analysisTimePerMove,
               		threadsForGameEvaluation: threadsForGameEvaluation
           		})
@@ -1245,6 +1247,7 @@
 		                    backgroundColor: evaluationData.map((_, index) =>
 		                        index % 2 === 0 ? 'white' : 'black' // Weiß für gerade, Schwarz für ungerade
 		                    ),
+							tension: 0.4,
 		                    borderWidth: 0 // Kein Rand
 		                }]
 		            },

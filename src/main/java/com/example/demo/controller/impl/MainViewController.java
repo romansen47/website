@@ -356,14 +356,14 @@ public class MainViewController extends ControllerTemplate {
 		viewConfig.setShowUciEngineLines(false);
 		viewConfig.setShowArrows(false);
 
-		long waitForShutdown = 100l;
+		long waitForShutdown = 500l;
 		evaluationEngines.values().forEach(engine -> engine.stopEvaluation());
 
 		Thread newThread = new Thread(() -> {
 			try {
 				MoveList moveList = getChessGame().getMoveList();
 				long time = Long.valueOf((String) params.get("analysisTimePerMove")) * 1000l;
-				EvaluationEngine engine = (EvaluationEngine) get(KEY.EVALUATION_ENGINE);
+				EvaluationEngine engine = evaluationEngines.get(params.get("evaluationEngine")); //(EvaluationEngine) get(KEY.EVALUATION_ENGINE);
 				if (engine == null) {
 					if (this.evaluationEngines.isEmpty()) {
 						throw new Exception("No engines configured");
