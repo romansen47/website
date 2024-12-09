@@ -123,5 +123,7 @@ public interface ViewControllerHelper {
 			int threadsForBlack, int hashSizeForBlack, int contemptForBlack, int moveOverheadForBlack,
 			int uciEloForBlack, String selectedEngineForWhite, String selectedEngineForBlack,
 			Map<String, PlayerEngine> playerEngines);
+	
+	void downloadGameAnalysis();
 
 }

@@ -374,7 +374,6 @@ public class MainViewController extends ControllerTemplate {
 				EngineConfig config = new UciEngineConfig();
 				config.setThreads(Integer.parseInt((String) params.get("threadsForGameEvaluation")));
 				config.setMultiPV(1);
-				config.setDepth(5);
 				Game tmpGame = admin.dummyGame();
 				for (Move move : moveList) {
 					logger.info("Analizing move " + move.toString());
@@ -399,6 +398,7 @@ public class MainViewController extends ControllerTemplate {
 				put(KEY.SHOW_CHART, true);
 				put(KEY.ENGINE_ANALYSIS, engine.getCachedBestLines());
 				this.webSocketService.sendReloadSignal();
+				helper.downloadGameAnalysis();
 			} catch (Exception e) {
 				logger.warn("Exception thrown: {}", e.getMessage());
 			}
@@ -409,10 +409,9 @@ public class MainViewController extends ControllerTemplate {
 		} catch (NullPointerException np) {
 			logger.debug("Thread was cancelled...");
 		}
-
 		this.webSocketService.sendReloadSignal();
 	}
-
+	
 	/**
 	 * Handles the GET request for the settings page. Populates the model with
 	 * configuration options.

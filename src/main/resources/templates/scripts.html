@@ -1225,27 +1225,24 @@
 		        }).then(response => response.json())
 		    ])
 		    .then(([evaluationResponse, positionResponse]) => {
-		        const evaluationData = evaluationResponse.data;
-		        const positionStrings = positionResponse.data;
-
-		        // Schritt 1: Maximalen absoluten Wert finden
-		        const maxAbsValue = Math.max(...evaluationData.map(Math.abs));
-
-		        // Schritt 2: Skalierungsfaktor berechnen (höchster Balken wird 10 Pixel hoch)
-		        const scaleFactor = 10 / maxAbsValue;
-
-		        // Schritt 3: Daten skalieren
-		        const scaledData = evaluationData.map(value => value * scaleFactor);
-
-		        // Chart erstellen
+				const scale = 6;
+				const evaluationData = evaluationResponse.data;
+				const positionStrings = positionResponse.data;
+				const maxAbsValue = Math.max(...evaluationData.map(Math.abs));
+				var scaleFactor = scale / maxAbsValue;
+				if (maxAbsValue > scale){
+					scaleFactor = 1;
+				}
+				const scaledData = evaluationData.map(value => Math.max(-scale, Math.min(scale, value)) * scaleFactor);
+				
 		        new Chart(ctx, {
 		            type: 'bar',
 		            data: {
-		                labels: evaluationData.map(() => ''), // Leere Labels für die X-Achse
+		                labels: evaluationData.map(() => ''), 
 		                datasets: [{
-		                    data: scaledData, // Skalierte Werte für die Balkenhöhe
+		                    data: scaledData,
 		                    backgroundColor: evaluationData.map((_, index) =>
-		                        index % 2 === 0 ? 'white' : 'black' // Weiß für gerade, Schwarz für ungerade
+		                        index % 2 === 0 ? 'white' : 'black'
 		                    ),
 							tension: 0.4,
 		                    borderWidth: 0 // Kein Rand

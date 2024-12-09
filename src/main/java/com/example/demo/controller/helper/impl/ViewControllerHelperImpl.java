@@ -1,14 +1,26 @@
 package com.example.demo.controller.helper.impl;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 import org.springframework.ui.Model;
+import org.w3c.dom.Element;
 
 import com.example.demo.controller.helper.ViewControllerHelper;
 import com.example.demo.elements.KEY;
@@ -356,5 +368,71 @@ public class ViewControllerHelperImpl extends ChessHelper implements ViewControl
 		put(KEY.ENGINE_CONFIG_FOR_WHITE, configForWhite);
 		put(KEY.ENGINE_CONFIG_FOR_BLACK, configForBlack);
 
+	}
+	
+	@Override
+	public void downloadGameAnalysis() {
+	    try {
+	        @SuppressWarnings("unchecked")
+	        Map<String, List<Pair<Pair<Double, Integer>, String>>> engineLines =
+	                (Map<String, List<Pair<Pair<Double, Integer>, String>>>) get(KEY.ENGINE_ANALYSIS);
+
+	        // Map nach den Schlüsseln sortieren
+	        var sortedKeys = engineLines.keySet().stream()
+	                .sorted(Comparator.reverseOrder())
+	                .toList();
+
+	        // XML-Dokument erstellen
+	        var documentFactory = DocumentBuilderFactory.newInstance();
+	        var documentBuilder = documentFactory.newDocumentBuilder();
+	        var document = documentBuilder.newDocument();
+
+	        // Root-Tag erstellen
+	        var root = document.createElement("gameAnalysis");
+	        document.appendChild(root);
+
+	        // Iteriere über die sortierten Schlüssel
+	        for (String position : sortedKeys) {
+	            List<Pair<Pair<Double, Integer>, String>> evaluations = engineLines.get(position);
+
+	            // Sortiere die Evaluierungen, falls notwendig (z. B. nach Länge der "line")
+	            Collections.sort(evaluations, Comparator.comparingInt(evaluation -> evaluation.getValue().length()));
+
+	            // Extrahiere den letzten Zug aus der Zugfolge
+	            String lastMove = position.trim().substring(position.lastIndexOf(" ") + 1).split("]")[0];
+
+	            // Position-Tag erstellen
+	            var positionTag = document.createElement("position");
+	            positionTag.setAttribute("moves", position);
+	            positionTag.setAttribute("zug", lastMove); // Hier wird der letzte Zug hinzugefügt
+	            root.appendChild(positionTag);
+
+	            // Evaluierungen hinzufügen
+	            for (Pair<Pair<Double, Integer>, String> evaluation : evaluations) {
+	                Pair<Double, Integer> evalData = evaluation.getKey();
+	                String line = evaluation.getValue();
+
+	                var moveTag = document.createElement("zug");
+	                moveTag.setAttribute("bewertung", String.valueOf(evalData.getLeft()));
+	                moveTag.setAttribute("suchtiefe", String.valueOf(evalData.getRight()));
+	                moveTag.setAttribute("line", line);
+
+	                positionTag.appendChild(moveTag);
+	            }
+	        }
+
+	        // XML in Datei schreiben
+	        TransformerFactory transformerFactory = TransformerFactory.newInstance();
+	        Transformer transformer = transformerFactory.newTransformer();
+	        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+	        DOMSource domSource = new DOMSource(document);
+	        StreamResult streamResult = new StreamResult(new File("test.xml"));
+
+	        transformer.transform(domSource, streamResult);
+
+	        System.out.println("Die Datei wurde in test.xml gespeichert.");
+	    } catch (Exception e) {
+	        logger.info(e);
+	    }
 	}
 }
