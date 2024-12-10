@@ -500,7 +500,7 @@
                     // Header für die UCI-Engine-Zugliste
                     const header = document.createElement('div');
                     header.classList.add('uciEngine-header');
-                    header.textContent = '[[${evaluationEngine}]] infinite evaluation (depth [[${uciEngineDepthForEvaluation}]] and higher):';
+                    header.textContent = '[[${evaluationEngine}]] ([[${uciThreadsForEvaluationEngine}]] threads):';
                     uciEngineMoveList.appendChild(header);
                     
                     // Schleife über die Zeilen der UCI-Engine-Zugliste

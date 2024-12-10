@@ -375,7 +375,8 @@ public class MainViewController extends ControllerTemplate {
 				}
 				engine.clearChachedLines();
 				EngineConfig config = new UciEngineConfig();
-				config.setThreads(Integer.parseInt((String) params.get("threadsForGameEvaluation")));
+				config.setThreads(viewConfig.getThreadsForEvaluationEngine());
+				logger.info("Starting new game analysis with {} threads", params.get("threadsForGameEvaluation"));
 				config.setMultiPV(1);
 				Game tmpGame = admin.dummyGame();
 				for (Move move : moveList) {

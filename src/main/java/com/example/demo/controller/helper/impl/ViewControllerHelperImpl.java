@@ -76,6 +76,7 @@ public class ViewControllerHelperImpl extends ChessHelper implements ViewControl
 		model.addAttribute("elements", (get(KEY.ELEMENTS)));
 		model.addAttribute("fields", (get(KEY.FIELDS)));
 
+		model.addAttribute("uciThreadsForEvaluationEngine", viewConfig.getThreadsForEvaluationEngine());
 		model.addAttribute("animationDuration", viewConfig.getAnimationDuration());
 		model.addAttribute("topBarHeight", viewConfig.getTopBarHeight());
 
@@ -186,7 +187,7 @@ public class ViewControllerHelperImpl extends ChessHelper implements ViewControl
 		engineConfigForBlack.setUciElo(viewConfig.getUciEloForBlack());
 
 		((EngineConfig) get(KEY.ENGINE_CONFIG_EVAL)).setMultiPV(viewConfig.getMultiPVForEvaluationEngine());
-		((EngineConfig) get(KEY.ENGINE_CONFIG_EVAL)).setThreads(32);
+		((EngineConfig) get(KEY.ENGINE_CONFIG_EVAL)).setThreads(viewConfig.getThreadsForEvaluationEngine());
 		((EngineConfig) get(KEY.ENGINE_CONFIG_EVAL)).setDepth(viewConfig.getUciEngineDepthForEvaluationEngine());
 	}
 

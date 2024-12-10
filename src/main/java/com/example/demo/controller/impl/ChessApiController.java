@@ -439,7 +439,7 @@ public class ChessApiController extends ControllerTemplate {
 	@ResponseBody
 	public ResponseEntity<String> saveGame() {
 		try {
-			saveGame("save-game.txt");
+			saveGame("games/save-game.txt");
 			return ResponseEntity.ok("Game saved successfully");
 		} catch (IOException e) {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error saving game");
@@ -467,7 +467,7 @@ public class ChessApiController extends ControllerTemplate {
 	protected void loadGame() throws Exception {
 		reset();
 		setup();
-		loadGame("save-game.txt");
+		loadGame("games/save-game.txt");
 		helper.sendReloadSignal();
 	}
 
@@ -518,7 +518,7 @@ public class ChessApiController extends ControllerTemplate {
 		}
 
 		try {
-			FileWriter fw = new FileWriter("save-game.txt");
+			FileWriter fw = new FileWriter("games/save-game.txt");
 			BufferedWriter bw = new BufferedWriter(fw);
 			bw.write(new String(file.getBytes()));
 			bw.flush();

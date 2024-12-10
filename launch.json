@@ -1,0 +1,15 @@
+{
+    "version": "0.0.1",
+    "configurations": [
+      {
+        "type": "java",
+        "name": "Debug Main Class",
+        "request": "launch",
+        "mainClass": "com.example.demo.App", 
+        "projectName": "website", 
+        "args": [], 
+        "vmArgs": "-Dfile.encoding=UTF-8" 
+      }
+    ]
+  }
+  
