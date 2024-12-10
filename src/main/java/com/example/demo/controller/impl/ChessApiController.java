@@ -580,7 +580,7 @@ public class ChessApiController extends ControllerTemplate {
 		}
 
 		try {
-			String name = System.getProperty("user.dir") + "/" + file.getOriginalFilename();
+			String name = System.getProperty("user.dir") + "/engines/" + file.getOriginalFilename();
 
 			FileOutputStream fos = new FileOutputStream(name);
 			BufferedOutputStream bos = new BufferedOutputStream(fos);

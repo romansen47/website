@@ -1,0 +1,89 @@
+<div th:fragment="popups">
+    <div class="overlay" id="overlay"></div>
+    <div class="popup" id="popup">
+        <h3>Wähle eine Figur für die Promotion:</h3>
+        <button class="promotion-button" data-piece="queen">QUEEN</button>
+        <button class="promotion-button" data-piece="rook">ROOK</button>
+        <button class="promotion-button" data-piece="bishop">BISHOP</button>
+        <button class="promotion-button" data-piece="knight">HORSEY</button>
+    </div>
+	<div id="infoPopup" class="info-popup-overlay" style="display: none;"> <!-- Standardmäßig versteckt -->
+	    <div class="info-popup-content">
+	        <p id="infoPopupMessage"></p> <!-- Falsches Tag geschlossen -->
+	        <button id="infoOkButton">OK</button> <!-- Korrektes Schließen des Buttons -->
+	    </div>
+	</div>
+    
+	<div id="newGamePopup" class="new-game-popup-overlay">
+	    <div class="new-game-popup-content">
+	        <h3 class="new-game-popup-header">New Game</h3>
+	        <div class="new-game-popup-body">
+	            <div class="form-group">
+	                <label for="timeForEachPlayer">Time for each player (in minutes):</label>
+	                <input type="number" id="timeForEachPlayer" min="0" th:value="${viewConfig.timeForEachPlayer}">
+	            </div>
+	
+	            <div class="form-group">
+	                <label for="incrementForWhite">Increment for white (in seconds):</label>
+	                <input type="number" id="incrementForWhite" min="0" th:value="${viewConfig.incrementForWhite}">
+	            </div>
+	
+	            <div class="form-group">
+	                <label for="incrementForBlack">Increment for black (in seconds):</label>
+	                <input type="number" id="incrementForBlack" min="0" th:value="${viewConfig.incrementForBlack}">
+	            </div>
+	            
+	            <div class="form-group">
+	                <label for="additionalTime">Additional time after 40 moves (in seconds):</label>
+	                <input type="number" id="additionalTime" min="0" th:value="${viewConfig.additionalTime}">
+	            </div>
+	
+	            <div class="form-group">
+	                <label for="startingColor">Play with black or white:</label>
+	                <select id="startingColor">
+	                    <option value="WHITE">white</option>
+	                    <option value="BLACK">black</option>
+	                </select>
+	            </div>
+	        </div>
+	        <div class="new-game-popup-footer">
+	            <button id="newGameOkButton">OK</button>
+	        </div>
+	    </div>
+	</div>
+	
+	<div id="gameAnalysisPopup" class="game-analysis-popup-overlay">
+	    <div class="game-analysis-popup-content">
+	        <h3 class="game-analysis-popup-header">New Game Analysis</h3>
+	        <div class="game-analysis-popup-body">
+				
+				<div class="form-group">
+				    <label for="evaluationEngine">Select Engine</label>
+				    <select name="evaluationEngine" th:id="evaluationEngine">
+				    	<option th:each="engine : ${evaluationEngines.keySet()}"
+				                th:value="${engine}"
+				                th:text="${engine.toString()}"
+				                th:selected="${engine == viewConfig.evaluationEngine}">
+						</option>
+				    </select>
+				    <span class="tooltip">Choose your engine</span>
+				</div>   
+				
+	            <div class="form-group">
+	                <label for="analysisTimePerMove">Time for each move evaluation (in ms):</label>
+	                <input type="number" id="analysisTimePerMove" min="1" max="300" th:value="5">
+	            </div>
+	
+	            <div class="form-group">
+	                <label for="threadsForGameEvaluation">Threads for evaluation:</label>
+	                <input type="number" id="threadsForGameEvaluation" min="1" max="8" th:value="2">
+	            </div>
+				
+	        </div>
+	        <div class="game-analysis-popup-footer">
+	            <button id="gameAnalysisOkButton">OK</button>
+	        </div>
+	    </div>
+	</div>
+	
+</div>

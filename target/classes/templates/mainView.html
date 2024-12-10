@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{header :: header}"></head>
+<body>
+	<script th:replace="~{scripts :: scripts}"></script>
+    <div th:replace="~{sidebar :: sidebar}"></div>
+    <div th:replace="~{chessboard :: chessboard}"></div>
+    <div th:replace="~{clocks :: clocks}"></div>
+    <div th:replace="~{popups :: popups}"></div>
+	<div class="move-list" id="moveList"></div>	
+	<div id="uciEngineMoveList" class="uciEngine-move-list" th:if="${showUciEngineLines}">
+		<div class="uciEngine-header">UciEngine lines:</div>
+	</div> 
+	<script src="https://cdn.jsdelivr.net/npm/chart.js" th:if="${showChart}"></script>
+	<canvas id="evaluationChart" width="500" height="150"></canvas>
+</body>
+</html>

@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="uciEngine-settings">
+    <title>UCI Engines Settings</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #4A4A4A;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container { 
+            width: 60%; /* Feste Breite für den Container */
+            max-width: 800px; /* Maximale Breite für größere Bildschirme */
+            margin: 0 auto; /* Zentriert den Container */
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            width: 85%; /* Macht das Formular breiter */
+            max-width: 1200px; /* Maximale Breite, um die Gesamtgröße zu kontrollieren */
+        }
+        .columns-container {
+            display: flex; /* Flexbox-Container für die Spalten */
+            gap: 50px; /* Abstand zwischen den Spalten */
+            margin-bottom: 20px; /* Abstand nach unten für den Button */
+        }
+        .column {
+            flex: 1; /* Jede Spalte nimmt den gleichen Platz ein */
+            display: flex;
+            flex-direction: column;
+            gap: 15px; /* vertikaler Abstand zwischen den Elementen innerhalb der Spalte */
+            
+            padding: 20px;
+            border-radius: 20px;
+            border: 2px solid #ccc;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 60%; /* Feste Breite für den Container */
+        }
+        .form-group {
+            position: relative; /* Setze relative Positionierung, damit absolute Kinder (Tooltips) korrekt platziert werden */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .form-group label {
+            margin-right: 10px;
+            color: #555;
+            flex: 1;
+            text-align: left;
+        }
+        .form-group input[type="checkbox"],
+        .form-group select,
+        .form-group input[type="number"] {
+            flex: 1;
+        }
+        select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            text-align: center;
+        }
+        select option {
+            text-align: center;
+        }
+        button {
+            width: 200px; /* Feste Breite für den Button */
+            padding: 10px;
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            border-radius: 0px;
+            cursor: pointer;
+            display: block;
+            margin: 0 auto; /* Zentriert den Button */
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        /* Grundlegender Tooltip-Stil */
+        .tooltip {
+            visibility: hidden;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            padding: 5px;
+            position: absolute;
+            z-index: 10;
+            top: -30px; /* Positioniere oberhalb des Elements */
+            left: 50%;
+            transform: translateX(-50%); /* Zentriere horizontal */
+            opacity: 0;
+            transition: opacity 0.3s;
+            white-space: nowrap; /* Verhindert Zeilenumbruch */
+        }
+
+        /* Zeigt den Tooltip beim Hovern an */
+        .form-group:hover .tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="container"> <!-- Hier ist der Rahmen -->
+        <h1>UCI Engine Settings</h1>
+        <form action="/uciEngine-settings" method="post">
+            <div class="columns-container">
+                <div class="column">
+                    <h3>White player engine</h3>
+                    <div class="form-group">
+                        <label for="selectedEngineForWhite">Select Engine</label>
+                        <select name="selectedEngineForWhite" th:id="selectedEngineForWhite">
+                            <option th:each="engine : ${playerEngines.keySet()}"
+                                    th:value="${engine}"
+                                    th:text="${engine.toString()}"
+                                    th:selected="${engine == viewConfig.playerEngineForWhite}"></option>
+                        </select>
+                        <span class="tooltip">Choose your engine</span>
+                    </div>     
+                    <div class="form-group">
+                        <label for="uciEngineDepthForWhite">Depth</label>
+                        <input type="number" name="uciEngineDepthForWhite" th:value="${viewConfig.uciEngineDepthForWhite}" min="0" max="30"/>
+                        <span class="tooltip">Analysis depth</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="threadsForWhite">Threads</label>
+                        <input type="number" name="threadsForWhite" th:value="${viewConfig.threadsForWhite}" min="0" max="64"/>
+                        <span class="tooltip">Number of threads white UciEngine player uses</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="hashSizeForWhite"> HashSize</label>
+                        <input type="number" name="hashSizeForWhite" th:value="${viewConfig.hashSizeForWhite}" min="0" max="4096"/>
+                        <span class="tooltip">Hash size in MB</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="contemptForWhite">Contempt</label>
+                        <input type="number" name="contemptForWhite" th:value="${viewConfig.contemptForWhite}" min="-99" max="99"/>
+                        <span class="tooltip">Aggressiveness of the engine</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="moveOverheadForWhite">Move Overhead</label>
+                        <input type="number" name="moveOverheadForWhite" th:value="${viewConfig.moveOverheadForWhite}" min="0" max="180"/>
+                        <span class="tooltip">Time management overhead</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="uciEloForWhite">Uci Elo</label>
+                        <input type="number" name="uciEloForWhite" th:value="${viewConfig.uciEloForWhite}" min="0" max="3500"/>
+                        <span class="tooltip">Limit strength by Elo</span>
+                    </div>    
+                </div> 
+                <div class="column">
+                    <h3>Black player engine</h3>
+                    <div class="form-group">
+                        <label for="selectedEngineForBlack">Select Engine</label>
+                        <select name="selectedEngineForBlack" th:id="selectedEngineForBlack">
+                            <option th:each="engine : ${playerEngines.keySet()}"
+                                    th:value="${engine}"
+                                    th:text="${engine.toString()}"
+                                    th:selected="${engine == viewConfig.playerEngineForBlack}"></option>
+                        </select>
+                        <span class="tooltip">Choose your engine</span>
+                    </div> 
+                    <div class="form-group">
+                        <label for="uciEngineDepthForBlack">Depth</label>
+                        <input type="number" name="uciEngineDepthForBlack" th:value="${viewConfig.uciEngineDepthForBlack}" min="0" max="30"/>
+                        <span class="tooltip">Analysis depth</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="threadsForBlack">Threads</label>
+                        <input type="number" name="threadsForBlack" th:value="${viewConfig.threadsForBlack}" min="0" max="64"/>
+                        <span class="tooltip">Number of threads UciEngine uses</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="hashSizeForBlack">HashSize</label>
+                        <input type="number" name="hashSizeForBlack" th:value="${viewConfig.hashSizeForBlack}" min="0" max="2048"/>
+                        <span class="tooltip">Hash size in MB</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="contemptForBlack">Contempt</label>
+                        <input type="number" name="contemptForBlack" th:value="${viewConfig.contemptForBlack}" min="-99" max="99"/>
+                        <span class="tooltip">Aggressiveness of the engine</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="moveOverheadForBlack">Move Overhead</label>
+                        <input type="number" name="moveOverheadForBlack" th:value="${viewConfig.moveOverheadForBlack}" min="0" max="180"/>
+                        <span class="tooltip">Time management overhead</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="uciEloForBlack">Uci Elo</label>
+                        <input type="number" name="uciEloForBlack" th:value="${viewConfig.uciEloForBlack}" min="0" max="3500"/>
+                        <span class="tooltip">Limit strength by Elo</span>
+                    </div>    
+                </div>
+            </div>
+            <button type="submit">Save Settings</button>
+        </form>
+    </div>
+</body>
+</html>
