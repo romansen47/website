@@ -58,7 +58,6 @@ import demo.chess.game.Game;
 @Component
 public class ApiControllerHelperImpl extends ChessHelper implements ApiControllerHelper {
 
-	@SuppressWarnings("unused")
 	private static final Logger logger = LogManager.getLogger(ChessApiController.class);
 
 	@Override
@@ -177,7 +176,7 @@ public class ApiControllerHelperImpl extends ChessHelper implements ApiControlle
 		for (Pair<Pair<Double, Integer>, String> pair : list) {
 			if (seenStrings.add(pair.getValue())) {
 				uniqueList.add(pair);
-			} 
+			}
 		}
 
 		List<Pair<Pair<Double, Integer>, String>> finalList = new ArrayList<>();
@@ -276,8 +275,9 @@ public class ApiControllerHelperImpl extends ChessHelper implements ApiControlle
 	@Override
 	public boolean isHumanAlowedToInteract(Game chessGame, boolean uciEngineActive) {
 		boolean humanPlaysWhite = !viewConfig.getIsFlipped() ? true : false;
-		if (uciEngineActive && (humanPlaysWhite && chessGame.getMoveList().size() % 2 == 1
-				|| !humanPlaysWhite && chessGame.getMoveList().size() % 2 == 0)) {
+		if ((uciEngineActive && (humanPlaysWhite && chessGame.getMoveList().size() % 2 == 1
+				|| !humanPlaysWhite && chessGame.getMoveList().size() % 2 == 0))
+				|| get(KEY.ANALYSED_GAME) != null) {
 			return false;
 		}
 		return true;
@@ -357,7 +357,7 @@ public class ApiControllerHelperImpl extends ChessHelper implements ApiControlle
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Creates a 64-character string representing the current state of the
 	 * chessboard. Each character corresponds to a square on the board, with pieces
@@ -424,6 +424,7 @@ public class ApiControllerHelperImpl extends ChessHelper implements ApiControlle
 		return piece.getColor() == Color.BLACK ? Character.toLowerCase(representation) : representation;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void createPositionsAsString(Game chessGame, AppAdmin admin) throws NoMoveFoundException, IOException {
 		Game dummyGame = admin.dummyGame();

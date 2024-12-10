@@ -44,7 +44,6 @@ import com.example.demo.model.DisplayedPiece;
 
 import demo.chess.definitions.Color;
 import demo.chess.definitions.PieceType;
-import demo.chess.definitions.board.Board;
 import demo.chess.definitions.engines.EngineConfig;
 import demo.chess.definitions.engines.EvaluationEngine;
 import demo.chess.definitions.engines.PlayerEngine;
@@ -55,13 +54,13 @@ import demo.chess.definitions.fields.Field;
 import demo.chess.definitions.moves.Castling;
 import demo.chess.definitions.moves.EnPassant;
 import demo.chess.definitions.moves.Move;
+import demo.chess.definitions.moves.MoveList;
 import demo.chess.definitions.moves.Promotion;
 import demo.chess.definitions.moves.impl.MoveListImpl;
 import demo.chess.definitions.pieces.Piece;
 import demo.chess.definitions.pieces.impl.Rook;
 import demo.chess.game.Game;
 import demo.chess.save.GameSaver;
-import demo.chess.definitions.moves.MoveList;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -312,7 +311,9 @@ public class ChessApiController extends ControllerTemplate {
 	@ResponseBody
 	@SuppressWarnings("unchecked")
 	protected ChessApiResponse<List<String>> onFieldClicked(@RequestParam int id) throws Exception {
+
 		Game chessGame = (Game) get(KEY.CHESSGAME);
+
 		if (!helper.checkForGameState(chessGame, getEvaluationEngine())
 				|| !helper.isHumanAlowedToInteract(chessGame, viewConfig.isUciEngineActive())) {
 			return new ChessApiResponse<>(false, new ArrayList<>());
@@ -529,10 +530,10 @@ public class ChessApiController extends ControllerTemplate {
 		} catch (IOException e) {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error loading game");
 		}
-		
-		
+
+
 	}
-	
+
 	/**
 	 * Uploads a saved pgn game file from the client to the server, which is then loaded
 	 * into the game for resuming or reviewing previous moves.
@@ -624,13 +625,21 @@ public class ChessApiController extends ControllerTemplate {
 			if (((Boolean) get(KEY.REGULAR))) {
 				players.put("white", "Player");
 				players.put("whitetooltip", "The human player");
-				players.put("black", get(KEY.PLAYER_ENGINE_FOR_BLACK).toString());
+				if (get(KEY.PLAYER_ENGINE_FOR_BLACK) == null) {
+					players.put("black", "Player");
+				} else {
+					players.put("black", get(KEY.PLAYER_ENGINE_FOR_BLACK).toString());
+				}
 				players.put("blacktooltip",
 						helper.createToolTipForConfig((EngineConfig) get(KEY.ENGINE_CONFIG_FOR_BLACK)));
 			} else {
 				players.put("black", "Player");
 				players.put("blacktooltip", "The human player");
-				players.put("white", get(KEY.PLAYER_ENGINE_FOR_WHITE).toString());
+				if (get(KEY.PLAYER_ENGINE_FOR_WHITE) == null) {
+					players.put("white", "Player");
+				} else {
+					players.put("white", get(KEY.PLAYER_ENGINE_FOR_WHITE).toString());
+				}
 				players.put("whitetooltip",
 						helper.createToolTipForConfig((EngineConfig) get(KEY.ENGINE_CONFIG_FOR_WHITE)));
 			}
@@ -657,7 +666,7 @@ public class ChessApiController extends ControllerTemplate {
 		helper.createPositionsAsString((Game) get(KEY.CHESSGAME),admin);
 		return new ChessApiResponse<>(true, (List<String>) get(KEY.POSITIONS_AS_STRINGS));
 	}
-	 
+
 	@SuppressWarnings("unchecked")
 	@GetMapping("/getEvaluationProfile")
 	@ResponseBody
@@ -692,7 +701,7 @@ public class ChessApiController extends ControllerTemplate {
 	@GetMapping("/moveList")
 	@ResponseBody
 	public ChessApiResponse<List<String>> getMoveList() throws NoMoveFoundException, IOException {
-		Game chessGame = (Game) get(KEY.CHESSGAME);
+		Game chessGame = get(KEY.ANALYSED_GAME) == null ? (Game) get(KEY.CHESSGAME) : (Game) get(KEY.ANALYSED_GAME);
 		List<String> moves = chessGame.getSanMoveList();
 		return new ChessApiResponse<>(true, moves);
 	}
@@ -955,7 +964,7 @@ public class ChessApiController extends ControllerTemplate {
 		String positionAsString = helper.createPositionAsString(chessGame);
 		((List<String>) get(KEY.POSITIONS_AS_STRINGS)).add(positionAsString);
 	}
-	
+
 	/**
 	 * Resets the game state to its initial configuration. This method invokes the
 	 * helper’s reset logic, ensuring that all relevant game components and
@@ -965,10 +974,10 @@ public class ChessApiController extends ControllerTemplate {
 	 * @throws Exception If any error occurs during the reset operation.
 	 */
 	@Override
-	protected String reset() throws Exception { 
+	protected String reset() throws Exception {
 		put(KEY.ENGINE_MATCH, false);
 		createNewGame();
-		setup(); 
+		setup();
 		return helper.reset();
 	}
 

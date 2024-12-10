@@ -20,7 +20,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 import org.springframework.ui.Model;
-import org.w3c.dom.Element;
 
 import com.example.demo.controller.helper.ViewControllerHelper;
 import com.example.demo.elements.KEY;
@@ -169,7 +168,7 @@ public class ViewControllerHelperImpl extends ChessHelper implements ViewControl
 
 	@Override
 	public void setupEngineConfigurations() {
-		
+
 		EngineConfig engineConfigForWhite = ((EngineConfig) get(KEY.ENGINE_CONFIG_FOR_WHITE));
 		engineConfigForWhite.setThreads(viewConfig.getThreadsForWhite());
 		engineConfigForWhite.setContempt(viewConfig.getContemptForWhite());
@@ -322,10 +321,10 @@ public class ViewControllerHelperImpl extends ChessHelper implements ViewControl
 
 		put(KEY.PLAYER_ENGINE_FOR_WHITE, playerEngines.get(selectedEngineForWhite));
 		viewConfig.setPlayerEngineForWhite(selectedEngineForWhite);
-		
+
 		EngineConfig configForWhite = (EngineConfig) get(KEY.ENGINE_CONFIG_FOR_WHITE);
 		EngineConfig configForBlack = (EngineConfig) get(KEY.ENGINE_CONFIG_FOR_BLACK);
-		
+
 		viewConfig.setThreadsForWhite(threadsForWhite);
 		configForWhite.setThreads(threadsForWhite);
 
@@ -369,7 +368,7 @@ public class ViewControllerHelperImpl extends ChessHelper implements ViewControl
 		put(KEY.ENGINE_CONFIG_FOR_BLACK, configForBlack);
 
 	}
-	
+
 	@Override
 	public void downloadGameAnalysis() {
 	    try {

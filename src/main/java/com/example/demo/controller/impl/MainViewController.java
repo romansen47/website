@@ -211,6 +211,7 @@ public class MainViewController extends ControllerTemplate {
 	@ResponseBody
 	protected String startNewGame(@RequestBody Map<String, Object> params) throws Exception {
 
+		put(KEY.ANALYSED_GAME, null);
 		put(KEY.SHOW_CHART, false);
 		Game chessGame = (Game) get(KEY.CHESSGAME);
 		put(KEY.ENGINE_MATCH, false);
@@ -273,29 +274,30 @@ public class MainViewController extends ControllerTemplate {
 	@PostMapping("/startEngineMatch")
 	@ResponseBody
 	protected void startEngineGame() throws Exception {
-		
+
+		put(KEY.ANALYSED_GAME, null);
 		put(KEY.ENGINE_MATCH, true);
 
 		evaluationEngines.values().forEach(engine -> engine.stopEvaluation());
 		viewConfig.setShowArrows(false);
 		viewConfig.setShowEvaluation(false);
 		viewConfig.setShowUciEngineLines(false);
-		
+
 		Game chessGame = getChessGame();
 		chessGame.getWhitePlayer().getChessClock().setIncrementMillis(viewConfig.getIncrementForWhite() * 1000l);
 		chessGame.getBlackPlayer().getChessClock().setIncrementMillis(viewConfig.getIncrementForBlack() * 1000l);
 		put(KEY.CHESSGAME, chessGame);
-	
+
 		setup();
 		this.helper.setUnsetViewVariables(this.getEvaluationEngine());
 		helper.createNewPiecesFromExistingPieces(chessGame);
-		
+
 		String blackPlayer = get(KEY.PLAYER_ENGINE_FOR_BLACK).toString();
 		String whitePlayer = get(KEY.PLAYER_ENGINE_FOR_WHITE).toString();
-		
+
 		webSocketService.sendMessage(whitePlayer + "  vs. " + blackPlayer);
 		webSocketService.triggerUciEngineMove();
-	
+
 	}
 
 	/**
@@ -367,8 +369,9 @@ public class MainViewController extends ControllerTemplate {
 				if (engine == null) {
 					if (this.evaluationEngines.isEmpty()) {
 						throw new Exception("No engines configured");
-					} else
+					} else {
 						engine = evaluationEngines.get("STOCKFISH_16");
+					}
 				}
 				engine.clearChachedLines();
 				EngineConfig config = new UciEngineConfig();
@@ -406,12 +409,13 @@ public class MainViewController extends ControllerTemplate {
 
 		try {
 			newThread.start();
+			put(KEY.ANALYSED_GAME, get(KEY.CHESSGAME));
 		} catch (NullPointerException np) {
 			logger.debug("Thread was cancelled...");
 		}
 		this.webSocketService.sendReloadSignal();
 	}
-	
+
 	/**
 	 * Handles the GET request for the settings page. Populates the model with
 	 * configuration options.
@@ -521,6 +525,7 @@ public class MainViewController extends ControllerTemplate {
 			@RequestParam(defaultValue = "false") boolean showEvaluation,
 			@RequestParam(defaultValue = "false") boolean showUciEngineLines,
 			@RequestParam(defaultValue = "false") boolean uciEngineActive,
+			@RequestParam int threadsForEvaluationEngine,
 			@RequestParam int multiPVForEvaluationEngine,
 			@RequestParam(required = false) String selectedEngine) throws Exception {
 
@@ -536,8 +541,12 @@ public class MainViewController extends ControllerTemplate {
 		if (!showArrows && !showEvaluation && !showUciEngineLines) {
 			this.evaluationEngines.values().forEach(engine -> engine.stopEvaluation());
 		}
-		
+
 		/////////////////////////////////////////
+		
+		viewConfig.setThreadsForEvaluationEngine(threadsForEvaluationEngine);
+		((EngineConfig) get(KEY.ENGINE_CONFIG_EVAL)).setThreads(threadsForEvaluationEngine);
+		
 		viewConfig.setUciEngineDepthForEvaluationEngine(1);
 		((EngineConfig) get(KEY.ENGINE_CONFIG_EVAL)).setDepth(1);
 

@@ -602,4 +602,8 @@ public interface Config {
 	 * @param uciEngineDepthForEvaluationEngine the desired depth setting
 	 */
 	void setUciEngineDepthForEvaluationEngine(int uciEngineDepthForEvaluationEngine);
+
+	void setThreadsForEvaluationEngine(int threads);
+
+	int getThreadsForEvaluationEngine();
 }

@@ -15,12 +15,9 @@ import com.example.demo.model.Config;
 import com.example.demo.model.DisplayedPiece;
 import com.example.demo.websockets.WebSocketService;
 
-import demo.chess.definitions.Color;
-import demo.chess.definitions.board.Board;
 import demo.chess.definitions.engines.Engine;
 import demo.chess.definitions.engines.EvaluationEngine;
 import demo.chess.definitions.engines.PlayerEngine;
-import demo.chess.definitions.fields.Field;
 import demo.chess.definitions.pieces.Piece;
 import demo.chess.game.Game;
 import demo.chess.load.GameLoader;
@@ -231,10 +228,10 @@ public abstract class ControllerTemplate implements ChessController {
 		put(KEY.POSITIONS_AS_STRINGS, new ArrayList<>());
 		return chessGame;
 	}
-	
 
 
-	
+
+
 
 	/**
 	 * Retrieves the current `Game` instance or creates a new game if none exists.

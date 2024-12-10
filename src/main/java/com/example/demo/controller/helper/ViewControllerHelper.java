@@ -39,7 +39,7 @@ public interface ViewControllerHelper {
 	 * @param whiteTimeString The formatted time remaining for the white player.
 	 * @param blackTimeString The formatted time remaining for the black player.
 	 * @param model           The Model instance to which attributes are added.
-	 * @param evaluationEngines 
+	 * @param evaluationEngines
 	 */
 	void addModelAttributes(String color, String whiteTimeString, String blackTimeString, Model model, Map<String, EvaluationEngine> evaluationEngines);
 
@@ -123,7 +123,7 @@ public interface ViewControllerHelper {
 			int threadsForBlack, int hashSizeForBlack, int contemptForBlack, int moveOverheadForBlack,
 			int uciEloForBlack, String selectedEngineForWhite, String selectedEngineForBlack,
 			Map<String, PlayerEngine> playerEngines);
-	
+
 	void downloadGameAnalysis();
 
 }

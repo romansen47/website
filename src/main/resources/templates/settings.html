@@ -115,6 +115,12 @@
                     <input type="number" name="multiPVForEvaluationEngine" th:value="${viewConfig.multiPVForEvaluationEngine}" min="0" max="15"/>
                 </div>
             </div>
+			<div class="form-row">
+			    <div class="form-group">
+			        <label for="threadsForEvaluationEngine">Threads</label>
+			        <input type="number" name="threadsForEvaluationEngine" th:value="${viewConfig.threadsForEvaluationEngine}" min="0" max="128"/>
+			    </div>
+			</div>
             <div class="form-row">
                 <div class="form-group">
                     <label for="uciEngineActive">Play against UciEngine</label>

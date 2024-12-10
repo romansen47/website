@@ -32,7 +32,7 @@ public class ViewConfig implements Config {
 	private boolean shortAlgebraicNotation = true;
 
 	/** Activates or deactivates the UCI engine in the application. */
-	private boolean uciEngineActive = true;
+	private boolean uciEngineActive = false;
 
 	/** The total time allocated for each player in seconds. */
 	private int timeForEachPlayer = 300;
@@ -145,6 +145,8 @@ public class ViewConfig implements Config {
 
 	/** If true, the board is flipped so the black side is at the bottom. */
 	private boolean isFlipped = false;
+
+	private int threadsForEvaluationEngine = 4;
 
 	/**
 	 * @param evalWidth the evalWidth to set
@@ -435,6 +437,16 @@ public class ViewConfig implements Config {
 		this.uciEngineDepthForBlack = depthForBlack;
 	}
 
+	@Override
+	public int getThreadsForEvaluationEngine() {
+		return threadsForEvaluationEngine;
+	}
+
+	@Override
+	public void setThreadsForEvaluationEngine(int threads) {
+		this.threadsForEvaluationEngine  = threads;
+	}
+	
 	@Override
 	public int getThreadsForWhite() {
 		return threadsForWhite;
