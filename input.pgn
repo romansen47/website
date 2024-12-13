@@ -1,0 +1,132 @@
+[Event "2024 FIDE World Championship"]
+[Site "Singapore"]
+[Date "2024.12.12"]
+[Round "14"]
+[White "Ding, Liren"]
+[Black "Gukesh D"]
+[Result "0-1"]
+[Annotator "rafael"]
+[ECO "D02"]
+[WhiteElo "2728"]
+[BlackElo "2783"]
+[PlyCount "116"]
+[GameId "2121953482252299"]
+[EventDate "2024.??.??"]
+[TimeControl "40/7200:1800+30"]
+[Link "https://www.chess.com/analysis/game/pgn/5SNXjajoCa?tab=analysis"]
+
+1. Nf3 d5 2. g3 c5 3. Bg2 Nc6 4. d4 {Eine weitere neue Eröffnung im Match.} 4...
+e6 5. O-O cxd4 6. Nxd4 Nge7 $6 {Ein seltener Zug. Wie üblich zeigt Gukesh früh in
+der Partie eine neue Idee. Dieses Mal wird sie jedoch nach hinten losgehen -
+Weiß wird eine angenehme Stellung erreichen. Schwarz hat die Idee, auf d4
+abzutauschen und den Springer nach c6 zu bringen. Der Nachteil dieser Strategie
+ist, dass Schwarz' König in manchen Stellungen ohne den Springer in der $146ähe
+etwas unsicher sein kann, auch wenn das im Moment noch weit von der Realität
+entfernt scheint.} (6... Bc5 {ist der Hauptzug.}) 7. c4 {Die beste Reaktion, das
+Zentrum anzugreifen.} 7... Nxd4 $1 8. Qxd4 Nc6 $1 {Schwarz folgt der geplanten
+Strategie. Jetzt hat Weiß mehrere mögliche Züge für die Dame.} 9. Qd1 {Eine
+solide Wahl, aber die Alternativen sind interessant.} (9. Qf4 $5 {Das sieht
+seltsam aus, aber es ist spielbar.} 9... Bd6 (9... e5 {ist möglich, aber
+gefährlich - der g2-Läufer wird stärker.}) 10. Qd2 dxc4 11. Rd1 Be7 12. Qxd8+
+(12. Qc2 {ist auch spielbar, wenn Schwarz spielen muss} 12... Nd4 $1 13. Qd2 {und
+hier wahrscheinlich} (13. Qxc4 $4 Nf3+) 13... Nc6 {bietet eine Zug-Wiederholung
+an.}) 12... Nxd8 (12... Bxd8 $6 13. Na3) 13. Nd2 c3 $1 {Ein typisches Mittel, um
+die Struktur der Bauern zu schwächen.} 14. bxc3 Bd7 {mit einem sehr kleinen
+Vorteil für Weiß, typisch für die Katalanische Eröffnung.}) (9. Qd3 $5 {ist ein
+kreativer Zug, der einen Bauern anbietet, falls Schwarz den Springer nach e5
+spielt.} 9... d4 $1 {Es ist besser für Schwarz, vorsichtig zu sein.} (9... Ne5 10.
+Qc2 Nxc4 {Damit gewinnt er einen Bauern, aber Weiß erzielt eine gute
+Kompensation und wird wahrscheinlich bald wieder Material gewinnen nach} 11. e4)
+10. e3 Bc5 11. exd4 Bxd4 {Das ist ähnlich wie im Spiel und Weiß kann versuchen
+zu beweisen, dass die Dame auf d3 besser steht als auf d1.}) (9. Qd2 $5 {Wenn der
+Läufer mit b3-Lb2 entwickelt werden soll, ist es logisch, die Dame auf dieses
+scheinbar seltsame Feld zu setzen.} 9... d4 10. e3 Bc5 11. exd4 Bxd4 12. Nc3 O-O
+13. b3 {mit normalem Spiel.}) 9... d4 10. e3 Bc5 {Ein neuer Zug.} (10... e5 11.
+exd4 exd4 12. Re1+ Be7 13. Bg5 Be6 $2 (13... f6 {ist notwendig.}) 14. Bxe7 Qxe7
+15. Bxc6+ bxc6 16. Qxd4 {Weiß hatte einen Bauern mehr in Sarakauskas-Willow,
+England 2022.}) 11. exd4 (11. Qh5 $5 {ist eine interessante Möglichkeit, Schwarz'
+fehlenden Springer am Königsflügel auszunutzen.} 11... Qb6 ({Or} 11... Qe7 12.
+exd4 (12. Nd2 $5 {verschärft das Spiel nach} 12... dxe3 13. Ne4 exf2+ 14. Kh1 Bd4
+15. Bg5) 12... Bxd4 13. Nc3 O-O) 12. exd4 Bxd4 13. Nd2 O-O {mit einer
+ausgeglichenen Stellung.}) 11... Bxd4 12. Nc3 O-O (12... Bxc3 $2 {ist ein
+positioneller Fehler. Das Läuferpaar gleicht die geschwächte Bauernstruktur mehr
+als aus.} 13. bxc3) 13. Nb5 {Greift den Läufer an und verbessert den Springer.
+Dies ist ein wichtiger Moment.} 13... Bb6 $2 {Nach diesem ungenauen Zug erlangt
+Weiß einen klaren Vorteil.} (13... Bc5 {ist ein besseres Rückzugsfeld, aber
+nicht der beste Zug.}) (13... e5 $1 {ist die richtige Reaktion. Schwarz lässt den
+Läufer auf d4 und beschleunigt die Entwicklung.} 14. Nxd4 exd4 (14... Nxd4 {ist
+auch möglich, aber Weiß kann sich einen kleinen Vorteil erkämpfen mit} 15. b3)
+(14... Qxd4 {ist auch spielbar.} 15. Qxd4 exd4 (15... Nxd4 16. b3 {überlässt
+Weiß ein etwas besseres Endspiel.})) 15. b3 {die Stellung ist etwas bequemer für
+Weiß, aber Schwarz sollte Gleichheit erreichen, zum Beispiel:} 15... a5 $5 16.
+Bb2 a4 17. Bxc6 bxc6 18. Qxd4 Qxd4 19. Bxd4 Be6 {mit einem remislichen Endspiel
+mit einem Bauern weniger. Im Nachhinein sieht es so aus, als wäre Gukeshs Zug
+besser gewesen, weil er zum Sieg führte, aber 13...e5 ist objektiv richtig.})
+14. b3 $6 {Nicht der energischste Zug.} (14. Qe2 $1 {ist am besten und bereitet
+sich darauf vor, den Turm nach d1 zu bringen. Schwarz ist in Gefahr, und das ist
+ein Moment, den Ding sicherlich bereuen wird - ich kann mir nicht vorstellen,
+dass er diese Stellung verliert.} 14... a6 (14... e5 15. Rd1 Qe7 16. b3 $1 {mit
+der Idee von La3. Weiß hat einen klaren Vorteil. Der Läufer auf g2 ist eine
+monströse Figur.}) (14... Qf6 15. Be3 {mit viel Druck. Der Bauer auf b2 kann
+nicht geschlagen werden:} 15... Bxe3 16. Qxe3 Qxb2 $2 17. Rab1 Qf6 18. Nc7 Rb8 19.
+Bxc6 {gewinnt eine Figur.}) 15. Rd1 Qe7 (15... Qf6 16. Nc3 Nd4 17. Qe4 {mit
+einem klaren Vorteil für Weiß.}) 16. Nc3 {mit einem bequemen Vorteil.}) 14... a6
+15. Nc3 (15. Nd6 $6 {wird beantwortet mit} 15... Bd4) (15. Qxd8 {Der Abtausch der
+Damen ist möglich, aber die Stellung ist fast gleichwertig nach} 15... Rxd8 16.
+Nc3 Bd4 17. Bb2) 15... Bd4 16. Bb2 (16. Qc2 {es ist möglich, dem Läufer ein
+anderes Ziel zu geben, aber Schwarz geht es gut:} 16... e5 17. Be3 Bg4) 16... e5
+17. Qd2 {Ein gutes Feld für die Dame.} ({Das natürliche} 17. Qe2 {kann
+beantwortet werden mit} 17... Qg5 $1 {und die schwarze Dame findet eine gute
+Stellung am Königsflügel, die ein mögliches Lg4 unterstützt.}) 17... Be6 (17...
+Qa5 $5 {ist möglich. Wenn Weiß a3-b4 versucht, dann nach} 18. a3 Be6 19. b4 Qd8
+{ist der c4-Bauer geschwächt.}) 18. Nd5 b5 {Ein guter Zug, der die Struktur von
+Weiß durchbricht und versucht, den Springer auf d5 zu destabilisieren. Diese
+Andeutung von Aktivität störte Ding, der unerklärlicherweise beschloss, die
+Stellung zu vereinfachen, anstatt um die Initiative zu kämpfen.} 19. cxb5 $6 {Ein
+Stellungsfehler, da der Springer seine hervorragende Stellung im Zentrum
+verliert.} ({Weiß hätte versuchen können, Druck zu machen mit} 19. Bxd4 Nxd4 20.
+f4 $1 {versucht auch, den Springer auf d4 zu destabilisieren. Nach} 20... bxc4 21.
+bxc4 Rc8 22. Rac1 {Weiß geht nicht viele Risiken ein und hat immer noch einen
+kleinen Vorteil. Der Springer auf d5 ist stärker als der auf d4 und der Bauer
+auf c4 ist zwar isoliert, aber auch ein Freibauer.}) 19... axb5 20. Nf4 {Das ist
+die Idee von Ding, die viele Figuren zum Abtausch zwingt.} 20... exf4 21. Bxc6
+Bxb2 22. Qxb2 Rb8 23. Rfd1 {Das Spiel geht auf ein Remis zu. Zu diesem Zeitpunkt
+konnte wahrscheinlich niemand ein anderes Ergebnis erwarten. Aber Schach kann
+uns, wie der Sport und das Leben im Allgemeinen, überraschen.} 23... Qb6 24. Bf3
+(24. Bd7 {ist auch möglich, mit der Idee, die Läufer zu tauschen, denn danach
+werden die Endspiele leichter remis, selbst wenn Weiß einen Bauern am
+Damenflügel verliert. Die hellfeldrigen Schwächen am Königsflügel mögen
+beängstigend erscheinen, aber sie können nicht ausgenutzt werden.}) 24... fxg3
+25. hxg3 b4 {Natürlich ist die Stellung remis. Aber in der Praxis ist es
+bequemer, mit Schwarz zu spielen, weil er eine bessere Bauernstruktur hat.
+Außerdem war Ding in Zeitnot und seine letzten Züge zeigten, dass er verzweifelt
+um ein Remis kämpfen wollte, was Gukeshs Selbstvertrauen gestärkt haben muss.}
+26. a4 {Die Idee ist, einen Bauern am Damenflügel zu opfern, um das Spiel weiter
+zu vereinfachen und ein theoretisch remisliches Endspiel anzustreben.} (26. Bd5
+{ist möglich, mit der bereits erwähnten Idee, Läufer auszutauschen und Endspiele
+mit einem Bauern weniger leichter zu verteidigen.}) 26... bxa3 27. Rxa3 g6 28.
+Qd4 Qb5 29. b4 Qxb4 30. Qxb4 Rxb4 31. Ra8 Rxa8 32. Bxa8 {Ohne Türme oder Läufer
+ist das Endspiel leicht remis, und Gukesh würde nicht einmal allzu viel
+versuchen. Aber mit Türmen und Läufern ist es möglich, mit einer gewissen
+Hoffnung auf einen Sieg zu spielen, obwohl man schon sehr optimistisch sein
+muss, um wirklich zu glauben, dass die letzte Partie eines
+Weltmeisterschaftsmatches in einer solchen Stellung mit einem entscheidenden
+Ergebnis enden würde.} 32... g5 {Verbessert die Bauernstruktur am Königsflügel.
+Schwarz kann stundenlang spielen, bevor er endlich einen Plan aufzeigt, was die
+Verteidigung unangenehm macht. Wie erwartet dauerte die Partie viele Züge lang
+an, ohne dass sich die Bewertung änderte.} 33. Bd5 Bf5 {Natürlich ist Schwarz
+nicht bereit, Läufer abzutauschen.} 34. Rc1 Kg7 35. Rc7 Bg6 36. Rc4 Rb1+ {Auch
+kein Turmabtausch.} 37. Kg2 Re1 38. Rb4 h5 39. Ra4 Re5 40. Bf3 Kh6 41. Kg1 Re6
+42. Rc4 g4 43. Bd5 Rd6 44. Bb7 Kg5 45. f3 {Ding entscheidet sich für einen
+Abtausch der Bauern, was normalerweise eine gute Verteidigungsstrategie ist.
+Natürlich hätte er auch weiter warten können.} 45... f5 46. fxg4 hxg4 47. Rb4
+Bf7 48. Kf2 Rd2+ 49. Kg1 Kf6 50. Rb6+ Kg5 (50... Ke5 51. Rb5+ {nützt Schwarz
+nicht.}) 51. Rb4 Be6 52. Ra4 Rb2 53. Ba8 Kf6 54. Rf4 (54. Ra5 {verhindert, dass
+der König nach e5 gehen kann.}) 54... Ke5 {Als das Remis immer unausweichlicher
+erscheint, sorgt plötzlich eine überraschende Wendung dafür, dass die Partie und
+somit das Match sofort enden.} 55. Rf2 $2 {Ein herzzerreißendes Ende einer
+dramatischen Partie. Dieser schreckliche Patzer ermöglicht es Schwarz, in ein
+gewonnenes Bauernendspiel abzuwickeln.} (55. Ra4 {Schwarz hat keinen Gewinnplan,
+obwohl Gukesh viele weitere Züge gespielt hätte.}) 55... Rxf2 56. Kxf2 Bd5 $1 57.
+Bxd5 Kxd5 58. Ke3 Ke5 $1 {Gukesh schreibt Geschichte und wird der jüngste
+unangefochtene klassische Weltmeister aller Zeiten.} (58... Ke5 59. Kd3 f4) 0-1

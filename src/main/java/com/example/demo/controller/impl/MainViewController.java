@@ -358,7 +358,6 @@ public class MainViewController extends ControllerTemplate {
 		viewConfig.setShowUciEngineLines(false);
 		viewConfig.setShowArrows(false);
 
-		long waitForShutdown = 500l;
 		evaluationEngines.values().forEach(engine -> engine.stopEvaluation());
 
 		Thread newThread = new Thread(() -> {
@@ -397,7 +396,6 @@ public class MainViewController extends ControllerTemplate {
 					engine.stopEvaluation();
 					tmpGame.apply(simMove);
 					logger.info("Move {}", move);
-					Thread.sleep(waitForShutdown);
 				}
 				put(KEY.SHOW_CHART, true);
 				put(KEY.ENGINE_ANALYSIS, engine.getCachedBestLines());

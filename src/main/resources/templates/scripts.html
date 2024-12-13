@@ -1208,87 +1208,109 @@
 		if ([[${showChart}]]) {
 		    const ctx = document.getElementById('evaluationChart').getContext('2d');
 
-		    // Beide Datenquellen parallel laden
-		    Promise.all([
-		        fetch('/api/game/getEvaluationProfile', {
-		            method: 'GET',
-		            headers: {
-		                'Content-Type': 'application/json'
-		            }
-		        }).then(response => response.json()),
+			const canvas = document.getElementById('evaluationChart');
+			canvas.width = 1200; // Breite des Canvas
+			canvas.height = 200; // Höhe des Canvas
+			// Beide Datenquellen parallel laden
+			Promise.all([
+				fetch('/api/game/getEvaluationProfile', {
+					method: 'GET',
+					headers: {
+						'Content-Type': 'application/json'
+					}
+				}).then(response => response.json()),
 
-		        fetch('/api/game/moveList', {
-		            method: 'GET',
-		            headers: {
-		                'Content-Type': 'application/json'
-		            }
-		        }).then(response => response.json())
-		    ])
-		    .then(([evaluationResponse, positionResponse]) => {
-				const scale = 6;
+				fetch('/api/game/moveList', {
+					method: 'GET',
+					headers: {
+						'Content-Type': 'application/json'
+					}
+				}).then(response => response.json())
+			])
+			.then(([evaluationResponse, positionResponse]) => {
+				const scale = 5;
 				const evaluationData = evaluationResponse.data;
 				const positionStrings = positionResponse.data;
-				const maxAbsValue = Math.max(...evaluationData.map(Math.abs));
-				var scaleFactor = scale / maxAbsValue;
-				if (maxAbsValue > scale){
+
+				// Parsen der Evaluation-Daten: extrahiere Bewertung und Suchtiefe
+				const parsedData = evaluationData.map(value => {
+					const [evaluation, depth] = value.split(',').map(Number);
+					return { evaluation, depth };
+				});
+
+				// Berechnung des Skalenfaktors und Skalierung der Daten
+				const maxAbsValue = Math.max(...parsedData.map(item => Math.abs(item.evaluation)));
+				let scaleFactor = scale / maxAbsValue;
+				if (maxAbsValue > scale) {
 					scaleFactor = 1;
 				}
-				const scaledData = evaluationData.map(value => Math.max(-scale, Math.min(scale, value)) * scaleFactor);
-				
-		        new Chart(ctx, {
-		            type: 'bar',
-		            data: {
-		                labels: evaluationData.map(() => ''), 
-		                datasets: [{
-		                    data: scaledData,
-		                    backgroundColor: evaluationData.map((_, index) =>
-		                        index % 2 === 0 ? 'white' : 'black'
-		                    ),
+				const scaledData = parsedData.map(item => ({
+					evaluation: Math.max(-scale, Math.min(scale, item.evaluation)) * scaleFactor,
+					depth: item.depth
+				}));
+
+				new Chart(ctx, {
+					type: 'bar',
+					data: {
+						labels: parsedData.map(() => ''), 
+						datasets: [{
+							data: scaledData.map(item => item.evaluation),
+							backgroundColor: parsedData.map((_, index) =>
+								index % 2 === 0 ? 'white' : 'black'
+							),
 							tension: 0.4,
-		                    borderWidth: 0 // Kein Rand
-		                }]
-		            },
-		            options: {
-		                responsive: false,
-		                maintainAspectRatio: false,
-		                plugins: {
-		                    legend: {
-		                        display: false // Keine Legende anzeigen
-		                    },
-		                    tooltip: {
-		                        enabled: true, // Tooltips aktivieren
-		                        callbacks: {
-		                            label: function(context) {
-		                                const originalMove = positionStrings[context.dataIndex];
-		                                const originalValue = evaluationData[context.dataIndex];
-		                                return `Evaluation of ${originalMove}: ${originalValue}`;
-		                            }
-		                        }
-		                    },
-		                    title: {
-		                        display: false // Kein Titel anzeigen
-		                    }
-		                },
-		                scales: {
-		                    x: {
-		                        display: false // X-Achse komplett ausblenden
-		                    },
-		                    y: {
-		                        display: false, // Y-Achse komplett ausblenden
-		                        min: -10, // Sichtbereich der Skala anpassen
-		                        max: 10
-		                    }
-		                },
-		                layout: {
-		                    padding: 0 // Keine Innenabstände
-		                },
-		                animation: false // Animationen deaktivieren (optional für schnellere Darstellung)
-		            }
-		        });
-		    })
-		    .catch(error => {
-		        console.error('Error:', error);
-		    });
+							borderWidth: 0 // Kein Rand
+						}]
+					},
+					options: {
+						responsive: false,
+						maintainAspectRatio: false,
+						plugins: {
+							legend: {
+								display: false // Keine Legende anzeigen
+							},
+							tooltip: {
+								enabled: true, // Tooltips aktivieren
+								callbacks: {
+									label: function(context) {
+										const originalMove = positionStrings[context.dataIndex];
+										const originalValue = parsedData[context.dataIndex].evaluation;
+										const depth = parsedData[context.dataIndex].depth;
+
+										if (Math.abs(originalValue) === 99) {
+											// Sonderfall: Matt in depth Zügen
+											return `Evaluation of ${originalMove}: Mate in ${depth}`;
+										}
+
+										return `Evaluation of ${originalMove}: ${originalValue} (Depth: ${depth})`;
+									}
+								}
+							},
+							title: {
+								display: false 
+							}
+						},
+						scales: {
+							x: {
+								display: false 
+							},
+							y: {
+								display: false, 
+								min: -5, 
+								max: 5
+							}
+						},
+						layout: {
+							padding: 0 // Keine Innenabstände
+						},
+						animation: false // Animationen deaktivieren (optional für schnellere Darstellung)
+					}
+				});
+			})
+			.catch(error => {
+				console.error('Error:', error);
+			});
+
 		};
     });
 </script>

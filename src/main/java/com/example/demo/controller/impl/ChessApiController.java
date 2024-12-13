@@ -54,7 +54,6 @@ import demo.chess.definitions.fields.Field;
 import demo.chess.definitions.moves.Castling;
 import demo.chess.definitions.moves.EnPassant;
 import demo.chess.definitions.moves.Move;
-import demo.chess.definitions.moves.MoveList;
 import demo.chess.definitions.moves.Promotion;
 import demo.chess.definitions.moves.impl.MoveListImpl;
 import demo.chess.definitions.pieces.Piece;
@@ -670,20 +669,22 @@ public class ChessApiController extends ControllerTemplate {
 	@SuppressWarnings("unchecked")
 	@GetMapping("/getEvaluationProfile")
 	@ResponseBody
-	public ChessApiResponse<List<Double>> getEvaluationProfile() throws NoMoveFoundException, IOException {
+	public ChessApiResponse<List<String>> getEvaluationProfile() throws NoMoveFoundException, IOException {
 		Map<String, List<Pair<Pair<Double,Integer>, String>>> engineLines = (Map<String, List<Pair<Pair<Double, Integer>, String>>>) get(KEY.ENGINE_ANALYSIS);
-		List<Double> tmpProfile = new ArrayList<>();
+		List<String> tmpProfile = new ArrayList<>();
 		Game chessGame = getChessGame();
-		MoveList tmpMoveList = new MoveListImpl();
+		demo.chess.definitions.moves.MoveList tmpMoveList = new MoveListImpl();
 		double max = 0;
+		int depth = 0;
 		for (Move move:chessGame.getMoveList()) {
 			tmpMoveList.add(move);
 			double val = 0d;
 			if (engineLines.get(tmpMoveList.toString()) != null && !engineLines.get(tmpMoveList.toString()).isEmpty()) {
 				val = engineLines.get(tmpMoveList.toString()).get(0).getKey().getLeft();
+				depth = engineLines.get(tmpMoveList.toString()).get(0).getKey().getRight();
 				max = Math.max(max, Math.min(10, Math.abs(val)));
 			}
-			tmpProfile.add(val);
+			tmpProfile.add(String.valueOf(val) + ", " + String.valueOf(depth));
 		}
 		if ((EvaluationEngine) get(KEY.EVALUATION_ENGINE)!= null){
 			((EvaluationEngine) get(KEY.EVALUATION_ENGINE)).stopEvaluation();
