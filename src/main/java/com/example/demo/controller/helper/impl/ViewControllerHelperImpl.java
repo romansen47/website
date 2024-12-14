@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
@@ -390,11 +391,18 @@ public class ViewControllerHelperImpl extends ChessHelper implements ViewControl
 	        document.appendChild(root);
 
 	        for (String position : sortedKeys) {
-	            List<Pair<Pair<Double, Integer>, String>> evaluations = engineLines.get(position);
+	            List<Pair<Pair<Double, Integer>, String>> evaluations = engineLines.getOrDefault(position, new ArrayList<>());
 
 	            Collections.sort(evaluations, Comparator.comparingInt(evaluation -> evaluation.getValue().length()));
 
 	            String lastMove = position.trim().substring(position.lastIndexOf(" ") + 1).split("]")[0];
+				if (lastMove.contains("[")){
+					if (lastMove.equals("[")){
+						lastMove = "";
+					} else{
+						lastMove = lastMove.split(Pattern.quote("["))[1];
+					}
+				}
 
 	            var positionTag = document.createElement("position");
 	            positionTag.setAttribute("position", position);
@@ -424,7 +432,7 @@ public class ViewControllerHelperImpl extends ChessHelper implements ViewControl
 
 	        System.out.println("Die Datei wurde in test.xml gespeichert.");
 	    } catch (Exception e) {
-	        logger.info(e);
+			logger.info(e);
 	    }
 	}
 }

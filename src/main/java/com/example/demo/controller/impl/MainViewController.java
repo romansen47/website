@@ -366,6 +366,7 @@ public class MainViewController extends ControllerTemplate {
 				MoveList moveList = getChessGame().getMoveList();
 				long time = Long.parseLong((String) params.get("analysisTimePerMove")) * 1000l;
 				int multiPv = Integer.parseInt((String) params.get("multiPvForGameEvaluation"));
+				int threads = Integer.parseInt((String) params.get("threadsForGameEvaluation"));
 				EvaluationEngine engine = evaluationEngines.get((String)params.get("evaluationEngine"));
 				if (engine == null) {
 					if (this.evaluationEngines.isEmpty()) {
@@ -376,8 +377,8 @@ public class MainViewController extends ControllerTemplate {
 				}
 				engine.clearChachedLines();
 				EngineConfig config = new UciEngineConfig();
-				config.setThreads(viewConfig.getThreadsForEvaluationEngine());
-				logger.info("Starting new game analysis with {} threads", params.get("threadsForGameEvaluation"));
+				config.setThreads(threads);
+				logger.info("Starting new game analysis with {} threads", threads);
 				config.setMultiPV(multiPv);
 				Game tmpGame = admin.dummyGame();
 				for (Move move : moveList) {
