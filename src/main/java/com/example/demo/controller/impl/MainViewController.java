@@ -308,6 +308,7 @@ public class MainViewController extends ControllerTemplate {
 	@PostMapping("/shutDown")
 	@ResponseBody
 	protected void shutDown() throws Exception {
+		this.webSocketService.sendMessage("Shutting down engines and application");
 		evaluationEngines.values().forEach(engine -> engine.stopEvaluation());
 		Runtime.getRuntime().exit(0);
 	}
@@ -363,8 +364,9 @@ public class MainViewController extends ControllerTemplate {
 		Thread newThread = new Thread(() -> {
 			try {
 				MoveList moveList = getChessGame().getMoveList();
-				long time = Long.valueOf((String) params.get("analysisTimePerMove")) * 1000l;
-				EvaluationEngine engine = evaluationEngines.get(params.get("evaluationEngine")); //(EvaluationEngine) get(KEY.EVALUATION_ENGINE);
+				long time = Long.parseLong((String) params.get("analysisTimePerMove")) * 1000l;
+				int multiPv = Integer.parseInt((String) params.get("multiPvForGameEvaluation"));
+				EvaluationEngine engine = evaluationEngines.get((String)params.get("evaluationEngine"));
 				if (engine == null) {
 					if (this.evaluationEngines.isEmpty()) {
 						throw new Exception("No engines configured");
@@ -376,7 +378,7 @@ public class MainViewController extends ControllerTemplate {
 				EngineConfig config = new UciEngineConfig();
 				config.setThreads(viewConfig.getThreadsForEvaluationEngine());
 				logger.info("Starting new game analysis with {} threads", params.get("threadsForGameEvaluation"));
-				config.setMultiPV(1);
+				config.setMultiPV(multiPv);
 				Game tmpGame = admin.dummyGame();
 				for (Move move : moveList) {
 					logger.info("Analizing move " + move.toString());
@@ -395,7 +397,6 @@ public class MainViewController extends ControllerTemplate {
 					Thread.sleep(time);
 					engine.stopEvaluation();
 					tmpGame.apply(simMove);
-					logger.info("Move {}", move);
 				}
 				put(KEY.SHOW_CHART, true);
 				put(KEY.ENGINE_ANALYSIS, engine.getCachedBestLines());

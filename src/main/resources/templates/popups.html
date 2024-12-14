@@ -71,12 +71,17 @@
 				
 	            <div class="form-group">
 	                <label for="analysisTimePerMove">Time for each move evaluation (in ms):</label>
-	                <input type="number" id="analysisTimePerMove" min="1" max="300" th:value="5">
+	                <input type="number" id="analysisTimePerMove" min="1" max="300" th:value="1">
 	            </div>
 	
 	            <div class="form-group">
 	                <label for="threadsForGameEvaluation">Threads for evaluation:</label>
-	                <input type="number" id="threadsForGameEvaluation" min="1" max="8" th:value="2">
+	                <input type="number" id="threadsForGameEvaluation" min="1" max="256" th:value="4">
+	            </div>
+
+	            <div class="form-group">
+	                <label for="multiPvForGameEvaluation">Variety of moves:</label>
+	                <input type="number" id="multiPvForGameEvaluation" min="1" max="10" th:value="3">
 	            </div>
 				
 	        </div>

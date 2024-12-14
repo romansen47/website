@@ -263,7 +263,7 @@
 		const gameAnalysisPopup = document.getElementById('gameAnalysisPopup');
 		const gameAnalysisOkBtn = document.getElementById('gameAnalysisOkButton');
 
-		function openGameANalysisPopup() {
+		function openGameAnalysisPopup() {
 		    document.getElementById('gameAnalysisPopup').style.display = 'flex'; 
 		}
 
@@ -275,6 +275,7 @@
 			const evaluationEngine = document.getElementById('evaluationEngine').value;
 		    const analysisTimePerMove = document.getElementById('analysisTimePerMove').value;
 		    const threadsForGameEvaluation = document.getElementById('threadsForGameEvaluation').value;
+		    const multiPvForGameEvaluation = document.getElementById('multiPvForGameEvaluation').value;
        		
 			fetch('/startGameAnalysis', {
           		method: 'POST',
@@ -284,7 +285,8 @@
           		body: JSON.stringify({
 					evaluationEngine: evaluationEngine,
               		analysisTimePerMove: analysisTimePerMove,
-              		threadsForGameEvaluation: threadsForGameEvaluation
+              		threadsForGameEvaluation: threadsForGameEvaluation,
+					multiPvForGameEvaluation: multiPvForGameEvaluation
           		})
       		})
       		.then(response => response.json())
@@ -302,7 +304,7 @@
 	  	});
 
 	  	document.getElementById('gameAnalysis').addEventListener('click', function () {
-	    	openGameANalysisPopup(); 
+	    	openGameAnalysisPopup(); 
 	  	});
     
         function getFieldFromPiece(element) {

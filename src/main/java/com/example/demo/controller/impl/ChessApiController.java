@@ -8,6 +8,7 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -670,27 +671,47 @@ public class ChessApiController extends ControllerTemplate {
 	@GetMapping("/getEvaluationProfile")
 	@ResponseBody
 	public ChessApiResponse<List<String>> getEvaluationProfile() throws NoMoveFoundException, IOException {
-		Map<String, List<Pair<Pair<Double,Integer>, String>>> engineLines = (Map<String, List<Pair<Pair<Double, Integer>, String>>>) get(KEY.ENGINE_ANALYSIS);
+		Map<String, List<Pair<Pair<Double, Integer>, String>>> engineLines = (Map<String, List<Pair<Pair<Double, Integer>, String>>>) get(KEY.ENGINE_ANALYSIS);
 		List<String> tmpProfile = new ArrayList<>();
 		Game chessGame = getChessGame();
 		demo.chess.definitions.moves.MoveList tmpMoveList = new MoveListImpl();
 		double max = 0;
 		int depth = 0;
-		for (Move move:chessGame.getMoveList()) {
+	
+		for (Move move : chessGame.getMoveList()) {
 			tmpMoveList.add(move);
 			double val = 0d;
 			if (engineLines.get(tmpMoveList.toString()) != null && !engineLines.get(tmpMoveList.toString()).isEmpty()) {
-				val = engineLines.get(tmpMoveList.toString()).get(0).getKey().getLeft();
-				depth = engineLines.get(tmpMoveList.toString()).get(0).getKey().getRight();
+				List<Pair<Pair<Double, Integer>, String>> evaluations = engineLines.get(tmpMoveList.toString());
+	
+				// Entscheide basierend auf der Länge der Zugliste
+				Pair<Pair<Double, Integer>, String> bestEvaluation;
+				if (tmpMoveList.size() % 2 == 0) {
+					// Weiß am Zug: Höchste Bewertung
+					bestEvaluation = evaluations.stream()
+						.max(Comparator.comparing(e -> e.getKey().getLeft()))
+						.orElse(evaluations.get(0));
+				} else {
+					// Schwarz am Zug: Niedrigste Bewertung
+					bestEvaluation = evaluations.stream()
+						.min(Comparator.comparing(e -> e.getKey().getLeft()))
+						.orElse(evaluations.get(0));
+				}
+	
+				val = bestEvaluation.getKey().getLeft();
+				depth = bestEvaluation.getKey().getRight();
 				max = Math.max(max, Math.min(10, Math.abs(val)));
 			}
 			tmpProfile.add(String.valueOf(val) + ", " + String.valueOf(depth));
 		}
-		if ((EvaluationEngine) get(KEY.EVALUATION_ENGINE)!= null){
+	
+		if ((EvaluationEngine) get(KEY.EVALUATION_ENGINE) != null) {
 			((EvaluationEngine) get(KEY.EVALUATION_ENGINE)).stopEvaluation();
 		}
+	
 		return new ChessApiResponse<>(true, tmpProfile);
 	}
+	
 
 	/**
 	 * Handles GET requests to retrieve the list of moves made during the game.
