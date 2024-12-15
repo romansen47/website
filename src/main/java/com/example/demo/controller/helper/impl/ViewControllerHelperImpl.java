@@ -372,7 +372,7 @@ public class ViewControllerHelperImpl extends ChessHelper implements ViewControl
 	}
 
 	@Override
-	public void downloadGameAnalysis() {
+	public void downloadGameAnalysis(EvaluationEngine engine) {
 	    try {
 	        @SuppressWarnings("unchecked")
 	        Map<String, List<Pair<Pair<Double, Integer>, String>>> engineLines =
@@ -387,8 +387,11 @@ public class ViewControllerHelperImpl extends ChessHelper implements ViewControl
 	        var documentBuilder = documentFactory.newDocumentBuilder();
 	        var document = documentBuilder.newDocument();
 
+
 	        var root = document.createElement("gameAnalysis");
 	        document.appendChild(root);
+
+			root.setAttribute("engine", engine.toString());
 
 	        for (String position : sortedKeys) {
 	            List<Pair<Pair<Double, Integer>, String>> evaluations = engineLines.getOrDefault(position, new ArrayList<>());
@@ -405,7 +408,7 @@ public class ViewControllerHelperImpl extends ChessHelper implements ViewControl
 				}
 
 	            var positionTag = document.createElement("position");
-	            positionTag.setAttribute("position", position);
+	            positionTag.setAttribute("evaluation", position);
 	            positionTag.setAttribute("move", lastMove);
 	            root.appendChild(positionTag);
 

@@ -402,7 +402,7 @@ public class MainViewController extends ControllerTemplate {
 				put(KEY.SHOW_CHART, true);
 				put(KEY.ENGINE_ANALYSIS, engine.getCachedBestLines());
 				this.webSocketService.sendReloadSignal();
-				helper.downloadGameAnalysis();
+				helper.downloadGameAnalysis(engine);
 			} catch (Exception e) {
 				logger.warn("Exception thrown: {}", e.getMessage());
 			}

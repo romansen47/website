@@ -1229,16 +1229,26 @@
 				}));
 
 				new Chart(ctx, {
-					type: 'bar',
+					type: 'line',
 					data: {
 						labels: parsedData.map(() => ''), 
 						datasets: [{
 							data: scaledData.map(item => item.evaluation),
-							backgroundColor: parsedData.map((_, index) =>
-								index % 2 === 0 ? 'white' : 'black'
+							borderColor: 'black', // Farbe der Linie
+							fill: true, // Fläche unter der Linie füllen
+							backgroundColor: 'rgba(192, 192, 192, 0.8)', // Helles Grau für die Fläche
+							tension: 0.4, // Glatte Kurven
+							borderWidth: 2, // Dicke der Linie
+							pointRadius: 1, // Größe der Punkte
+							pointHoverRadius: 2, // Größe der Punkte beim Hover
+
+							// Punktfarbe explizit setzen
+							pointBackgroundColor: parsedData.map((_, index) =>
+								index % 2 === 0 ? 'black' : 'white' // Abwechselnd schwarz und weiß
 							),
-							tension: 0.4,
-							borderWidth: 0 // Kein Rand
+							pointBorderColor: parsedData.map((_, index) =>
+								index % 2 === 0 ? 'black' : 'white'
+							)
 						}]
 					},
 					options: {
@@ -1251,19 +1261,31 @@
 							tooltip: {
 								enabled: true, // Tooltips aktivieren
 								callbacks: {
-									label: function(context) {
+									label: function (context) {
 										const originalMove = positionStrings[context.dataIndex];
 										const originalValue = parsedData[context.dataIndex].evaluation;
 										const depth = parsedData[context.dataIndex].depth;
 
+										// Abwechselnde Tooltip-Farben
+										const bgColor = context.dataIndex % 2 === 0 ? 'black' : 'white';
+										const textColor = bgColor === 'black' ? 'white' : 'black';
+
+										// Tooltip-Anzeige
 										if (Math.abs(originalValue) === 99) {
-											// Sonderfall: Matt in depth Zügen
 											return `Evaluation of ${originalMove}: Mate in ${depth}`;
 										}
 
 										return `Evaluation of ${originalMove}: ${originalValue} (Depth: ${depth})`;
 									}
-								}
+								},
+								backgroundColor: (context) => 
+									context.raw < 0 ? 'white' : 'black',
+								titleColor: (context) =>
+									context.raw < 0 ? 'black' : 'white',
+								bodyColor: (context) =>
+									context.raw < 0 ? 'black' : 'white',
+								borderColor: 'black',
+								borderWidth: 1,
 							},
 							title: {
 								display: false 
@@ -1280,9 +1302,9 @@
 							}
 						},
 						layout: {
-							padding: 0 // Keine Innenabstände
+							padding: 0
 						},
-						animation: false // Animationen deaktivieren (optional für schnellere Darstellung)
+						animation: true
 					}
 				});
 			})

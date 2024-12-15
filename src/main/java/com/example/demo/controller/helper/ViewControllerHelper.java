@@ -124,6 +124,6 @@ public interface ViewControllerHelper {
 			int uciEloForBlack, String selectedEngineForWhite, String selectedEngineForBlack,
 			Map<String, PlayerEngine> playerEngines);
 
-	void downloadGameAnalysis();
+	void downloadGameAnalysis(EvaluationEngine engine);
 
 }
