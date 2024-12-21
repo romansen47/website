@@ -429,6 +429,7 @@ public class ApiControllerHelperImpl extends ChessHelper implements ApiControlle
 	public void createPositionsAsString(Game chessGame, AppAdmin admin) throws NoMoveFoundException, IOException {
 		Game dummyGame = admin.dummyGame();
 		Move tmpMove = null;
+		((List<String>) get(KEY.POSITIONS_AS_STRINGS)).clear();
 		for (Move move:chessGame.getMoveList()) {
 			for (Move dummyMove:dummyGame.getPlayer().getValidMoves(dummyGame)) {
 				if (dummyMove.toString().equals(move.toString())) {

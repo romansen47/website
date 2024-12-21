@@ -983,8 +983,6 @@ public class ChessApiController extends ControllerTemplate {
 		}
 		this.webSocketService.updateClocks();
 		this.webSocketService.updateMoveList();
-		String positionAsString = helper.createPositionAsString(chessGame);
-		((List<String>) get(KEY.POSITIONS_AS_STRINGS)).add(positionAsString);
 	}
 
 	/**

@@ -798,73 +798,71 @@
     	            moveList.appendChild(divider);
 
     	            moveData.data.forEach((move, index) => {
-    	                if (index % 2 === 0) {
-    	                    const moveRow = document.createElement('div');
-    	                    moveRow.classList.add('move-row');
-    	                    moveRow.style.display = 'flex';
-    	                    moveRow.style.gap = '10px';
+						if (index % 2 === 0) {
+							const moveRow = document.createElement('div');
+							moveRow.classList.add('move-row');
+							moveRow.style.display = 'grid';
+							moveRow.style.gridTemplateColumns = '50px 1fr 1fr'; // Spaltenlayout: Nummer, Weiß, Schwarz
+							moveRow.style.gap = '10px';
 
-    	                    const moveNumber = document.createElement('span');
-    	                    moveNumber.classList.add('move-number');
-    	                    moveNumber.textContent = `${Math.floor(index / 2) + 1}.`;
-    	                    moveNumber.style.fontWeight = 'bold';
-    	                    moveNumber.style.width = '30px';
-    	                    moveRow.appendChild(moveNumber);
+							const moveNumber = document.createElement('span');
+							moveNumber.classList.add('move-number');
+							moveNumber.textContent = `${Math.floor(index / 2) + 1}.`;
+							moveNumber.style.fontWeight = 'bold';
+							moveRow.appendChild(moveNumber);
 
-    	                    const moveWhite = document.createElement('span');
-    	                    moveWhite.classList.add('move');
-    	                    moveWhite.textContent = move;
-    	                    moveRow.appendChild(moveWhite);
+							const moveWhite = document.createElement('span');
+							moveWhite.classList.add('move');
+							moveWhite.textContent = move;
+							moveRow.appendChild(moveWhite);
 
-    	                    const showPreview = (event, positionString) => {
-    	                        const hoveringChessboard = document.getElementById('hoveringChessboard');
-    	                        hoveringChessboard.style.left = `${event.pageX + 20}px`;
+							const showPreview = (event, positionString) => {
+								const hoveringChessboard = document.getElementById('hoveringChessboard');
+								hoveringChessboard.style.left = `${event.pageX + 20}px`;
 								if (index >= 40) {
-								    hoveringChessboard.style.top = `${event.pageY - 300}px`;
+									hoveringChessboard.style.top = `${event.pageY - 300}px`;
 								} else {
-								    hoveringChessboard.style.top = `${event.pageY + 20}px`;
+									hoveringChessboard.style.top = `${event.pageY + 20}px`;
 								}
-    	                        displayHoveringChessboard(positionString);
-    	                    };
+								displayHoveringChessboard(positionString);
+							};
 
-    	                    moveWhite.addEventListener('mouseenter', function (e) {
-    	                        const positionString = positionStrings[index];
-    	                        hoverTimeout = setTimeout(() => {
-    	                            showPreview(e, positionString);
-    	                            moveWhite.addEventListener('mousemove', (event) => showPreview(event, positionString));
-    	                        }, 500);
-    	                    });
+							moveWhite.addEventListener('mouseenter', function (e) {
+								const positionString = positionStrings[index];
+								hoverTimeout = setTimeout(() => {
+									showPreview(e, positionString);
+									moveWhite.addEventListener('mousemove', (event) => showPreview(event, positionString));
+								}, 500);
+							});
 
-    	                    moveWhite.addEventListener('mouseleave', function () {
-    	                        clearTimeout(hoverTimeout);
-    	                        document.getElementById('hoveringChessboard').style.display = 'none';
-    	                        moveWhite.removeEventListener('mousemove', showPreview);
-    	                    });
+							moveWhite.addEventListener('mouseleave', function () {
+								clearTimeout(hoverTimeout);
+								document.getElementById('hoveringChessboard').style.display = 'none';
+								moveWhite.removeEventListener('mousemove', showPreview);
+							});
 
-    	                    if (moveData.data[index + 1]) {
-    	                        const moveBlack = document.createElement('span');
-    	                        moveBlack.classList.add('move');
-    	                        moveBlack.textContent = moveData.data[index + 1];
-    	                        moveRow.appendChild(moveBlack);
+							const moveBlack = document.createElement('span');
+							moveBlack.classList.add('move');
+							moveBlack.textContent = moveData.data[index + 1] || ''; // Schwarz-Zug leer, falls nicht vorhanden
+							moveRow.appendChild(moveBlack);
 
-    	                        moveBlack.addEventListener('mouseenter', function (e) {
-    	                            const positionString = positionStrings[index + 1];
-    	                            hoverTimeout = setTimeout(() => {
-    	                                showPreview(e, positionString);
-    	                                moveBlack.addEventListener('mousemove', (event) => showPreview(event, positionString));
-    	                            }, 500);
-    	                        });
+							moveBlack.addEventListener('mouseenter', function (e) {
+								const positionString = positionStrings[index + 1];
+								hoverTimeout = setTimeout(() => {
+									showPreview(e, positionString);
+									moveBlack.addEventListener('mousemove', (event) => showPreview(event, positionString));
+								}, 500);
+							});
 
-    	                        moveBlack.addEventListener('mouseleave', function () {
-    	                            clearTimeout(hoverTimeout);
-    	                            document.getElementById('hoveringChessboard').style.display = 'none';
-    	                            moveBlack.removeEventListener('mousemove', showPreview);
-    	                        });
-    	                    }
+							moveBlack.addEventListener('mouseleave', function () {
+								clearTimeout(hoverTimeout);
+								document.getElementById('hoveringChessboard').style.display = 'none';
+								moveBlack.removeEventListener('mousemove', showPreview);
+							});
 
-    	                    moveList.appendChild(moveRow);
-    	                }
-    	            });
+							moveList.appendChild(moveRow);
+						}
+					});
     	        } else {
     	            console.error('Error loading move list:', moveData.message);
     	        }

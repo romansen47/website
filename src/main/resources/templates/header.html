@@ -142,15 +142,30 @@
 		    width: [[${moveListWidth}]]px;
 		    padding: 10px;
 		    font-size: 13px;
-		    background-color: #4A4A4A; /* Hintergrund in dunklem Grau */
-		    color: #d3d3d3; /* Textfarbe in hellem Grau */
+		    background-color: #4A4A4A; 
+		    color: #d3d3d3; 
 		    max-height: [[${chessboardSize}]]px;
 		    overflow-y: auto;
-		    box-shadow: none; /* Kein Schatten */
-		    border: none; /* Kein Rand */
-		    cursor: default; /* Nicht verschiebbar */
-		    border-radius: 0; /* Keine abgerundeten Ecken */
+		    box-shadow: none; 
+		    border: none; 
+		    cursor: default; 
+		    border-radius: 0; 
 		    z-index: 5;
+		}
+
+		.move-row {
+			display: grid;
+			grid-template-columns: 
+			gap: 10px;
+		}
+
+		.move-number {
+			text-align: right; 
+			margin-right: 40px;
+		}
+
+		.move {
+			text-align: left; 
 		}
 
 		.uciEngine-move-list {
