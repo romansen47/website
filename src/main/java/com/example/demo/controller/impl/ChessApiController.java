@@ -580,6 +580,16 @@ public class ChessApiController extends ControllerTemplate {
 		}
 
 		try {
+			String dirPath = System.getProperty("user.dir") + "/engines/";
+			File directory = new File(dirPath);
+			if (!directory.exists()) {
+                // Verzeichnis erstellen, falls es nicht existiert
+                if (directory.mkdirs()) {
+                    logger.info("Director created: " + dirPath);
+                } else {
+                	logger.info("Directory could not be created."); 
+                }
+            }
 			String name = System.getProperty("user.dir") + "/engines/" + file.getOriginalFilename();
 
 			FileOutputStream fos = new FileOutputStream(name);

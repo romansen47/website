@@ -44,6 +44,8 @@ RUN git clone https://github.com/romansen47/website.git /app/website && \
     git checkout work && \
     mvn clean install
 
+RUN mkdir -p target/engines && mkdir -p target/games 
+
 # Copy the Apache configuration files
 COPY apache-config.conf /etc/apache2/sites-available/000-default.conf
 COPY apache-ssl.conf /etc/apache2/sites-available/default-ssl.conf
