@@ -516,7 +516,16 @@ public class ChessApiController extends ControllerTemplate {
 		if (file.isEmpty()) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No file selected.");
 		}
-
+		String dirPath = System.getProperty("user.dir") + "/games/";
+		File directory = new File(dirPath);
+		if (!directory.exists()) {
+			// Verzeichnis erstellen, falls es nicht existiert
+			if (directory.mkdirs()) {
+				logger.info("Directory created: " + dirPath);
+			} else {
+				logger.info("Directory could not be created."); 
+			}
+		}
 		try {
 			FileWriter fw = new FileWriter("games/save-game.txt");
 			BufferedWriter bw = new BufferedWriter(fw);
@@ -546,8 +555,17 @@ public class ChessApiController extends ControllerTemplate {
 	public ResponseEntity<String> uploadPgnGame(@RequestParam("file") MultipartFile file) throws Exception {
 		if (file.isEmpty()) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No file selected.");
+		} 
+		String dirPath = System.getProperty("user.dir") + "/games/";
+		File directory = new File(dirPath);
+		if (!directory.exists()) {
+			// Verzeichnis erstellen, falls es nicht existiert
+			if (directory.mkdirs()) {
+				logger.info("Directory created: " + dirPath);
+			} else {
+				logger.info("Directory could not be created."); 
+			}
 		}
-
 		try {
 			FileWriter fw = new FileWriter("save-game.txt");
 			BufferedWriter bw = new BufferedWriter(fw);
@@ -585,7 +603,7 @@ public class ChessApiController extends ControllerTemplate {
 			if (!directory.exists()) {
                 // Verzeichnis erstellen, falls es nicht existiert
                 if (directory.mkdirs()) {
-                    logger.info("Director created: " + dirPath);
+                    logger.info("Directory created: " + dirPath);
                 } else {
                 	logger.info("Directory could not be created."); 
                 }
